@@ -1,2 +1,5 @@
-export MWAFRB_DIR=~/github/mwafrb/
+export MWA_FRB=~/github/mwafrb/
+
+export CRAFT=$MWA_FRB
+export PATH=$CRAFT/bin/:$MWA_FRB/scripts/
 

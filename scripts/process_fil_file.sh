@@ -35,14 +35,6 @@ if [[ -n "$6" && "$6" != "-" ]]; then
    out_file=$6
 fi
 
-merged=0
-if [[ -n "$7" && "$7" != "-" ]]; then 
-   merged=$7
-fi
-
-
-current_dir=`pwd`
-pwd
 
 norm_file=${out_file%%.fil}_norm.fil
 cand_file=${out_file%%fil}cand
@@ -61,39 +53,25 @@ echo "cand_file = $cand_file"
 echo "snr_file  = $snr_file"
 echo "total_power_file = $total_power_file"
 echo "avg_file  = $avg_file" 
-echo "Already merged .fil file = $merged"
 echo "###########################################################"
 
 
 ############################################################# ANALYSIS ON ORIGINAL FIL FILE #################################################################
-avg_merged_file=""
 if [[ -s ${out_file} ]]; then
    echo "INFO : merged .fil file ${out_file} already exists -> no need to merge again"
 else
-   if [[ $merged -le 0 ]]; then
-      echo "merge_coarse_channels $string $out_file"
-      merge_coarse_channels $string $out_file
+   echo "merge_coarse_channels $string $out_file"
+   merge_coarse_channels $string $out_file
    
-      echo "cp ${avg_file} ${avg_file}_MERGED"
-      cp ${avg_file} ${avg_file}_MERGED
-      
-      avg_merged_file=${avg_file}_MERGED
-   else
-      echo "Already merged .fil file $template"
-   fi
+   echo "cp ${avg_file} ${avg_file}_MERGED"
+   cp ${avg_file} ${avg_file}_MERGED
 fi
-
-processing_dir=${out_file%%.fil}
-mkdir -p ${processing_dir}
-cd ${processing_dir}
-ln -s ${current_dir}/${out_file}
-
 
 echo "dumpfilfile_float $out_file -S 0 > dump.out 2>&1"
 dumpfilfile_float $out_file -S 0 > dump.out 2>&1
 
 mkdir -p images
-root -b -q -l "plotspec_2integrations_freq.C(\"${avg_file}\",\"${avg_merged_file}\")"
+root -b -q -l "plotspec_2integrations_freq.C(\"${avg_file}\",\"${avg_file}_MERGED\")"
 
 # just to check :
 # echo "cutimage 1313388760_20210819061222_ch145_146_147_01_out.fits -s 0 -e 20000 -f 1313388760_20210819061222_ch145_146_147_01_out_0-20000.fits"
@@ -138,7 +116,4 @@ frb_search_fredda_eda2_many_files.sh ${threshold_snr} ${norm_file} ${min_dm} tot
 
 cd ..
 
-cd ${current_dir}
-pwd
-date
 ###############################################################################################################################################################
