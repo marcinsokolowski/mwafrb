@@ -20,9 +20,16 @@ if [[ -n "$4" && "$4" != "-" ]]; then
    step_file=$4
 fi
 
-
 # run FREDDA on .fil files, for now sperataly, so an FRB or a pulse can be missed if it happens on the boundery of 2 FITS (i.e. .fil) files:
-path_new=/home/msok/askap/craft/fredda/craft/cuda-fdmt/cudafdmt/fredda_current/craft/cuda-fdmt/cudafdmt/src
+cudafdtm_path=`which cudafdmt`
+path_new=`dirname $cudafdtm_path`
+
+nodename=`uname --nodename`
+if [[ $nodename == "msoklap" ]]; then
+   # Laptop - should use this one :
+   # this is temporary until I clean up my environment ...
+   path_new=/home/msok/askap/craft/fredda/craft/cuda-fdmt/cudafdmt/fredda_current/craft/cuda-fdmt/cudafdmt/src
+fi
 
 echo "#!/bin/bash" > fredda.sh
 chmod +x fredda.sh
