@@ -114,6 +114,8 @@ class cFreddaCandidate :
        
        min_time = 1e20
        max_time = -1e20
+       max_snr  = -1
+       max_dm   = -1
        
        max_i = len(snr_sorted)
        if max_i > top_n :
@@ -128,7 +130,13 @@ class cFreddaCandidate :
           if cand.timestep > max_time :
              max_time = cand.timestep
              
-       return (min_time,max_time)
+          if cand.snr > max_snr :
+             max_snr = cand.snr
+             
+          if cand.dm > max_dm :
+             max_dm = cand.dm
+             
+       return (min_time,max_time,max_snr,max_dm)
        
 
 
@@ -321,10 +329,10 @@ if __name__ == '__main__':
       cand = out_list[i]
       
       # get time range from top 10 SNR candidates :
-      (min_time,max_time) = cand.get_maxsnr_range(top_n=10)
+      (min_time,max_time,max_snr,max_dm) = cand.get_maxsnr_range(top_n=10)
    
 #      line = ("%05d : %06.2f %08.2f %012.4f  |%012.4f - %012.4f|   %s" % (i,cand.snr,cand.dm,(cand.max_timestep+cand.min_timestep)/2.00,cand.min_timestep,cand.max_timestep,file))
-      line = ("%05d : %06.2f %08.2f %012.4f  |%012.4f - %012.4f|   %s" % (i,cand.snr,cand.dm,(cand.max_timestep+cand.min_timestep)/2.00,min_time,max_time,file))
+      line = ("%05d : %06.2f %08.2f %012.4f  |%012.4f - %012.4f|   %s" % (i,max_snr,max_dm,(cand.max_timestep+cand.min_timestep)/2.00,min_time,max_time,file))
       print("%s" % (line))
       out_f.write( line + "\n" )
       
