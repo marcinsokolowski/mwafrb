@@ -44,19 +44,28 @@ do
    if [[ $cnt_processed -gt 0 || -s ${cand_file} || -d ${subdir_name} ]]; then
       echo "INFO : fil file $filfile already processed -> skipped"
    else
-      echo "ln -s ${filfile}"
-      ln -s ${filfile}
+      echo "INFO : fil file $filfile not processed yet -> processing now"
       
       if [[ $off_line_processing -gt 0 ]]; then
          echo "INFO : off-line processing is performed on .fil file $filfile"
+         
          ch=`echo ${base_filfile} | awk '{i=index($1,"_ch");s=substr($1,i+1);i2=index(s,"_");print substr(s,3,(i2-3));}'`
          echo "INFO : .fil file $filfile -> ch = $ch"
          
+         mkdir -p ${subdir_name}
+         cd ${subdir_name}         
+         echo "ln -s ${filfile}"
+         ln -s ${filfile}
          pwd
          echo "process_fil_file.sh ${base_filfile} ${ch} - - - - 1"
          process_fil_file.sh ${base_filfile} ${ch} - - - - 1 
+         cd ../
+         pwd
       else      
-         echo "INFO : fil file $filfile not processed yet -> processing now"
+         echo "INFO : real-time processing path"
+         
+         echo "ln -s ${filfile}"
+         ln -s ${filfile}
          pwd
          echo "cudafdmt ${base_filfile}  -t 512 -d 2048 -S 0 -r 1 -s 1 -m 20 -x 10 -o ${cand_file}"
          cudafdmt ${base_filfile}  -t 512 -d 2048 -S 0 -r 1 -s 1 -m 20 -x 10 -o ${cand_file}   

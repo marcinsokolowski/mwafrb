@@ -1,7 +1,7 @@
 # include ../../make.cfg/flags.mak
 
 # CMN_INCLUDES=-I../../fitslib/
-COMMON_LIBS=-L$(MWA_FRB)/slib/ -lfitslib $(NDIR)/slib/libbaselib.a $(NDIR)/slib/libmathlib.a  `root-config --libs`  -lcfitsio -lnova 
+COMMON_LIBS=-L$(MWA_FRB)/lib/ -lmsfitslib $(MWA_FRB)/lib/libmscommonlib.a -lcfitsio -lnova 
 
 
 read_dada : read_dada.c 
@@ -12,7 +12,7 @@ read_eda2_dada : read_eda2_dada.c
 	g++ read_eda2_dada.c -o read_eda2_dada $(OPT)	
 
 dada2fits : dada2fits.cpp
-	g++  dada2fits.cpp -I$(MWA_FRB)/msfitslib/src/ -lcfitsio -L$(MWA_FRB)/slib/ -lfitslib $(OPT) $(COMMON_LIBS) -o dada2fits
+	g++  dada2fits.cpp -I$(MWA_FRB)/msfitslib/src/ -lcfitsio -L$(MWA_FRB)/slib/ -lmsfitslib $(OPT) $(COMMON_LIBS) -o dada2fits
 	cp dada2fits  $(MWA_FRB)/bin/
 	
 

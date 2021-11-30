@@ -8,7 +8,8 @@
 #ifndef DATAORDER_H_
 #define DATAORDER_H_
 
-enum class DataOrder { TFBP, FTBP, BPFT, BPTF };
+// enum class DataOrder { TFBP, FTBP, BPFT, BPTF };
+enum  DataOrder { DataOrder_TFBP=0, DataOrder_FTBP=1, DataOrder_BPFT=2, DataOrder_BPTF=3 };
 
 DataOrder data_order_from_string(const char* str);
 

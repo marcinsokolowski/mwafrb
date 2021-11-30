@@ -98,7 +98,7 @@ public:
 		return m_tsamp;
 	}
 	DataOrder data_order() {
-		return DataOrder::TFBP;
+		return DataOrder_TFBP;
 	}
 
 	char* name() {
