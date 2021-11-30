@@ -20,6 +20,17 @@ if [[ -n "$4" && "$4" != "-" ]]; then
    step_file=$4
 fi
 
+# turn off in testing stage :
+check_step_file=0
+
+echo "###############################################"
+echo "PARAMETERS :"
+echo "###############################################"
+echo "check_step_file = $check_step_file"
+echo "###############################################"
+
+
+
 # run FREDDA on .fil files, for now sperataly, so an FRB or a pulse can be missed if it happens on the boundery of 2 FITS (i.e. .fil) files:
 cudafdtm_path=`which cudafdmt`
 path_new=`dirname $cudafdtm_path`
@@ -47,8 +58,14 @@ do
    
    # simple grouping to have reasonable number of candidates to inspect :
    # --step_file=total_power_fil_RunningMedian5_median.steps_vs_timeindex 
-   echo "python $BIGHORNS/software/analysis/scripts/python/my_friends_of_friends.py $cand_file --outfile=${merged_cand_file} --step_file=${step_file}"
-   python $BIGHORNS/software/analysis/scripts/python/my_friends_of_friends.py $cand_file --outfile=${merged_cand_file} --step_file=${step_file}
+
+   if [[ $check_step_file -gt 0 ]]; then
+      echo "python $BIGHORNS/software/analysis/scripts/python/my_friends_of_friends.py $cand_file --outfile=${merged_cand_file} --step_file=${step_file}"
+      python $BIGHORNS/software/analysis/scripts/python/my_friends_of_friends.py $cand_file --outfile=${merged_cand_file} --step_file=${step_file}
+   else
+      echo "python $BIGHORNS/software/analysis/scripts/python/my_friends_of_friends.py $cand_file --outfile=${merged_cand_file}"
+      python $BIGHORNS/software/analysis/scripts/python/my_friends_of_friends.py $cand_file --outfile=${merged_cand_file}
+   fi
    
    ux_end=`date +%s`
    diff=$(($ux_end-$ux_start))

@@ -276,7 +276,7 @@ def friends_of_friends( cand_list, radius=1000, debug=False ) :
       # else : 
       # we do not change i until all candidates belonging to it are added
 
-         
+   print("Final list has %d merged candidates" % (len(out_list)))         
 
    return (out_list)   
    
