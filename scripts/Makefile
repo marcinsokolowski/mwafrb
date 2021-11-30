@@ -1,4 +1,6 @@
 all :
-	chmod +x *.sh
+	chmod +x *.sh *.py
 	mkdir -p ../bin/
 	cp *.sh ../bin/
+	cp *.py ../bin/
+	
