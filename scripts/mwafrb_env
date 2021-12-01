@@ -3,4 +3,4 @@ export MWA_FRB=~/mwafrb/
 # export CRAFT=$MWA_FRB
 export PATH=$MWA_FRB/bin/:$PATH
 
-
+export LD_LIBRARY_PATH=$MWA_FRB/lib:$LD_LIBRARY_PATH
