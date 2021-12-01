@@ -60,11 +60,11 @@ do
    # --step_file=total_power_fil_RunningMedian5_median.steps_vs_timeindex 
 
    if [[ $check_step_file -gt 0 ]]; then
-      echo "python $BIGHORNS/software/analysis/scripts/python/my_friends_of_friends.py $cand_file --outfile=${merged_cand_file} --step_file=${step_file}"
-      python $BIGHORNS/software/analysis/scripts/python/my_friends_of_friends.py $cand_file --outfile=${merged_cand_file} --step_file=${step_file}
+      echo "python $MWA_FRB/scripts/my_friends_of_friends.py $cand_file --outfile=${merged_cand_file} --step_file=${step_file}"
+      python $MWA_FRB/scripts/my_friends_of_friends.py $cand_file --outfile=${merged_cand_file} --step_file=${step_file}
    else
-      echo "python $BIGHORNS/software/analysis/scripts/python/my_friends_of_friends.py $cand_file --outfile=${merged_cand_file}"
-      python $BIGHORNS/software/analysis/scripts/python/my_friends_of_friends.py $cand_file --outfile=${merged_cand_file}
+      echo "python $MWA_FRB/scripts/my_friends_of_friends.py $cand_file --outfile=${merged_cand_file}"
+      python $MWA_FRB/scripts/my_friends_of_friends.py $cand_file --outfile=${merged_cand_file}
    fi
    
    ux_end=`date +%s`
@@ -77,4 +77,10 @@ echo "Profiler : FREDDA on all filterbank files took $diff seconds (end = $ux_en
 
 awk '{if($1>50){print $0;}}' i_00000.cand > i_00000_snr50.cand
 mkdir -p images/
-root -b -q -l "histofile.C(\"i_00000.cand,1,0,0,1000000000,10000\")"
+
+root_path=`which root`
+if [[ -n $root_path ]]; then
+   root -b -q -l "histofile.C(\"i_00000.cand,1,0,0,1000000000,10000\")"
+else
+   echo "WARNING : CERN ROOT package not installed"
+fi
