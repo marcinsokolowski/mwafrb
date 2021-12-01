@@ -13,6 +13,8 @@ prev_sampno=-1000
 step=100
 double_step=$(($step*2))
 
+# S/N, sampno, secs from file start, boxcar, idt, dm, beamno, mjd
+# 10.02 650 6.5000 25 36 207.80 0 59548.523940972
 while read line # example 
 do
    snr=`echo $line | awk '{print $1;}'`

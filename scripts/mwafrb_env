@@ -1,5 +1,6 @@
-export MWA_FRB=~/github/mwafrb/
+export MWA_FRB=~/mwafrb/
 
-export CRAFT=$MWA_FRB
-export PATH=$CRAFT/bin/:$MWA_FRB/scripts/
+# export CRAFT=$MWA_FRB
+export PATH=$MWA_FRB/bin/:$PATH
+
 
