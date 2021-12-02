@@ -4,12 +4,19 @@ Plots a lot of beams
 
 Copyright (C) CSIRO 2015
 """
+import sys
+import matplotlib
+
+# comment out these lines on laptop to enable normal plotting :
+if 'matplotlib.backends' not in sys.modules :
+   matplotlib.use('agg')
+   print("DEBUG : imported agg")
+
 import pylab
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import os
-import sys
 import logging
 import itertools
 from craftobs import load_beams
@@ -54,12 +61,15 @@ def _main():
     parser.add_argument('-s', '--seconds', help='Integration range to plot (seconds)', type=commasep)
     parser.add_argument('--nxy', help='number of rows,columns in plots', type=commasep)
     parser.add_argument('--imzrange', help='Z range for dynamic spectrum', type=floatcommasep)
-    parser.add_argument('--fft', help='plot fft', action='store_true',default=False)
+    parser.add_argument('--fft', help='plot fft', action='store_true',default=False)    
     parser.add_argument('--save', help='Save plots as png', action='store_true', default=False)
     parser.add_argument('--raw-units', help='Use raw unts, rather than physical units on axis', action='store_true', default=False)
     parser.add_argument('-d', '--dm', help='Dispersion measure (pc/cm3)', default=0., type=float)
     parser.add_argument('--info', help="Additional information to go to plot title [default %default]",dest="info", default=None)
     parser.add_argument('-o','--out_file','--outfile','--output_file',dest="output_file",default=None, help="Name of the output .png file [default %default]" )
+
+#    parser.add_argument('--do_plot', '--display', help='Turn on display', action='store_true', default=False, dest='display' )    
+#    parser.add_argument('--silent', '--nodisplay', '--no_display', help='Turn of display', action='store_true', default=False, dest='nodisplay' )
     
     parser.set_defaults(verbose=False, nxy="1,1")
     values = parser.parse_args()
@@ -80,6 +90,16 @@ def _main():
     else:
         tstart = 0
         ntimes = 128*8
+
+# cannot be changed here :
+#    if values.display :
+#       if 'matplotlib.backends' not in sys.modules :
+#        matplotlib.use('TkAgg')
+#    if values.nodisplay :
+#       print("DEBUG : no display required")       
+#       if 'matplotlib.backends' not in sys.modules or True :
+#           matplotlib.use('agg')
+#           print("DEBUG : imported agg")
 
     plt = Plotter.from_values(values, tstart, ntimes)
     pylab.show()
