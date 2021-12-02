@@ -44,8 +44,8 @@ do
          if [[ $dm_ok -gt 0 && $snr_ok -gt 0 ]]; then
             info="SNR = $snr , DM = $dm"
          
-            echo "python ~/github/mwafrb/scripts/viewer/plot_allbeams.py -d -3 $filfile --times ${sampno_start},$double_step --info "$info""   
-            python ~/github/mwafrb/scripts/viewer/plot_allbeams.py -d -3 $filfile --times ${sampno_start},$double_step --info "$info"
+            echo "python ~/github/mwafrb/scripts/viewer/plot_allbeams.py -d -3 $filfile --times ${sampno_start},$double_step --info "$info" --output_file=$output_file"   
+            python ~/github/mwafrb/scripts/viewer/plot_allbeams.py -d -3 $filfile --times ${sampno_start},$double_step --info "$info" --output_file=$output_file
          else
             echo "DM = $dm is smaller than limit = $min_dm OR SNR = $snr < $min_snr -> candidate skipped"
          fi
