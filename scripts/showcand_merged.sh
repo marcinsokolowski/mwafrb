@@ -41,8 +41,8 @@ do
          info="SNR = $snr , DM = $dm"
          output_file=${filfile%%.fil}_${index}.png
       
-         echo "python ~/github/mwafrb/scripts/viewer/plot_allbeams.py -d -3 $filfile --times ${sampno},$double_step --info \"$info\" --output_file=$output_file"   
-         python ~/github/mwafrb/scripts/viewer/plot_allbeams.py -d -3 $filfile --times ${sampno},$double_step --info "$info" --output_file=$output_file 
+         echo "python ~/mwafrb/scripts/viewer/plot_allbeams.py -d -3 $filfile --times ${sampno},$double_step --info \"$info\" --output_file=$output_file"   
+         python ~/mwafrb/scripts/viewer/plot_allbeams.py -d -3 $filfile --times ${sampno},$double_step --info "$info" --output_file=$output_file 
       else
          echo "DM = $dm is smaller than limit = $min_dm OR SNR = $snr < $min_snr -> candidate skipped"
       fi
