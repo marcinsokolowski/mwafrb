@@ -42,8 +42,10 @@ do
          snr_ok=`echo $snr $min_snr | awk '{if($1>=$2){print 1;}else{print 0;}}'`
 
          if [[ $dm_ok -gt 0 && $snr_ok -gt 0 ]]; then
-            echo "python ~/github/mwafrb/scripts/viewer/plot_allbeams.py -d -3 $filfile --times ${sampno_start},$double_step"   
-            python ~/github/mwafrb/scripts/viewer/plot_allbeams.py -d -3 $filfile --times ${sampno_start},$double_step
+            info="SNR = $snr , DM = $dm"
+         
+            echo "python ~/github/mwafrb/scripts/viewer/plot_allbeams.py -d -3 $filfile --times ${sampno_start},$double_step --info "$info""   
+            python ~/github/mwafrb/scripts/viewer/plot_allbeams.py -d -3 $filfile --times ${sampno_start},$double_step --info "$info"
          else
             echo "DM = $dm is smaller than limit = $min_dm OR SNR = $snr < $min_snr -> candidate skipped"
          fi

@@ -58,6 +58,8 @@ def _main():
     parser.add_argument('--save', help='Save plots as png', action='store_true', default=False)
     parser.add_argument('--raw-units', help='Use raw unts, rather than physical units on axis', action='store_true', default=False)
     parser.add_argument('-d', '--dm', help='Dispersion measure (pc/cm3)', default=0., type=float)
+    parser.add_argument('--info',dest="info",default=None, help="Additional information to go to plot title [default %default]")
+    
     parser.set_defaults(verbose=False, nxy="1,1")
     values = parser.parse_args()
     if values.verbose:
@@ -118,7 +120,7 @@ class Plotter(object):
     @staticmethod
 
     def from_values(values, tstart, ntimes):
-        p = Plotter(values.files, values.nxy, fft=values.fft, raw_units=values.raw_units)
+        p = Plotter(values.files, values.nxy, fft=values.fft, raw_units=values.raw_units,info=values.info)
         if values.seconds:
             p.set_position_seconds(*values.seconds)
         else:
@@ -130,7 +132,8 @@ class Plotter(object):
 
         return p
     
-    def __init__(self, filenames, nxy, tstart=0, ntimes=1024, fft=False, raw_units=False):
+    def __init__(self, filenames, nxy, tstart=0, ntimes=1024, fft=False, raw_units=False, info=None):
+        self.info = info
         self.nrows, self.ncols = nxy
         self.figs = {}
         self.fig_labels = {}
@@ -160,7 +163,11 @@ class Plotter(object):
         self.set_position_sample(tstart, ntimes)
         self.imzrange = None
         if nbeams == 1:
-            self.mk_single_fig('dynspec', '', 'Time (%s) after %f' % (xunit, mjdstart), 'Frequency (%s)' % yunit)
+            title = ('%s' % filenames[0] )
+            if self.info is not None :
+               title += " : "
+               title += info
+            self.mk_single_fig('dynspec', title, 'Time (%s) after %f' % (xunit, mjdstart), 'Frequency (%s)' % yunit)
         else:
             self.mkfig('mean', 'Mean bandpass', 'Frequency (%s)' % yunit,'Mean bandpass')
             self.mkfig('std', 'Bandpass stdDev', 'Frequency (%s)' % yunit ,'Bandpass StdDev')
@@ -187,7 +194,7 @@ class Plotter(object):
 
     def mk_single_fig(self, name, title, xlab, ylab):
         p = plt.subplot
-        fig = plt.figure()
+        fig = plt.figure( figsize=(12,8) ) # 100,100 full screen
         gs = gridspec.GridSpec(3,3)
         rawax = fig.add_subplot(gs[0:2, 0:2])
         tax = fig.add_subplot(gs[2,0:2], sharex=rawax)
@@ -196,6 +203,9 @@ class Plotter(object):
         #annotate(fig, title, xlab, ylab)
         self.figs[name] = (fig, [rawax, tax, fax])
         self.fig_labels[name] = (title, xlab, ylab)
+        
+        if name is not None :
+           rawax.set_title( title , fontsize=10, pad=15 )
 
     def mkfig(self, name, title, xlab, ylab, nrows=None, ncols=None):
 
