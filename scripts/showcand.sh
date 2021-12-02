@@ -43,6 +43,8 @@ do
 
          if [[ $dm_ok -gt 0 && $snr_ok -gt 0 ]]; then
             info="SNR = $snr , DM = $dm"
+            
+            output_file=${filfile%%.fil}_${sampno}.png
          
             echo "python ~/mwafrb/scripts/viewer/plot_allbeams.py -d -3 $filfile --times ${sampno_start},$double_step --info "$info" --output_file=$output_file"   
             python ~/mwafrb/scripts/viewer/plot_allbeams.py -d -3 $filfile --times ${sampno_start},$double_step --info "$info" --output_file=$output_file
