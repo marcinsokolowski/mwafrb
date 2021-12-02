@@ -58,7 +58,8 @@ def _main():
     parser.add_argument('--save', help='Save plots as png', action='store_true', default=False)
     parser.add_argument('--raw-units', help='Use raw unts, rather than physical units on axis', action='store_true', default=False)
     parser.add_argument('-d', '--dm', help='Dispersion measure (pc/cm3)', default=0., type=float)
-    parser.add_argument('--info',dest="info",default=None, help="Additional information to go to plot title [default %default]")
+    parser.add_argument('--info', help="Additional information to go to plot title [default %default]",dest="info", default=None)
+    parser.add_argument('-o','--out_file','--outfile','--output_file',dest="output_file",default=None, help="Name of the output .png file [default %default]" )
     
     parser.set_defaults(verbose=False, nxy="1,1")
     values = parser.parse_args()
@@ -120,7 +121,7 @@ class Plotter(object):
     @staticmethod
 
     def from_values(values, tstart, ntimes):
-        p = Plotter(values.files, values.nxy, fft=values.fft, raw_units=values.raw_units,info=values.info)
+        p = Plotter(values.files, values.nxy, fft=values.fft, raw_units=values.raw_units,info=values.info, outfilename=values.output_file)
         if values.seconds:
             p.set_position_seconds(*values.seconds)
         else:
@@ -132,7 +133,8 @@ class Plotter(object):
 
         return p
     
-    def __init__(self, filenames, nxy, tstart=0, ntimes=1024, fft=False, raw_units=False, info=None):
+    def __init__(self, filenames, nxy, tstart=0, ntimes=1024, fft=False, raw_units=False, info=None, outfilename=None):
+        self.outfilename = outfilename
         self.info = info
         self.nrows, self.ncols = nxy
         self.figs = {}
@@ -167,7 +169,7 @@ class Plotter(object):
             if self.info is not None :
                title += " : "
                title += info
-            self.mk_single_fig('dynspec', title, 'Time (%s) after %f' % (xunit, mjdstart), 'Frequency (%s)' % yunit)
+            self.mk_single_fig('dynspec', title, 'Time (%s) after %f' % (xunit, mjdstart), 'Frequency (%s)' % yunit)                        
         else:
             self.mkfig('mean', 'Mean bandpass', 'Frequency (%s)' % yunit,'Mean bandpass')
             self.mkfig('std', 'Bandpass stdDev', 'Frequency (%s)' % yunit ,'Bandpass StdDev')
@@ -206,6 +208,10 @@ class Plotter(object):
         
         if name is not None :
            rawax.set_title( title , fontsize=10, pad=15 )
+           
+#        if self.outfilename is not None :
+#           fig.savefig( self.outfilename )
+#           print("Image saved to file %s" % (self.outfilename))
 
     def mkfig(self, name, title, xlab, ylab, nrows=None, ncols=None):
 
@@ -419,6 +425,11 @@ class Plotter(object):
         fax.set_xlabel('Bandpass')
         #tax.legend(frameon=False)
         #fax.legend(frameon=False)
+        
+        if self.outfilename is not None :
+           fig.savefig( self.outfilename )
+           print("Image saved to file %s" % (self.outfilename))
+
 
 
     def draw_many(self, beams, im_extent, origin, imzmin, imzmax, freqs):
