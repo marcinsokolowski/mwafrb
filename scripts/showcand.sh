@@ -33,29 +33,28 @@ do
    if [[ $snr != "#" ]]; then
       sampno=`echo $line | awk '{print $2;}'`               
       dm=`echo $line | awk '{print $6;}'`
-
-      if [[ $sampno -gt $prev_sampno ]]; then
-         sampno_start=$(($sampno-$step))
-         sampno_end=$(($sampno+$step))
+      dm_ok=`echo $dm $min_dm | awk '{if($1>=$2){print 1;}else{print 0;}}'`
+      snr_ok=`echo $snr $min_snr | awk '{if($1>=$2){print 1;}else{print 0;}}'`
+ 
+      if [[ $dm_ok -gt 0 && $snr_ok -gt 0 ]]; then   
+         if [[ $sampno -gt $prev_sampno ]]; then
+            sampno_start=$(($sampno-$step))
+            sampno_end=$(($sampno+$step))
             
-         dm_ok=`echo $dm $min_dm | awk '{if($1>=$2){print 1;}else{print 0;}}'`
-         snr_ok=`echo $snr $min_snr | awk '{if($1>=$2){print 1;}else{print 0;}}'`
-
-         if [[ $dm_ok -gt 0 && $snr_ok -gt 0 ]]; then
             info="SNR = $snr , DM = $dm"
             
             output_file=${filfile%%.fil}_${sampno}.png
          
             echo "python ~/mwafrb/scripts/viewer/plot_allbeams.py -d -3 $filfile --times ${sampno_start},$double_step --info "$info" --output_file=$output_file"   
             python ~/mwafrb/scripts/viewer/plot_allbeams.py -d -3 $filfile --times ${sampno_start},$double_step --info "$info" --output_file=$output_file
+         
+            prev_sampno=$sampno_end
          else
-            echo "DM = $dm is smaller than limit = $min_dm OR SNR = $snr < $min_snr -> candidate skipped"
+            echo "DEBUG : sampno = $sampno before the end of previously plotted range ($sampno_start - $sampno_end)"
          fi
-      
-         prev_sampno=$sampno_end
-      else
-         echo "DEBUG : sampno = $sampno before the end of previously plotted range ($sampno_start - $sampno_end)"
-      fi
+     else
+        echo "DM = $dm is smaller than limit = $min_dm OR SNR = $snr < $min_snr -> candidate skipped"
+     fi
    else
       echo "DEBUG : comment skipped"
    fi
