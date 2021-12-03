@@ -23,16 +23,23 @@ if [[ -d ${datadir} ]]; then
    cd ${datadir}
    
    for subdir in `ls -d *_02`
-      gps=`echo $subdir | cut -b 1-10`
-      ux=$(($gps+315964783))
-      dt=`date -u -d "1970-01-01 UTC $1 seconds" +"%Y%m%d"`
-       
-      ssh ${remote_host} "mkdir -p ${remote_dir}/${dt}"
-      
-      echo "rsync -avP ${subdir}/*.png ${remote_dir}/${dt}/"
-      rsync -avP ${subdir}/*.png ${remote_dir}/${dt}/
    do
+      png_count=`ls ${subdir}/FREDDA/*.png 2>/dev/null | wc -l`
    
+      if [[ $png_count -gt 0 ]]; then 
+         echo "DEBUG : .png file found in $subdir and copied to remote WWW server"
+         gps=`echo $subdir | cut -b 1-10`
+         ux=$(($gps+315964783))
+         dt=`date -u -d "1970-01-01 UTC $ux seconds" +"%Y%m%d"`
+       
+         echo "ssh ${remote_host} \"mkdir -p ${remote_dir}/${dt}\""
+         ssh ${remote_host} "mkdir -p ${remote_dir}/${dt}"
+      
+         echo "rsync -avP ${subdir}/FREDDA/*.png ${remote_host}:${remote_dir}/${dt}/"
+         rsync -avP ${subdir}/FREDDA/*.png ${remote_host}:${remote_dir}/${dt}/
+      else
+         echo "INFO : no .png files in $subdir -> no copying required"
+      fi
    done
    cd ${curr_dir}
 else
