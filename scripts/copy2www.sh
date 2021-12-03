@@ -15,7 +15,7 @@ if [[ -n "$3" && "$3" != "-" ]]; then
    remote_dir="$3"
 fi
 
-
+sleep_time=5
 
 curr_dir=`pwd`
 
@@ -37,6 +37,8 @@ if [[ -d ${datadir} ]]; then
       
          echo "rsync -avP ${subdir}/FREDDA/*.png ${remote_host}:${remote_dir}/${dt}/"
          rsync -avP ${subdir}/FREDDA/*.png ${remote_host}:${remote_dir}/${dt}/
+         
+         sleep $sleep_time
       else
          echo "INFO : no .png files in $subdir -> no copying required"
       fi
