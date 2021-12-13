@@ -197,7 +197,9 @@ int main(int argc,char* argv[])
    if( pOutFits ){
       pOutFits->set_ysize( line );
       
-      double freq_start = filfile.fch1() - filfile.nchans()*fabs(filfile.foff());
+//      double freq_start = filfile.fch1() - filfile.nchans()*fabs(filfile.foff());
+      double freq_start = filfile.fch1();
+      printf("DEBUG : freq_start = %.4f [MHz]\n",freq_start);
       pOutFits->PrepareBigHornsHeader( get_dttm(), filfile.tsamp(), freq_start, fabs(filfile.foff()) );
       pOutFits->WriteFits( gOutFits.c_str() );
       

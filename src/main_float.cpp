@@ -409,7 +409,9 @@ int main(int argc,char* argv[])
    
    out_fits.set_ysize();
    // PrepareBigHornsHeader( double ux_start, double _inttime, double freq_start, double delta_freq_mhz )
-   double freq_start = filfile.fch1() - filfile.nchans()*fabs(filfile.foff());
+   double freq_start = filfile.fch1();
+   printf("DEBUG : freq_start = %.4f [MHz]\n",freq_start);
+//   double freq_start = filfile.fch1() + filfile.nchans()*filfile.foff(); // ( was - filfile.nchans()*fabs( filfile.foff() ); 
 //   double freq_start = 110.00*1.28 - 0.64;
    out_fits.PrepareBigHornsHeader( get_dttm(), filfile.tsamp(), freq_start, fabs(filfile.foff()) );
    out_fits.WriteFits( gOutFitsFileName.c_str() );
