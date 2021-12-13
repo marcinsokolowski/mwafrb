@@ -1,7 +1,7 @@
 # include ../../make.cfg/flags.mak
 
 # CMN_INCLUDES=-I../../fitslib/
-COMMON_LIBS=-L$(MWA_FRB)/lib/ -lmsfitslib $(MWA_FRB)/lib/libmscommonlib.a -lcfitsio -lnova 
+COMMON_LIBS=-L$(MWA_FRB)/lib/ -lmsfitslib $(MWA_FRB)/lib/libmscommonlib.a -lcfitsio -lnova -lfftw3
 
 
 read_dada : read_dada.c 
@@ -16,7 +16,7 @@ dada2fits : dada2fits.cpp
 	cp dada2fits  $(MWA_FRB)/bin/
 	
 
-all : read_dada read_eda2_dada dada2fits compare_filfiles dumpfilfile_float merge_coarse_channels avg_channels_fil dumpfilfile read_filfile
+all : read_dada read_eda2_dada dada2fits compare_filfiles dumpfilfile_float merge_coarse_channels avg_channels_fil dumpfilfile read_filfile fits2fil
 	mkdir -p $(MWA_FRB)/bin/
 	cp dumpfilfile $(MWA_FRB)/bin/	
 	cp dumpfilfile_float $(MWA_FRB)/bin/    
@@ -24,6 +24,7 @@ all : read_dada read_eda2_dada dada2fits compare_filfiles dumpfilfile_float merg
 	cp read_dada $(MWA_FRB)/bin/
 	cp read_eda2_dada $(MWA_FRB)/bin/
 	cp merge_coarse_channels $(MWA_FRB)/bin/
+	cp fits2fil $(MWA_FRB)/bin/
 	chmod +x $(MWA_FRB)/bin/*
 
 read_filfile : read_filfile.c
@@ -35,6 +36,10 @@ dumpfilfile : CpuTimer.cpp  DataOrder.cpp  DataSource.cpp  InvalidSourceFormat.c
 dumpfilfile_float : main_float.cpp
 	g++ CpuTimer.cpp  DataOrder.cpp  DataSource.cpp  InvalidSourceFormat.cpp  main_float.cpp  SigprocFile.cpp -o dumpfilfile_float -I $(MWA_FRB)/msfitslib/src// $(OPT) $(COMMON_LIBS)
 	cp dumpfilfile_float $(MWA_FRB)/bin/    
+
+fits2fil : fits2fil.cpp
+	g++ CpuTimer.cpp  DataOrder.cpp  DataSource.cpp  InvalidSourceFormat.cpp  main_float.cpp  SigprocFile.cpp -o fits2fil -I $(MWA_FRB)/msfitslib/src// $(OPT) $(COMMON_LIBS)
+	cp fits2fil $(MWA_FRB)/bin/    
 
 pipe_filfiles : pipe_filfiles.cpp SigprocFile.cpp SigprocFile.h
 	g++ CpuTimer.cpp  DataOrder.cpp  DataSource.cpp  InvalidSourceFormat.cpp  pipe_filfiles.cpp  SigprocFile.cpp -o pipe_filfiles -I $(MWA_FRB)/msfitslib/src// $(OPT) $(COMMON_LIBS)
@@ -62,5 +67,5 @@ generate_fil_files : generate_fil_files.cpp SigprocFile.cpp random.cpp
 	cp generate_fil_files $(MWA_FRB)/bin/
 	
 clean :
-	rm -f *.o read_dada read_eda2_dada dada2fits dumpfilfile_float generate_fil_files update_fil_header compare_filfiles merge_coarse_channels avg_channels_fil pipe_filfiles 
+	rm -f *.o read_dada read_eda2_dada dada2fits dumpfilfile_float generate_fil_files update_fil_header compare_filfiles merge_coarse_channels avg_channels_fil pipe_filfiles fits2fil
 		
