@@ -127,14 +127,15 @@ int main(int argc,char* argv[])
       exit(0);
    }
 
-   string fitsfilename = argv[1];
+   gFitsFile = argv[1];
    string filfilename  = argv[2];
-   string outfile = argv[3];
+   gOutFilFile = argv[3];
+   
    change_ext( filfilename.c_str() , "total_power" ,gOutTotalPowerFile, false );
       
    // parsing and printing paramters :
    parse_cmdline(argc-1,argv+1);
-   print_parameters( filfilename, outfile );
+   print_parameters( filfilename, gOutFilFile );
    mkdir( gOutDir.c_str() );
 
    SigprocFile filfile( filfilename.c_str() );
@@ -161,9 +162,9 @@ int main(int argc,char* argv[])
    }
    
    
-   CBgFits fits( fitsfilename.c_str() );
-   if( fits.ReadFits( fitsfilename.c_str() ) ){
-      printf("ERROR : could not read FITS file %s\n",fitsfilename.c_str());
+   CBgFits fits( gFitsFile.c_str() );
+   if( fits.ReadFits( gFitsFile.c_str() ) ){
+      printf("ERROR : could not read FITS file %s\n",gFitsFile.c_str());
       exit(-1);
    }
    
