@@ -261,7 +261,7 @@ def parse_options():
    usage="Usage: %prog [options]\n"
    usage+='\tCalculates efficiency of FRB findining algorithm\n'
    parser = OptionParser(usage=usage,version=1.00)
-   parser.add_option('-o','--out','--outfile','--outf',dest="outfile",default="verified.txt", help="Output file with verification of generated events vs. candidates",metavar="STRING")
+   parser.add_option('-o','--out','--outfile','--outf',dest="outfile",default="verified.txt", help="Output file with verification of generated events vs. candidates [default %default]",metavar="STRING")
 #   parser.add_option('-r','--regfile',dest="regfile",default="avg_I_without.reg", help="Reg file to save GLEAM sources to [default %default]",metavar="STRING")
    parser.add_option('--fredda',action="store_true",dest="fredda_cand_files",default=False, help="FREDDA format of candidate files [default %s]")
    parser.add_option('--fredda_subdir','--subdir',dest="fredda_subdir",default="frb/", help="FREDDA subdirectory [default %s]",metavar="STRING")

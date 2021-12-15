@@ -57,6 +57,7 @@ fi
 
 # convert fil to fits file:
 fits_file=${filfile%%.fil}_out_t.fits
+fits_file_base=${filfile%%.fil}_out_t
 fits_simul_file=${filfile%%.fil}_out_t_simulfrbs.fits
 avg_file=${filfile%%fil}avg_spectrum
 echo "dumpfilfile_float ${filfile}  -S 0 > dump.out 2>&1"
@@ -102,10 +103,31 @@ do
          echo "ln -s ../../${fits_file}"
          ln -s ../../${fits_file}
          
+         echo "ln -s ../../${filfile}"
+         ln -s ../../${filfile}
+         
 #         echo "inject_frb ${filfile} ${out_file} -n 100 -d ${dm} -f ${snr} -o ${obsid} > out 2>&1"      
 #         inject_frb ${filfile} ${out_file} -n 100 -d ${dm} -f ${snr} -o ${obsid} > out 2>&1
          echo "inject_frb ${fits_file} ${fits_simul_file} -n 100 -d ${dm} -f 10000 -o ${obsid} -A -V -V -V -S 50 >> simul.out 2>&1"
          inject_frb ${fits_file} ${fits_simul_file} -n 100 -d ${dm} -f 10000 -o ${obsid} -A -V -V -V -S 50 >> simul.out 2>&1
+         
+         for simul_fits in `ls ${fits_file_base}_genfrb????.fits`
+         do
+            simul_fil=${simul_fits%%fits}fil
+
+            echo "fits2fil ${simul_fits} ${filfile} ${simul_fil}"
+            fits2fil ${simul_fits} ${filfile} ${simul_fil} 
+         done
+         
+         # execute FREDDA searches :
+         current_path=`pwd`
+         echo "process_new_fil_files.sh 1 $current_path - "*t_genfrb????.fil" > fredda.out 2>&1"
+         process_new_fil_files.sh 1 $current_path - "*t_genfrb????.fil" > fredda.out 2>&1
+         
+         # check detections or non-detections :         
+         echo "python ~/github/mwafrb/scripts/frb_injection_efficiency.py generated.txt --fredda"
+         python ~/github/mwafrb/scripts/frb_injection_efficiency.py generated.txt --fredda
+         
          cd ..
       fi
    done
