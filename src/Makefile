@@ -37,8 +37,12 @@ dumpfilfile_float : main_float.cpp
 	g++ CpuTimer.cpp  DataOrder.cpp  DataSource.cpp  InvalidSourceFormat.cpp  main_float.cpp  SigprocFile.cpp -o dumpfilfile_float -I $(MWA_FRB)/msfitslib/src// $(OPT) $(COMMON_LIBS)
 	cp dumpfilfile_float $(MWA_FRB)/bin/    
 
-fits2fil : fits2fil.cpp
+fits2fil_bad : fits2fil.cpp
 	g++ CpuTimer.cpp  DataOrder.cpp  DataSource.cpp  InvalidSourceFormat.cpp  fits2fil.cpp  SigprocFile.cpp -o fits2fil -I $(MWA_FRB)/msfitslib/src// $(OPT) $(COMMON_LIBS)
+	cp fits2fil_bad $(MWA_FRB)/bin/    
+
+fits2fil : fits2fil_working.cpp
+	g++ CpuTimer.cpp  DataOrder.cpp  DataSource.cpp  InvalidSourceFormat.cpp  fits2fil_working.cpp  SigprocFile.cpp filfile.cpp -o fits2fil -I $(MWA_FRB)/msfitslib/src// $(OPT) $(COMMON_LIBS)
 	cp fits2fil $(MWA_FRB)/bin/    
 
 pipe_filfiles : pipe_filfiles.cpp SigprocFile.cpp SigprocFile.h
