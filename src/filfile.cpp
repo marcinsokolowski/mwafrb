@@ -69,7 +69,7 @@ int CFilFile::ParseHeader( CBgFits& fits )
    return ParseHeader( fits , m_Header );
 }
 
-int CFilFile::ParseHeader( CBgFits& fits, cFilFileHeader& filHeader )
+int CFilFile::ParseHeader( CBgFits& fits, cFilFileHeader& filHeader, bool bTransposed )
 {
 //   printf("WARNING : not implemented yet !!!\n");
    
@@ -77,8 +77,8 @@ int CFilFile::ParseHeader( CBgFits& fits, cFilFileHeader& filHeader )
    filHeader.nbits  = 8; // WARNING : fil file is by definition a single byte ! sizeof(BG_FITS_DATA_TYPE)*8;   
    filHeader.nbeams = 1;
    filHeader.nsamples = fits.GetXSize(); // timesamples ?
-   filHeader.fch1 = fits.start_freq; // for FREDDA : Should be lowest frequency /home/msok/Desktop/ASKAP/logbook/20190806_flip_of_header.odt
-   filHeader.foff = fits.delta_freq; // in MHz , for FREDDA - lowest freq and positive value here , if stop_freq is used this one should be negative 
+   filHeader.fch1 = fits.start_freq - fits.delta_freq/2.00 + fits.GetYSize()*fits.delta_freq; // was fits.start_freq; // for FREDDA : Should be lowest frequency /home/msok/Desktop/ASKAP/logbook/20190806_flip_of_header.odt
+   filHeader.foff = -fits.delta_freq; // in MHz , for FREDDA - lowest freq and positive value here , if stop_freq is used this one should be negative 
    filHeader.fchannel = fits.delta_freq;
    filHeader.nchans = fits.GetYSize();
    
@@ -95,6 +95,7 @@ int CFilFile::ParseHeader( CBgFits& fits, cFilFileHeader& filHeader )
       filHeader.source_name = fits.GetKeyword( "OBJECT" )->Value.c_str();
    }
    
+   printf("DEBUG : CFilFile::ParseHeader : fch1 = %.6f MHz , foff = %.6f MHz\n",filHeader.fch1,filHeader.foff);
 }
 
 int CFilFile::WriteHeader( const cFilFileHeader& filHeader )
@@ -115,6 +116,10 @@ int CFilFile::WriteHeader( const cFilFileHeader& filHeader )
    WriteKeyword( "za_start" , filHeader.za_start );
    WriteKeyword( "src_raj" , filHeader.src_raj );
    WriteKeyword( "src_dej" , filHeader.src_dej );
+   WriteKeyword( "ra_deg" , filHeader.src_raj );
+   WriteKeyword( "dec_deg" , filHeader.src_dej );
+   WriteKeyword( "gb" , 0.00 );
+   WriteKeyword( "gl" , 0.00 );
    WriteKeyword( "tstart" , filHeader.tstart );
    WriteKeyword( "tsamp" , filHeader.tsamp );
    WriteKeyword( "nbits" , filHeader.nbits );
@@ -220,7 +225,7 @@ int CFilFile::ParseDadaHeader( const char* header_buffer, int header_size, cFilF
    return 0;
 }
 
-void CFilFile::fits2fil( const char* filename, const char* szOutFilFile, const char* szOutSpecFile, int n_channels, int n_timesteps, bool bReScale )
+void CFilFile::fits2fil( const char* filename, const char* szOutFilFile, const char* szOutSpecFile, int n_channels, int n_timesteps, bool bReScale , bool bTransposed )
 {
    if( gVerb ){
      printf("Reading file %s\n",filename);  
@@ -229,10 +234,10 @@ void CFilFile::fits2fil( const char* filename, const char* szOutFilFile, const c
    CBgFits infits( filename );
    infits.ReadFits( filename );
    
-   CFilFile::fits2fil( infits, szOutFilFile, szOutSpecFile, n_channels, n_timesteps, bReScale );
+   CFilFile::fits2fil( infits, szOutFilFile, szOutSpecFile, n_channels, n_timesteps, bReScale, bTransposed );
 }
 
-void CFilFile::fits2fil( CBgFits& infits, const char* szOutFilFile, const char* szOutSpecFile, int n_channels, int n_timesteps, bool bReScale )
+void CFilFile::fits2fil( CBgFits& infits, const char* szOutFilFile, const char* szOutSpecFile, int n_channels, int n_timesteps, bool bReScale, bool bTransposed )
 {
   if( !bReScale || (gMinFITS_Value <= VALUE_NOT_SET && gMaxFITS_Value <= VALUE_NOT_SET) ){
      printf("WARNING : no rescaling required in CFilFile::fits2fil\n");
@@ -270,7 +275,7 @@ void CFilFile::fits2fil( CBgFits& infits, const char* szOutFilFile, const char* 
       filheader.tstart = tstart;*/
       
       CFilFile out_filfile( szOutFilFile );
-      out_filfile.ParseHeader( infits , filheader );
+      out_filfile.ParseHeader( infits , filheader, bTransposed );
       out_filfile.WriteHeader( filheader );
 
 //      int nchans=-1;
