@@ -121,6 +121,7 @@ int CFilFile::WriteHeader( const cFilFileHeader& filHeader )
    WriteKeyword( "gb" , 0.00 );
    WriteKeyword( "gl" , 0.00 );
    WriteKeyword( "tstart" , filHeader.tstart );
+   WriteKeyword( "tstart_utc" , filHeader.tstart );
    WriteKeyword( "tsamp" , filHeader.tsamp );
    WriteKeyword( "nbits" , filHeader.nbits );
    WriteKeywordChar( "signed" , filHeader.signed_ );
