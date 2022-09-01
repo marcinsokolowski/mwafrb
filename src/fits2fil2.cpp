@@ -24,6 +24,7 @@ string gOutTotalPowerFile="total_power_fil.txt";
 int gWriteFlipped=0;
 int gFlipData=0;
 int gFlipHeader=0;
+string gSourceName;
 
 long int gMaxSpectraCount=-1;
 
@@ -39,6 +40,7 @@ void usage()
    printf("fits2fil test.fits out.fil\n");   
    printf("\t-u : use FITS file header to fil .fil file header [default %d]\n",gUseFitsHeader);
    printf("\t-S OFFSET_SIGN : frequency offset sign +/-1 to specify if freq. start from low and goes up (+1) or from upper to lower (-1) [default %d]\n",gFreqOffsetSign);
+   printf("\t-s SOURCE_NAME [default not set]\n");
    
 /*   printf("\t-n normalisation_file : file with mean spectrum to use for normalisation [default not set]\n");
    printf("\t-o output normalised fil file [default not required]\n");
@@ -51,7 +53,7 @@ void usage()
 }
 
 void parse_cmdline(int argc, char * argv[]) {
-   char optstring[] = "hfFHn:o:T:S:L:u";
+   char optstring[] = "hfFHn:o:T:S:L:us:";
    int opt,opt_param,i;
 
    while ((opt = getopt(argc, argv, optstring)) != -1) {
@@ -92,6 +94,10 @@ void parse_cmdline(int argc, char * argv[]) {
             gFreqOffsetSign = atol( optarg );
             break;
 
+         case 's':
+            gSourceName = optarg;
+            break;
+
          case 'T':
             gFloat2UChar = atol( optarg );
             break;
@@ -118,6 +124,7 @@ void print_parameters( string& filfilename, string& outfile )
   printf("Output .fil file = %s\n",gOutFilFile.c_str());
   printf("Use FITS header  = %d\n",gUseFitsHeader);
   printf("Frequency offset sign = %d\n",gFreqOffsetSign);
+  printf("Source name        = %s\n",gSourceName.c_str());
 /*  printf("Norm file          = %s\n",gNormFile.c_str());
   printf("Write flipped      = %d (flip data = %d, flip header = %d)\n",gWriteFlipped,gFlipData,gFlipHeader);
   printf("Float2Uchar        = %d\n",gFloat2UChar);
@@ -173,22 +180,29 @@ int main(int argc,char* argv[])
 //   SigprocFile filfile_out( filfile.nbits(), filfile.nifs(), filfile.nchans(), filfile.fch1(), filfile.foff(), filfile.tstart(), filfile.tsamp() );   
 
    if( gUseFitsHeader ){
-      nchans = fits.GetXSize();
+      nchans = fits.GetXSize();      
       double fits_end_freq = fits.start_freq + fits.delta_freq * (nchans-1) + fits.delta_freq/2.00; // very upper band of frequency (not center THE END INDEED)
+      printf("INFO : calculated frequency end = %.6f MHz as fits.start_freq + fits.delta_freq * (nchans-1) + fits.delta_freq/2.00 :\n",fits_end_freq);
+      printf("\t\t %.6f + %.6f*(%d-1) + %.6f/2.00\n",fits.start_freq,fits.delta_freq,nchans,fits.delta_freq);      
       if( gFreqOffsetSign > 0 ){
          fits_end_freq = fits.start_freq - fits.delta_freq/2.00;
       }
       fch1 = fits_end_freq; // fits.start_freq - fits.delta_freq/2.00; // assuming start frequency 
       foff = gFreqOffsetSign*fits.delta_freq;
       tsamp = fits.inttime;
+      tstart = fits.dtime_fs + fits.dtime_fu/1000000.00;
       
       printf("FITS header information:\n");
       printf("\tStart freq = %.8f MHz\n",fits.start_freq);
       printf("\tN channels = %d\n",nchans);
       printf("\tInttime    = %.6f [sec]\n",tsamp);
+      printf("\tTstart     = %.6f [uxtime]\n",tstart);
    }
 
    SigprocFile filfile_out( nbits, nifs, nchans, fch1, foff, tstart, tsamp );
+   if( strlen(gSourceName.c_str()) ){
+      filfile_out.sourcename( gSourceName.c_str() );
+   }
 
    printf("File : %s\n", gFitsFile.c_str() );
    printf("-------------------------------------------\n");
@@ -204,6 +218,7 @@ int main(int argc,char* argv[])
    printf("foff = %.8f\n",foff);
    printf("tstart = %.4f\n",tstart);
    printf("tsamp  = %.6f\n",tsamp);
+   printf("source name = %s\n",filfile_out.sourcename());
 
    printf("DEBUG : writting header ...\n");
    filfile_out.FillHeader();

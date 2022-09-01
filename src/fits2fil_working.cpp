@@ -34,6 +34,7 @@ double gTimeResInSec = 0.001;
 
 int gNChannels=128;
 int gTimeSteps=20970;
+bool gTransposed=false; // normally time axis is horizontal, but when it's vertical use option -T 
 
 // int gVerb=0;
 
@@ -49,12 +50,13 @@ void usage()
    printf("\t-c n_channels in .dada file [default %d]\n",gNChannels);
    printf("\t-t N_TIMESTEPS [default %d]\n",gTimeSteps);         
    printf("\t-r TIME_RESOLUTION [default %.2f]\n",gTimeResInSec);
+   printf("\t-T : transposed, normally time axis is horizontal, but when it's vertical use this option\n");
    
    exit(0);
 }
 
 void parse_cmdline(int argc, char * argv[]) {
-   char optstring[] = "dhs:x:m:a:c:t:r:";
+   char optstring[] = "dhs:x:m:a:c:t:r:T";
    int opt,opt_param,i;
       
    while ((opt = getopt(argc, argv, optstring)) != -1) {
@@ -109,6 +111,10 @@ void parse_cmdline(int argc, char * argv[]) {
             }
             break;
 
+         case 'T':
+            gTransposed = false;
+            break;
+
             
          default:
             fprintf(stderr,"Unknown option %c\n",opt);
@@ -132,6 +138,7 @@ void printf_parameters()
   printf("Avg N. channels    = %d\n",gAvgNChannels);
   printf("N timesteps        = %d\n",gTimeSteps);
   printf("Time resolution    = %.6f [seconds]\n",gTimeResInSec);
+  printf("Transposed         = %d\n",gTransposed);
   printf("#####################################\n");       
 }
 

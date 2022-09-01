@@ -21,6 +21,8 @@
 #include <sys/types.h>
 #include <sys/stat.h>
 
+#include <libnova_interface.h>
+
 
 int gDebugLevel = 0;
 
@@ -93,6 +95,7 @@ char SigprocFile::get_keyword_type( const char* keyword )
     if( strcmp(keyword,"src_raj") == 0 ){ return  'd'; } 
     if( strcmp(keyword,"src_dej") == 0 ){ return  'd'; } 
     if( strcmp(keyword,"tstart") == 0 ){ return  'd'; } 
+    if( strcmp(keyword,"tstart_utc") == 0 ){ return  's'; } 
     if( strcmp(keyword,"tsamp") == 0 ){ return  'd'; } 
     if( strcmp(keyword,"nbits") == 0 ){ return  'i'; }
     if( strcmp(keyword,"signed") == 0 ){ return  'b'; }
@@ -226,8 +229,22 @@ int SigprocFile::SetHeaderValue( char* pHeader, int header_len, const char* keyw
 
 int SigprocFile::FillHeader()
 {
+   bool b_tstart_utc = false;
+   
    m_hdr_nbytes = MAX_HDR_SIZE;
    memset( m_hdr, '\0', m_hdr_nbytes );
+   
+   double mjd = ux2mjd( int(m_tstart), (m_tstart-int(m_tstart))*1000000.00 ); 
+//   void get_ymd_hms_ut( time_t ut_time, int& year, int& month, int& day,
+//                  int& hour, int& minute, double& sec )
+   int year, month, day, hour, minute;
+   double sec;
+   get_ymd_hms_ut( m_tstart, year, month, day, hour, minute, sec );
+   sec += (m_tstart-int(m_tstart)); // add fractional part 
+   char szUTC[128]; // 2019-07-18T14:53:13.920
+   sprintf(szUTC,"%04d-%02d-%02dT%02d:%02d:%.3f",year, month, day, hour, minute, sec );   
+   printf("DEBUG : CFilFile::WriteHeader ux = %.6f -> mjd = %.8f and %s\n",m_tstart,mjd,szUTC);
+
    
    int idx=0;
    // int SigprocFile::SetHeaderValue( char* pHeader, int header_len, const char* keyword, double value, int value_int, const char* value_str, int start_index )
@@ -236,7 +253,10 @@ int SigprocFile::FillHeader()
    idx = SetHeaderValue( m_hdr, m_hdr_nbytes, "nifs"  , 0.00      , m_nifs  , NULL, idx );
    idx = SetHeaderValue( m_hdr, m_hdr_nbytes, "fch1"  , m_fch1    , 0       , NULL, idx );
    idx = SetHeaderValue( m_hdr, m_hdr_nbytes, "foff"  , m_foff    , 0       , NULL, idx );
-   idx = SetHeaderValue( m_hdr, m_hdr_nbytes, "tstart", m_tstart  , 0       , NULL, idx );
+   idx = SetHeaderValue( m_hdr, m_hdr_nbytes, "tstart", mjd       , 0       , NULL, idx );
+   if( b_tstart_utc ){
+      idx = SetHeaderValue( m_hdr, m_hdr_nbytes, "tstart_utc", 0.00  , 0       , szUTC, idx );
+   }
    idx = SetHeaderValue( m_hdr, m_hdr_nbytes, "tsamp" , m_tsamp   , 0       , NULL, idx );
    idx = SetHeaderValue( m_hdr, m_hdr_nbytes, "nbits" , 0.00      , m_nbits , NULL, idx );
    idx = SetHeaderValue( m_hdr, m_hdr_nbytes, "HEADER_END" , 0.00 , 0       , NULL, idx);

@@ -100,6 +100,19 @@ int CFilFile::ParseHeader( CBgFits& fits, cFilFileHeader& filHeader, bool bTrans
 
 int CFilFile::WriteHeader( const cFilFileHeader& filHeader )
 {
+   bool b_tstart_utc = false;
+
+   double mjd = ux2mjd( int(filHeader.tstart), (filHeader.tstart-int(filHeader.tstart))*1000000.00 ); 
+//   void get_ymd_hms_ut( time_t ut_time, int& year, int& month, int& day,
+//                  int& hour, int& minute, double& sec )
+   int year, month, day, hour, minute;
+   double sec;
+   get_ymd_hms_ut( filHeader.tstart, year, month, day, hour, minute, sec );
+   char szUTC[128]; // 2019-07-18T14:53:13.920
+   sprintf(szUTC,"%04d-%02d-%02dT%02d:%02d:%.3f",year, month, day, hour, minute, sec );   
+   printf("DEBUG : CFilFile::WriteHeader ux = %d -> mjd = %.8f and %s\n",int(filHeader.tstart),mjd,szUTC);
+   
+
    Open();
    
    WriteKeyword( "HEADER_START"  );
@@ -120,8 +133,10 @@ int CFilFile::WriteHeader( const cFilFileHeader& filHeader )
    WriteKeyword( "dec_deg" , filHeader.src_dej );
    WriteKeyword( "gb" , 0.00 );
    WriteKeyword( "gl" , 0.00 );
-   WriteKeyword( "tstart" , filHeader.tstart );
-   WriteKeyword( "tstart_utc" , filHeader.tstart );
+   WriteKeyword( "tstart" , mjd );
+   if( b_tstart_utc ){
+      WriteKeyword( "tstart_utc" , szUTC );
+   }
    WriteKeyword( "tsamp" , filHeader.tsamp );
    WriteKeyword( "nbits" , filHeader.nbits );
    WriteKeywordChar( "signed" , filHeader.signed_ );
