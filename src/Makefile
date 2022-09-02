@@ -1,7 +1,7 @@
 # include ../../make.cfg/flags.mak
 
 # CMN_INCLUDES=-I../../fitslib/
-COMMON_LIBS=-L$(MWA_FRB)/lib/ -lmsfitslib $(MWA_FRB)/lib/libmscommonlib.a -lcfitsio -lnova -lfftw3
+COMMON_LIBS=/usr/local/lib/libmsfitslib.so -lcfitsio -lnova -lfftw3 -ldl
 
 
 read_dada : read_dada.c 
@@ -42,11 +42,11 @@ fits2fil_bad : fits2fil.cpp
 	g++ CpuTimer.cpp  DataOrder.cpp  DataSource.cpp  InvalidSourceFormat.cpp  fits2fil.cpp  SigprocFile.cpp -o fits2fil -I $(MWA_FRB)/msfitslib/src// $(OPT) $(COMMON_LIBS)
 	cp fits2fil_bad $(MWA_FRB)/bin/    
 
-fits2fil : fits2fil_working.cpp
+fits2fil : fits2fil_working.cpp filfile.cpp SigprocFile.cpp
 	g++ CpuTimer.cpp  DataOrder.cpp  DataSource.cpp  InvalidSourceFormat.cpp  fits2fil_working.cpp  SigprocFile.cpp filfile.cpp -o fits2fil -I $(MWA_FRB)/msfitslib/src// $(OPT) $(COMMON_LIBS)
 	cp fits2fil $(MWA_FRB)/bin/    
 
-fits2fil2 : fits2fil2.cpp
+fits2fil2 : fits2fil2.cpp filfile.cpp SigprocFile.cpp
 	g++ CpuTimer.cpp  DataOrder.cpp  DataSource.cpp  InvalidSourceFormat.cpp  fits2fil2.cpp  SigprocFile.cpp filfile.cpp -o fits2fil2 -I $(MWA_FRB)/msfitslib/src// $(OPT) $(COMMON_LIBS)
 	cp fits2fil2 $(MWA_FRB)/bin/    
 
@@ -76,5 +76,5 @@ generate_fil_files : generate_fil_files.cpp SigprocFile.cpp random.cpp
 	cp generate_fil_files $(MWA_FRB)/bin/
 	
 clean :
-	rm -f *.o read_dada read_eda2_dada dada2fits dumpfilfile_float generate_fil_files update_fil_header compare_filfiles merge_coarse_channels avg_channels_fil pipe_filfiles fits2fil
+	rm -f *.o read_dada read_eda2_dada dada2fits dumpfilfile_float generate_fil_files update_fil_header compare_filfiles merge_coarse_channels avg_channels_fil pipe_filfiles fits2fil fits2fil2
 		
