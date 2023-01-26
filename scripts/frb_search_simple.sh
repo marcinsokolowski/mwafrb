@@ -32,3 +32,8 @@ calcfits_bg ${dts_minus_one} / noise_map_rmsiqr.fits ${dts_snr}
 echo "find_sources_fits ${dts_snr}"
 find_sources_fits ${dts_snr}
 
+echo "sort -n series.txt > series_sorted.txt"
+sort -n series.txt > series_sorted.txt
+
+echo "python $MWA_FRB/scripts/my_friends_of_friends.py series_sorted.txt --outfile=series_merged.txt --frbsearch_input --group_radius=100"
+python $MWA_FRB/scripts/my_friends_of_friends.py series_sorted.txt --outfile=series_merged.txt --frbsearch_input --group_radius=100

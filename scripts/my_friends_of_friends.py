@@ -23,6 +23,7 @@ def parse_options(idx):
    parser.add_option("--outfile","--out_script","--outf","-o",dest="outfile",default="merged_fredda.cand",help="Name of output file [default: %default]")
    parser.add_option("--stepfile","--step_file",dest="stepfile",default=None,help="File with steps vs. timeindex  [default: %default]")
    parser.add_option("--step_radius","--step_radius_timesteps","--stepradius",dest="step_radius_timesteps",default=10000,help="Step radius in timesteps [default: %default]",type="int")
+   parser.add_option('--frbsearch_format','--frbsearch_input',action="store_true",dest="frbsearch_input",default=False, help="Format of input files [default %default]")
 #   parser.add_option("--station","-s",dest="station",default="aavs2",help="Station name [default: %default]")
 #   parser.add_option("--max_sun_elev","--max_sun","--sun_max",dest="max_sun_elev",default=20,help="Max Sun elevation [default: %default]",type="float")
    (options,args)=parser.parse_args(sys.argv[idx:])
@@ -140,7 +141,7 @@ class cFreddaCandidate :
        
 
 
-def read_file(file,verb=False) :
+def read_file(file,verb=False,frbsearch_input=False) :
    cand_list = []
 
    f = open(file)
@@ -153,10 +154,25 @@ def read_file(file,verb=False) :
 
       if words[0+0] == "#" :
          continue
-
-      t   = int( words[1+0] )
-      snr = float(words[0+0])
-      dm  = float(words[5+0])
+         
+      t = 0
+      snr = 0
+      dm = 0
+         
+      if frbsearch_input : # input as from frb_search package 
+         # TIME  DM  SNR  N_PIX
+         # 201.3 10.0 11.4423 0 20277.0 0.0
+         t = int( float( words[0+0] ) )
+         snr = float( words[2+0] )
+         dm  = float( words[1+0] )
+         
+      else : # normal FREDDA output :
+         # S/N, sampno, secs from file start, boxcar, idt, dm, beamno, mjd
+         # 10.56 642 6.4200 3 0 0.00 0 40587.694168436 
+         t   = int( words[1+0] )
+         snr = float(words[0+0])
+         dm  = float(words[5+0])
+         
       cand = cFreddaCandidate( _timestep=t, _snr=snr, _dm=dm )
 
       cand_list.append( copy.copy(cand) )
@@ -219,6 +235,8 @@ def friends_of_friends( cand_list, radius=1000, debug=False ) :
    out_list = []
    i=0
    l = len(cand_list)
+
+   # add first candidate to the list, which is ok (not bad_data):
    while i < l :
       first_cand = cand_list[i]
       if not first_cand.bad_data :
@@ -231,38 +249,49 @@ def friends_of_friends( cand_list, radius=1000, debug=False ) :
    while i<len(cand_list) : # end when i is at the last candidate on the list 
       print("\tprogress iter=%d , i = %d / %d , number of output candidates %d" % (iter,i,len(cand_list),len(out_list)))
       # group_radius_timesteps
+
       j=0
       added = 0 # anything added in this iteration       
+      try_again = True # means that we should try again to add to the current list 
+
+      # iterate over and try to cluster to the current candidate until nothing is added in an iteration      
+      while try_again :
+         j=0
+         added = 0 # anything added in this iteration       
+               
+         # ignore bad data :
+#         if False : # cand_list[i].bad_data :
+#            print("DEBUG : bad candidate at i = %d , timeindex = %d skipped" % (i,cand_list[i].timestep))
+#            i += 1
+#            continue
       
-      # ignore bad data :
-#      if False : # cand_list[i].bad_data :
-#         print("DEBUG : bad candidate at i = %d , timeindex = %d skipped" % (i,cand_list[i].timestep))
-#         i += 1
-#         continue
-      
-      while j < len(cand_list) :
-         cand = cand_list[j]
-#         if False : # cand.bad_data:
-#            print("DEBUG : bad candidate at j = %d , timeindex = %d skipped" % (j,cand_list[j].timestep))
-#            j += 1
-#            continue         
+         while j < len(cand_list) :
+            cand = cand_list[j]
+#            if False : # cand.bad_data:
+#               print("DEBUG : bad candidate at j = %d , timeindex = %d skipped" % (j,cand_list[j].timestep))
+#               j += 1
+#               continue         
          
-#         if j == 252 :
-#            print("odo")
+#            if j == 252 :
+#               print("odo")
             
-         if not cand.added : 
-            for out_cand in out_list :
-               if out_cand.belongs( cand , t_radius=radius ) :
-                  out_cand.add( cand )
-                  added += 1
+            if not cand.added : 
+               for out_cand in out_list :
+                  if out_cand.belongs( cand , t_radius=radius ) :
+                     out_cand.add( cand )
+                     added += 1
             
-         if ( j % 100 ) == 0 and debug :
-            print("DEBUG : i = %d (t = %d) , j = %d , added = %d, len(out_list) = %d" % (i,cand_list[i].timestep,j,added,len(out_list)))
-         j = j + 1
+            if ( j % 100 ) == 0 and debug :
+               print("DEBUG : i = %d (t = %d) , j = %d , added = %d, len(out_list) = %d" % (i,cand_list[i].timestep,j,added,len(out_list)))
+            j = j + 1
    
-      iter += 1
+         iter += 1
       
-      print("PROGRESS : i = %d -> added %d" % (i,added))
+         print("PROGRESS (iter = %d) : i = %d -> added %d , range [%d - %d]" % (iter,i,added,out_cand.min_timestep,out_cand.max_timestep))
+         
+         try_again = False
+         if added > 0 :
+            try_again = True
       
       if added <= 0 :
          # means that we've added all candidates belonging to i-th candidate and we can go to next one 
@@ -287,7 +316,7 @@ if __name__ == '__main__':
 
    (options, args) = parse_options(1)
 
-   (cand_list) = read_file( file )
+   (cand_list) = read_file( file , frbsearch_input=options.frbsearch_input )
    
    step_times = []
    step_steps = []
