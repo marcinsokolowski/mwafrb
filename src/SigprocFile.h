@@ -12,6 +12,7 @@
 #include <stdlib.h>
 #include <stdint.h>
 #include <vector>
+#include <string>
 #include "DataSource.h"
 
 const size_t MAX_HDR_SIZE = 4096;
@@ -123,6 +124,16 @@ public:
             return m_file_nbytes;   	   
 	}	
 	
+	const char* sourcename()
+	{
+	   return m_sourcename.c_str();
+	}
+
+	void sourcename( const char* src )
+	{
+	   m_sourcename = src;
+	}
+	
 	void rewind()
 	{
 	   if( m_file ){
@@ -145,11 +156,12 @@ public:
 private:
 	double m_fch1;
 	double m_foff;
-	double m_tstart;
+	double m_tstart; // unixtime
 	double m_tsamp;
 	int m_nifs;
 	int m_nchans;
 	int m_nbits;
+	std::string m_sourcename;
 
 	size_t m_samples_read;
 	size_t m_current_sample;

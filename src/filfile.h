@@ -102,7 +102,7 @@ public :
    // return number of correctly recognised DADA keywords which can be translated to FIL keywords :
    int ParseDadaHeader( const char* header_buffer, int header_size, cFilFileHeader& filHeader );
    
-   int ParseHeader( CBgFits& fits, cFilFileHeader& filHeader );
+   int ParseHeader( CBgFits& fits, cFilFileHeader& filHeader, bool bTransposed=false );
    int ParseHeader( CBgFits& fits );
    
    
@@ -120,10 +120,10 @@ public :
    int WriteData( unsigned char* data_uchar, int n_channels );
    
    // conversion :
-   static void fits2fil( CBgFits& infits, const char* szOutFilFile, const char* szOutSpecFile, int n_channels, int n_timesteps, bool bReScale=true );
+   static void fits2fil( CBgFits& infits, const char* szOutFilFile, const char* szOutSpecFile, int n_channels, int n_timesteps, bool bReScale=true, bool bTransposed=false );
 //                         double f_start=142.0760, double foff=-0.0040, double tstart=58323.2563, double bw=1.28 );
                          
-   static void fits2fil( const char* filename, const char* szOutFilFile, const char* szOutSpecFile, int n_channels, int n_timesteps, bool bReScale=true );
+   static void fits2fil( const char* filename, const char* szOutFilFile, const char* szOutSpecFile, int n_channels, int n_timesteps, bool bReScale=true, bool bTransposed=false );
    
    // common globals 
    static double gMinFITS_Value;

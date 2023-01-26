@@ -22,8 +22,8 @@ do
    
    for filfile in `ls *_norm.fil`
    do
-      echo "showcand_merged.sh $filfile $min_snr $min_dm"
-      showcand_merged.sh $filfile $min_snr $min_dm
+      echo "showcand.sh $filfile $min_snr $min_dm"
+      showcand.sh $filfile $min_snr $min_dm
    done
    cd ../..
 done
