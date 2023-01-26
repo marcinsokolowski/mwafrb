@@ -5,12 +5,18 @@ if [[ -n "$1" && "$1" != "-" ]]; then
    fits=$1
 fi
 
+obsid=`echo $fits | cut -b 1-10`
+if [[ -n "$2" && "$2" != "-" ]]; then
+   obsid=$2
+fi
+
+
 dts=${fits%%.fits}_dts.fits
 dts_minus_one=${fits%%.fits}_dts_minus_one.fits
 dts_snr=${fits%%.fits}_dts_minus_one_div_rmsiqr.fits
 
-echo "dynaspec_search ${fits} ${dts} -l 10 -m 500 -s 1 -t 29600 -n 10 -o 1358703336 -a 0 -d 20 -A -w 0 -S 0 > dynaspec_search.out"
-dynaspec_search ${fits} ${dts} -l 10 -m 500 -s 1 -t 29600 -n 10 -o 1358703336 -a 0 -d 20 -A -w 0 -S 0 > dynaspec_search.out
+echo "dynaspec_search ${fits} ${dts} -l 10 -m 500 -s 1 -t 29600 -n 10 -o ${obsid} -a 0 -d 20 -A -w 0 -S 0 > dynaspec_search.out"
+dynaspec_search ${fits} ${dts} -l 10 -m 500 -s 1 -t 29600 -n 10 -o ${obsid} -a 0 -d 20 -A -w 0 -S 0 > dynaspec_search.out
 
 x_size=`fitshdr ${dts} | grep NAXIS1 | awk '{print $3;}'`
 y_size=`fitshdr ${dts} | grep NAXIS2 | awk '{print $3;}'`
