@@ -42,6 +42,7 @@ sort -n series_dts.txt > series_dts_sorted.txt
 echo "python $MWA_FRB/scripts/my_friends_of_friends.py series_sorted.txt --outfile=series_merged.txt --frbsearch_input --group_radius=100"
 python $MWA_FRB/scripts/my_friends_of_friends.py series_sorted.txt --outfile=series_merged.txt --frbsearch_input --group_radius=100
 
+
 # TIMEINDEX as IN DTS (starting with negative) 
 # MOSTLY FOR DEBUGGING :
 echo "python $MWA_FRB/scripts/my_friends_of_friends.py series_dts_sorted.txt --outfile=series_dts_merged.txt --frbsearch_input --group_radius=100"
