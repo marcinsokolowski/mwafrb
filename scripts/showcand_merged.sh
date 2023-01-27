@@ -17,6 +17,7 @@ fi
 
 
 candfile=${filfile%%fil}cand_merged
+sorted_cand=${filfile%%.fil}_sorted.cand_merged
 
 prev_sampno=-1000
 step=100
@@ -47,4 +48,4 @@ do
          echo "DM = $dm is smaller than limit = $min_dm OR SNR = $snr < $min_snr -> candidate skipped"
       fi
    fi
-done < $candfile
+done < $sorted_cand
