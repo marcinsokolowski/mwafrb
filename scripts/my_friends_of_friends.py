@@ -24,6 +24,8 @@ def parse_options(idx):
    parser.add_option("--stepfile","--step_file",dest="stepfile",default=None,help="File with steps vs. timeindex  [default: %default]")
    parser.add_option("--step_radius","--step_radius_timesteps","--stepradius",dest="step_radius_timesteps",default=10000,help="Step radius in timesteps [default: %default]",type="int")
    parser.add_option('--frbsearch_format','--frbsearch_input',action="store_true",dest="frbsearch_input",default=False, help="Format of input files [default %default]")
+   parser.add_option('-d','--debug','--verbose',action="store_true",dest="debug",default=False, help="Debug mode [default %default]")
+   parser.add_option('--print_max_snr_range',action="store_false",dest="print_as_is",default=True, help="For each merged candidate print time range of top 10 SNR candidates in this range [default %default]")
 #   parser.add_option("--station","-s",dest="station",default="aavs2",help="Station name [default: %default]")
 #   parser.add_option("--max_sun_elev","--max_sun","--sun_max",dest="max_sun_elev",default=20,help="Max Sun elevation [default: %default]",type="float")
    (options,args)=parser.parse_args(sys.argv[idx:])
@@ -83,10 +85,14 @@ class cFreddaCandidate :
           self.timestep_sum += new_cand.timestep
           
           # update min and max timestamp range :
+          updated = False
           if new_cand.timestep < self.min_timestep :
              self.min_timestep = new_cand.timestep
+             updated = True
+             
           if new_cand.timestep > self.max_timestep :
              self.max_timestep = new_cand.timestep
+             updated = True 
              
           self.count += 1
           self.timestep = self.timestep_sum / self.count
@@ -95,6 +101,8 @@ class cFreddaCandidate :
              self.dm  = new_cand.dm
           self.cand_list.append( copy.copy(new_cand) )   
           new_cand.added = True
+          
+          print("DEBUG : candidate time range updated to %.1f - %.1f , added candidate at time = %.1f" % (self.min_timestep,self.max_timestep,new_cand.timestep))
           
           return True
           
@@ -231,6 +239,10 @@ def add( list , new_cand ) :
    
 
 def friends_of_friends( cand_list, radius=1000, debug=False ) :
+   print_modulo=100
+   if debug :
+      print_modulo=1
+      
    iter = 0
    out_list = []
    i=0
@@ -281,13 +293,13 @@ def friends_of_friends( cand_list, radius=1000, debug=False ) :
                      out_cand.add( cand )
                      added += 1
             
-            if ( j % 100 ) == 0 and debug :
+            if ( j %  print_modulo ) == 0 and debug : # was 100
                print("DEBUG : i = %d (t = %d) , j = %d , added = %d, len(out_list) = %d" % (i,cand_list[i].timestep,j,added,len(out_list)))
             j = j + 1
    
          iter += 1
       
-         print("PROGRESS (iter = %d) : i = %d -> added %d , range [%d - %d]" % (iter,i,added,out_cand.min_timestep,out_cand.max_timestep))
+         print("PROGRESS (iter = %d) : i = %d -> added %d , range [%d - %d] , len(out_list) = %d" % (iter,i,added,out_cand.min_timestep,out_cand.max_timestep,len(out_list)))
          
          try_again = False
          if added > 0 :
@@ -304,7 +316,7 @@ def friends_of_friends( cand_list, radius=1000, debug=False ) :
             add( out_list, cand_list[i] )
       # else : 
       # we do not change i until all candidates belonging to it are added
-
+      
    print("Final list has %d merged candidates" % (len(out_list)))         
 
    return (out_list)   
@@ -346,8 +358,8 @@ if __name__ == '__main__':
          
             
    
-   print("PROGRESS : finding Friends-of-Friends")
-   (out_list)  = friends_of_friends( cand_list, radius=options.group_radius_timesteps )
+   print("PROGRESS : finding Friends-of-Friends:")
+   (out_list)  = friends_of_friends( cand_list, radius=options.group_radius_timesteps, debug=options.debug )
 
    # TODO : output center , time range etc 
    out_f = open( options.outfile , "w" )   
@@ -358,8 +370,12 @@ if __name__ == '__main__':
       cand = out_list[i]
       
       # get time range from top 10 SNR candidates :
-      (min_time,max_time,max_snr,max_dm) = cand.get_maxsnr_range(top_n=10)
-   
+      if options.print_as_is :
+         min_time = cand.min_timestep
+         max_time = cand.max_timestep
+         (a,b,max_snr,max_dm) = cand.get_maxsnr_range(top_n=10)
+      else :
+         (min_time,max_time,max_snr,max_dm) = cand.get_maxsnr_range(top_n=10)   
 #      line = ("%05d : %06.2f %08.2f %012.4f  |%012.4f - %012.4f|   %s" % (i,cand.snr,cand.dm,(cand.max_timestep+cand.min_timestep)/2.00,cand.min_timestep,cand.max_timestep,file))
       line = ("%05d : %06.2f %08.2f %012.4f  |%012.4f - %012.4f|   %s" % (i,max_snr,max_dm,(cand.max_timestep+cand.min_timestep)/2.00,min_time,max_time,file))
       print("%s" % (line))
