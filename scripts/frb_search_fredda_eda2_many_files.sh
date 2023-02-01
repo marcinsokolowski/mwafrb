@@ -51,10 +51,10 @@ do
    cand_file=${fil_file%%fil}cand
    merged_cand_file=${fil_file%%fil}cand_merged
 
-   echo "${path_new}/cudafdmt $fil_file  -t 512 -d 2048 -S 0 -r 1 -s 1 -m ${min_dm} -x ${threshold_snr} -o $cand_file" >> fredda.sh 
+   echo "${path_new}/cudafdmt $fil_file  -t 512 -d 2048 -S 0 -r 1 -s 1 -m ${min_dm} -x ${threshold_snr} -o $cand_file -b 32" >> fredda.sh 
 
-   echo "${path_new}/cudafdmt $fil_file  -t 512 -d 2048 -S 0 -r 1 -s 1 -m ${min_dm} -x ${threshold_snr} -o $cand_file"
-   ${path_new}/cudafdmt $fil_file  -t 512 -d 2048 -S 0 -r 1 -s 1 -m ${min_dm} -x ${threshold_snr} -o $cand_file
+   echo "${path_new}/cudafdmt $fil_file  -t 512 -d 2048 -S 0 -r 1 -s 1 -m ${min_dm} -x ${threshold_snr} -o $cand_file -b 32"
+   ${path_new}/cudafdmt $fil_file  -t 512 -d 2048 -S 0 -r 1 -s 1 -m ${min_dm} -x ${threshold_snr} -o $cand_file -b 32
    
    # simple grouping to have reasonable number of candidates to inspect :
    # --step_file=total_power_fil_RunningMedian5_median.steps_vs_timeindex 

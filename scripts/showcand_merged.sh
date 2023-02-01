@@ -48,4 +48,5 @@ do
          echo "DM = $dm is smaller than limit = $min_dm OR SNR = $snr < $min_snr -> candidate skipped"
       fi
    fi
-done < $sorted_cand
+done < $candfile   
+# done < $sorted_cand

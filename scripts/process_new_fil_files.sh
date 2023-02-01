@@ -21,6 +21,10 @@ if [[ -n "$4" && "$4" != "-" ]]; then
    template=$4
 fi
 
+min_dm=20
+if [[ -n "$5" && "$5" != "-" ]]; then
+   min_dm=$5
+fi
 
 mkdir -p ${working_dir}
 
@@ -57,8 +61,8 @@ do
          echo "ln -s ${filfile}"
          ln -s ${filfile}
          pwd
-         echo "process_fil_file.sh ${base_filfile} ${ch} - - - - 1"
-         process_fil_file.sh ${base_filfile} ${ch} - - - - 1 
+         echo "process_fil_file.sh ${base_filfile} ${ch} - - ${min_dm} - 1"
+         process_fil_file.sh ${base_filfile} ${ch} - - ${min_dm} - 1 
          cd ../
          pwd
       else      
