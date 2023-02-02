@@ -71,8 +71,8 @@ do
          echo "ln -s ${filfile}"
          ln -s ${filfile}
          pwd
-         echo "cudafdmt ${base_filfile}  -t 512 -d 2048 -S 0 -r 1 -s 1 -m 20 -x 10 -o ${cand_file}"
-         cudafdmt ${base_filfile}  -t 512 -d 2048 -S 0 -r 1 -s 1 -m 20 -x 10 -o ${cand_file}   
+         echo "cudafdmt ${base_filfile}  -t 512 -d 2048 -S 0 -r 1 -s 1 -m ${min_dm} -x 10 -o ${cand_file}"
+         cudafdmt ${base_filfile}  -t 512 -d 2048 -S 0 -r 1 -s 1 -m ${min_dm} -x 10 -o ${cand_file}   
    
          echo ${base_filfile} >> processed_fil_files.txt
  
