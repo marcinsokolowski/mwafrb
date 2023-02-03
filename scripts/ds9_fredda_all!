@@ -1,0 +1,88 @@
+#!/bin/bash
+
+
+min_snr=6
+if [[ -n "$1" && "$1" != "-" ]]; then
+   min_snr=$1
+fi
+
+max_snr=1000000000
+if [[ -n "$2" && "$2" != "-" ]]; then
+   max_snr=$2
+fi
+
+do_open=1
+if [[ -n "$3" && "$3" != "-" ]]; then
+   do_open=$3
+fi
+
+merged_file=1
+infile=`ls *.cand_merged | tail -1`
+if [[ -n "$4" && "$4" != "-" ]]; then
+   infile=$4
+   merged_file=`echo $infile | awk '{if(index($1,"cand_merged")>0){print 1;}else{print 0;}}'`
+fi
+
+fits=`ls -tr *_out_t.fits | tail -1`
+if [[ -n "$5" && "$5" != "-" ]]; then
+   fits=$5
+fi
+
+min_dm=-1
+if [[ -n "$6" && "$6" != "-" ]]; then
+   min_dm=$6
+fi
+
+# 
+
+while read line 
+do
+   first=`echo $line | awk '{print $1;}'`   
+   
+   if [[ $first != "#" ]]; then
+      echo
+      echo
+      echo "-------------------------------------------------------------------"      
+      echo "LINE = $line"      
+      
+      # DM is column 4 in .cand_merged file and column 6 in .cand file !
+      if [[ $merged_file -gt 0 ]]; then
+         snr=`echo $line | awk '{print $3;}'`
+         snr_ok=`echo $line | awk -v min_snr=${min_snr} -v max_snr=${max_snr} '{if($3>min_snr && $3<=max_snr){print 1;}else{print 0;}}'`
+         start_t=`echo $line | awk '{s=$6;if(substr(s,1,1)=="|"){s=substr(s,2);}printf("%d\n",s);}'`
+         end_t=`echo $line | awk '{s=$8;l=length(s);s=substr(s,1,l-1);printf("%d\n",s);}'`
+         dm_ok=`echo $line | awk -v min_dm=${min_dm} -v max_dm=10000000 '{if($4>=min_dm && $4<=max_dm){print 1;}else{print 0;}}'`
+      else
+         snr=`echo $line | awk '{print $1;}'`
+         snr_ok=`echo $line | awk -v min_snr=${min_snr} -v max_snr=${max_snr} '{if($1>min_snr && $1<=max_snr){print 1;}else{print 0;}}'`
+         start_t=`echo $line | awk '{print $2-100;}'`
+         end_t=`echo $line | awk '{print $2+100;}'`
+         dm_ok=`echo $line | awk -v min_dm=${min_dm} -v max_dm=10000000 '{if($5>=min_dm && $5<=max_dm){print 1;}else{print 0;}}'`
+      fi
+      
+      
+      # line x1 y1 x2 y2 # line=[0|1] [0|1]
+      
+      if [[ $snr_ok -gt 0 && $dm_ok -gt 0 ]]; then
+         echo " snr=$snr , snr_ok = $snr_ok   start_time = $start_t , end_t = $end_t"
+         echo "line $start_t 0 $start_t 128 # color = green" > ${start_t}_${end_t}.reg
+         echo "line $end_t 0 $end_t 128 # color = green" >> ${start_t}_${end_t}.reg
+
+         if [[ $do_open -gt 0 ]]; then      
+            echo "ds9_fredda! ${start_t} ${fits} - - - - ${start_t}_${end_t}.reg"
+            ds9_fredda! ${start_t} ${fits} - - - - ${start_t}_${end_t}.reg 
+            
+            sleep 1
+         else 
+            echo "WARNING : opening in ds9 is not requred"
+         fi
+      else
+         echo "   INFO : snr = $snr is too low -> event not shown"
+      fi
+   else
+      echo "$line"
+   fi
+done < $infile
+
+# < `cat $infile | awk '{if($1!="#"){print $0;}}'`
+

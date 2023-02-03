@@ -1,0 +1,114 @@
+#!/bin/bash
+
+x=-1
+if [[ -n "$1" && "$1" != "-" ]]; then
+   x=$1
+fi
+
+file=i_00000.fits
+if [[ -n "$2" && "$2" != "-" ]]; then
+   file=$2
+fi
+
+
+outdir=ds9_images/
+if [[ -n "$3" && "$3" != "-" ]]; then
+   outdir=$3
+fi
+mkdir -p ${outdir}
+
+
+# laptop : geom="1400x800"
+geom="2000x1000"
+if [[ -n "$4" && "$4" != "-" ]]; then
+   geom="$4"
+fi
+
+# laptop : 0.3 
+zoom=1
+if [[ -n "$5" && "$5" != "-" ]]; then
+   zoom=$5
+fi
+
+quality=50
+if [[ -n "$6" && "$6" != "-" ]]; then
+   quality=50
+fi
+
+reg_file="20121004_20121105_all_inOne.reg"
+if [[ -n "$7" && "$7" != "-" ]]; then
+   reg_file=$7
+fi
+
+# options="-cmap rainbow"
+options=""
+if [[ -n "$8" && "$8" != "-" ]]; then
+   options=$8
+fi
+
+out_ext="jpg"
+if [[ -n "$9" && "$9" != "-" ]]; then
+   out_ext=$9
+fi
+   
+
+yy=`echo $y | awk '{printf("%.05d\n",$1)}'`
+
+jpgfile=${file%%.fits}_y${yy}.${out_ext}
+if [[ -n "${10}" && "${10}" != "-" ]]; then
+   jpgfile=${10}
+fi
+
+force=1
+if [[ -n "${11}" && "${11}" != "-" ]]; then   
+   force=${11}
+fi
+
+options2=""
+if [[ -n "${12}" && "${12}" != "-" ]]; then   
+   options2=${12}
+fi
+
+# -export or -save
+# echo "ds9 ${file} -scale zscale -cmap rainbow -geometry 1400x800 -zoom 0.3 -pan to 2000 ${y} -sleep 1 -saveimage ${outdir}/${jpgfile} 50 -sleep 1 -quit"
+# ds9 ${file} -scale zscale -cmap rainbow -geometry 1400x800 -zoom 0.3 -pan to 2000 ${y} -sleep 1 -saveimage ${outdir}/${jpgfile} 50 -sleep 1 -quit
+
+# pen_y=`getkey ${file} NAXIS2 | awk '{print $3/2;}'`
+pen_y=` fitshdr ${file} | grep NAXIS2 | awk '{print $3/2;}'`
+# pen_x=1200
+
+# if [[ -s freq.reg ]]; then
+#   awk -v y=${y} '{print $1" "$2" "y" "$4" "$5" "$6" "$7" "$8" "$9" "$10" "$11;}' freq.reg > freq_tmp.reg
+#fi
+#touch freq_tmp.reg
+
+# y_freq=$(($y-600))
+# echo "text 70 $y_freq {50} # color = black , font=\"times 20 bold\"" > freq.reg
+# echo "text 495 $y_freq {100} # color = black , font=\"times 20 bold\"" >> freq.reg 
+# echo "text 920 $y_freq {150} # color = black , font=\"times 20 bold\"" >> freq.reg
+# echo "text 1347 $y_freq {200} # color = black , font=\"times 20 bold\"" >> freq.reg
+# echo "text 1774 $y_freq {250 MHz} # color = black , font=\"times 20 bold\"" >> freq.reg
+# touch freq.reg
+
+
+# REFERENCE : http://hea-www.harvard.edu/RD/ds9/ref/command.html#scale 
+#             http://hea-www.harvard.edu/RD/ds9/ref/command.html
+if [[ ! -s ${outdir}/${jpgfile} || $force -gt 0 ]]; then
+   if [ -s ${reg_file} ]; then
+#	echo "ds9 ${file} -scale zscale -cmap rainbow -geometry ${geom} -zoom ${zoom} -pan to ${pen_x} ${y} -regions load 20121004_20121105_all_inOne.reg -regions load freq_tmp.reg -saveimage ${outdir}/${jpgfile} ${quality} -quit"
+#	ds9 ${file} -scale zscale -cmap rainbow -geometry ${geom} -zoom ${zoom} -pan to ${pen_x} ${y} -regions load 20121004_20121105_all_inOne.reg -regions load freq_tmp.reg -saveimage ${outdir}/${jpgfile} ${quality} -quit 
+
+	   rm -f ${outdir}/${jpgfile}
+	   # -cmap rainbow  
+	   echo "ds9 ${file} -scale mode zscale -scale histequ -geometry ${geom} -zoom ${zoom} -pan to ${x} ${pen_y} -regions load ${reg_file} ${options} -saveimage ${outdir}/${jpgfile} ${quality} ${options2}"
+	   ds9 ${file} -scale mode zscale -scale histequ -geometry ${geom} -zoom ${zoom} -pan to ${x} ${pen_y} -regions load ${reg_file} ${options} -saveimage ${outdir}/${jpgfile} ${quality} ${options2}
+   else
+   # added : -scale histogram 
+   	rm -f ${outdir}/${jpgfile}
+   	# -cmap rainbow 
+	   echo "ds9 ${file} -scale mode zscale -scale histequ -geometry ${geom} -zoom ${zoom} -pan to ${x} ${pen_y} ${options} -saveimage ${outdir}/${jpgfile} ${quality} ${options2}"
+	   ds9 ${file} -scale mode zscale -scale histequ -geometry ${geom} -zoom ${zoom} -pan to ${x} ${pen_y} ${options} -saveimage ${outdir}/${jpgfile}  ${quality} ${options2}
+   fi
+else   
+   echo "File already exists : ${outdir}/${jpgfile} "
+fi   
