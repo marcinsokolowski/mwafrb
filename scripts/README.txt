@@ -20,3 +20,8 @@ Examples :
        They can be slightly different and this is worth keeping in mind. Main command is :
 
        showcand.sh 1359220824_20230131172006_ch120_02.fil 10
+
+
+  - show candidates using ds9 viewer :
+    /home/msok/github/mwafrb/scripts/ds9_fredda_all!
+    (also in ~/bighorns/software/analysis/scripts/shell )
