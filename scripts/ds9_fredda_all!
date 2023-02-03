@@ -35,6 +35,14 @@ fi
 
 # 
 
+echo "#######################################"
+echo "PARAMETERS:"
+echo "#######################################"
+echo "min_snr = $min_snr"
+echo "infile  = $infile"
+echo "merged_file = $merged_file"
+echo "#######################################"
+
 while read line 
 do
    first=`echo $line | awk '{print $1;}'`   

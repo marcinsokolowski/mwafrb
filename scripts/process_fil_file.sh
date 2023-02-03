@@ -21,7 +21,7 @@ if [[ -n "$4" && "$4" != "-" ]]; then
    threshold_snr=$4
 fi
 
-min_dm=20
+min_dm=0 # was 20 but changed to 0 for the time of testing to see all the candidates !
 if [[ -n "$5" && "$5" != "-" ]]; then
    min_dm=$5
 fi
