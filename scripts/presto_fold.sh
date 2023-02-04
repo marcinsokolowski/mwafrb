@@ -5,10 +5,28 @@ if [[ -n "$1" && "$1" != "-" ]]; then
    filfile=$1
 fi
 
+name=J0953+0755
+if [[ -n "$2" && "$2" != "-" ]]; then
+   name=$2
+fi
+
+ra_deg=95309.3097
+if [[ -n "$3" && "$3" != "-" ]]; then
+   ra_deg=$3
+fi
+
+dec_deg=75535.75
+if [[ -n "$4" && "$4" != "-" ]]; then
+   dec_deg=$4
+fi
+
+
 echo "########################################"
 echo "PARAMETERS:"
 echo "########################################"
 echo "filfile = $filfile"
+echo "name    = $name"
+echo "(RA,DEC) = ($ra_deg,$dec_deg) [RA,DEC string -> DECIMAL value]"
 echo "########################################"
 
 
@@ -22,11 +40,12 @@ echo "ln -s ../${filfile}"
 ln -s ../${filfile}
 
 # set telescope_id := 'u' for MWA :
-echo "update_fil_header ${filfile} -t 117 -r 148.28879042 -d 7.92659722"
-update_fil_header ${filfile} -t 117 -r 148.28879042 -d 7.92659722
+# J0953+0755 : RAJ 09:53:09.3097 , DECJ +07:55:35.75 -> 95309.3097 , 75535.75 
+echo "update_fil_header ${filfile} -t 117 -r $ra_deg -d $dec_deg"
+update_fil_header ${filfile} -t 117 -r $ra_deg -d $dec_deg
 
 echo "readfile updated.fil"
 readfile updated.fil
 
-echo "prepfold -psr J0953+0755 -debug -nopsearch -nodmsearch -nosearch -n 32 updated.fil"
-prepfold -psr J0953+0755 -debug -nopsearch -nodmsearch -nosearch -n 32 updated.fil
+echo "prepfold -psr ${name} -debug -nopsearch -nodmsearch -nosearch -n 32 updated.fil"
+prepfold -psr ${name} -debug -nopsearch -nodmsearch -nosearch -n 32 updated.fil
