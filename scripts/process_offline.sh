@@ -1,13 +1,15 @@
 #!/bin/bash
 
+export PATH=~/github/mwafrb/scripts/:$PATH
+
 create_links() {
    obslist_file=$1
    
    for obsid in `cat ${obslist_file}`
    do
       filfile=`ls ../${obsid}*02.fil | tail -1`
-      echo "ln -s ${filfile} ."
-      ln -s ${filfile} . 
+      echo "ln -sf ${filfile} ."
+      ln -sf ${filfile} . 
    done
 }
 
@@ -38,7 +40,10 @@ if [[ -n "$5" && "$5" != "-" ]]; then
    remote_dir=$5
 fi   
 
-
+getdata=1
+if [[ -n "$6" && "$6" != "-" ]]; then
+   getdata=$6
+fi
 
 echo "##########################################"
 echo "PARAMETERS:"
@@ -47,20 +52,44 @@ echo "object = $object"
 echo "(ra,dec) = ($ra,$dec)"
 echo "obslist_file = $obslist_file"
 echo "remote_dir   = $remote_dir"
+echo "getdata      = $getdata"
 echo "##########################################"
 
 
+if [[ $getdata -gt 0 ]]; then
+   for obsid in `cat ${obslist_file}`
+   do
+     echo "rsync -avP mwa@blc00:${remote_dir}/${obsid}*_02.fil ."
+     rsync -avP mwa@blc00:${remote_dir}/${obsid}*_02.fil .
+   done
+else
+   echo "INFO : getting data is not required"
+fi   
+
 mkdir -p ${object}
+echo "cp ${obslist_file} ${object}/"
 cp ${obslist_file} ${object}/
 cd ${object}
+create_links "${obslist_file}"
 
 mkdir -p Folding Fredda
-create_links "${obslist_file}"
 
 # folding test:
 cd Folding
+echo "cp ../${obslist_file} ."
+cp ../${obslist_file} .
 create_links "${obslist_file}"
 
 echo "presto_fold_all.sh \"*_02.fil\" ${object} ${ra} ${dec}"
 presto_fold_all.sh "*_02.fil" ${object} ${ra} ${dec}
 
+
+# FREDDA :
+cd ../Fredda/
+echo "cp ../${obslist_file} ."
+cp ../${obslist_file} .
+create_links "${obslist_file}"
+
+path=`pwd`
+echo "process_new_fil_files.sh 1 $path $path"
+process_new_fil_files.sh 1 $path $path

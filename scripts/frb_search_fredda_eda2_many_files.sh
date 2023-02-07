@@ -80,7 +80,9 @@ mkdir -p images/
 
 root_path=`which root`
 if [[ -n $root_path ]]; then
-   root -b -q -l "histofile.C(\"i_00000.cand,1,0,0,1000000000,10000\")"
+   mkdir -p images/
+   # root -b -q -l "histofile.C(\"i_00000.cand\",1,0,0,1000000000,10000)"
+   root -b -q -l "histofile.C(\"i_00000.cand\",1,0)"
 else
    echo "WARNING : CERN ROOT package not installed"
 fi
