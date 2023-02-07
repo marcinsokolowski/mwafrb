@@ -15,15 +15,24 @@ if [[ -n "$3" && "$3" != "-" ]]; then
    min_dm=$3
 fi
 
+subdir="FREDDA/"
+if [[ -n "$4" && "$4" != "-" ]]; then
+   subdir=$4
+fi
+
+postfix="_norm"
+if [[ -n "$5" && "$5" != "-" ]]; then
+   postfix=$5
+fi
 
 for dir in `ls -d ${dir_template=}`
 do
-   cd ${dir}/FREDDA/
+   cd ${dir}/${subdir}/
    
-   for filfile in `ls *_norm.fil`
+   for filfile in `ls *${postfix}`
    do
       echo "showcand.sh $filfile $min_snr $min_dm"
       showcand.sh $filfile $min_snr $min_dm
    done
-   cd ../..
+   cd -
 done
