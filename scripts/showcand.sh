@@ -1,6 +1,9 @@
 #!/bin/bash
 
-filfile=1322310880_20211130123422_ch143_02.fil
+path=`pwd`
+bdir=`basename $path`
+# filfile=1322310880_20211130123422_ch143_02.fil
+filfile=${bdir}.fil
 if [[ -n "$1" && "$1" != "-" ]]; then
    filfile=$1
 fi
