@@ -24,7 +24,7 @@ fi
 
 obslist_file=B0950.obsid
 if [[ -n "$2" && "$2" != "-" ]]; then
-   obslist=$2
+   obslist_file=$2
 fi
 
 if [[ -n "$3" && "$3" != "-" ]]; then
