@@ -20,12 +20,12 @@ if [[ -n "$4" && "$4" != "-" ]]; then
    subdir=$4
 fi
 
-postfix="_norm"
+postfix="_norm.fil"
 if [[ -n "$5" && "$5" != "-" ]]; then
    postfix=$5
 fi
 
-for dir in `ls -d ${dir_template=}`
+for dir in `ls -d ${dir_template}`
 do
    cd ${dir}/${subdir}/
    
