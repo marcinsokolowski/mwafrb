@@ -15,6 +15,7 @@ create_links() {
 
 
 # VELA : object=J0835-4510  83520.61149 -451034.8751
+# J1453 : J1453-6413 J1453_ch121.obsid 145332.665 -641316
 object=B0950+08
 ra=95309.3097
 dec=75535.75
@@ -45,10 +46,17 @@ if [[ -n "$6" && "$6" != "-" ]]; then
    getdata=$6
 fi
 
+outdir=${obslist_file%%.obsid}
+if [[ -n "$7" && "$7" != "-" ]]; then
+   outdir=$7
+fi
+
+
 echo "##########################################"
 echo "PARAMETERS:"
 echo "##########################################"
 echo "object = $object"
+echo "outdir = $outdir"
 echo "(ra,dec) = ($ra,$dec)"
 echo "obslist_file = $obslist_file"
 echo "remote_dir   = $remote_dir"
@@ -66,10 +74,10 @@ else
    echo "INFO : getting data is not required"
 fi   
 
-mkdir -p ${object}
-echo "cp ${obslist_file} ${object}/"
-cp ${obslist_file} ${object}/
-cd ${object}
+mkdir -p ${outdir}
+echo "cp ${obslist_file} ${outdir}/"
+cp ${obslist_file} ${outdir}/
+cd ${outdir}
 create_links "${obslist_file}"
 
 mkdir -p Folding Fredda
