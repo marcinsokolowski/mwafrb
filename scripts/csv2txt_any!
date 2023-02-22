@@ -1,0 +1,40 @@
+#!/bin/bash
+
+infile=infile.csv
+if [[ -n "$1" && "$1" != "-" ]]; then
+   infile=$1
+fi
+
+outfile=${infile%%csv}txt
+if [[ -n "$2" && "$2" != "-" ]]; then
+	outfile=$2
+fi
+
+skip_lines=0
+if [[ -n "$3" && "$3" != "-" ]]; then
+   skip_lines=$3
+fi
+
+to_mhz=0
+if [[ -n "$4" && "$4" != "-" ]]; then
+   to_mhz=$4
+fi
+
+dbm2mw=0
+if [[ -n "$5" && "$5" != "-" ]]; then
+   dbm2mw=$5
+fi
+
+col=2
+if [[ -n "$6" && "$6" != "-" ]]; then
+   col=$6
+fi
+
+col2=-1
+if [[ -n "$7" && "$7" != "-" ]]; then
+   col2=$7
+fi
+
+   
+# awk --field-separator="," -v skip_lines=${skip_lines} '{if(NR>skip_lines){print $1" "$2;}}' ${infile}  > ${outfile}
+awk --field-separator="," -v skip_lines=${skip_lines} -v to_mhz=${to_mhz} -v col=${col} -v col2=${col2} '{if(NR>skip_lines){freq=$1;if(to_mhz>0){freq=freq/1000000;} if(col2>0){print freq" "$col" "$col2;}else{print freq" "$col;} }}' ${infile}  > ${outfile}
