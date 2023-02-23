@@ -69,6 +69,15 @@ if [[ $getdata -gt 0 ]]; then
    do
      echo "rsync -avP mwa@blc00:${remote_dir}/${obsid}*_02.fil ."
      rsync -avP mwa@blc00:${remote_dir}/${obsid}*_02.fil .
+     
+     cnt=`ls ${obsid}*_02.fil | wc -l`
+     if [[ $cnt -gt 0 ]]; then
+        echo "OK : $cnt files ${obsid}*_02.fil transferred"
+        ls ${obsid}*_02.fil >> ok_files.txt
+     else
+        echo "ERROR : missing files ${obsid}*_02.fil"
+        echo "${obsid}*_02.fil" >> missing_files.txt
+     fi
    done
 else
    echo "INFO : getting data is not required"
