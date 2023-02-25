@@ -1,0 +1,43 @@
+#!/bin/bash
+
+# PSRJ            J0437-4715
+# NAME            J0437-4715
+# RAJ             04:37:15.8961737              6.000e-07
+# DECJ            -47:15:09.110714              7.000e-06
+# ELONG           50.47
+# ELAT            -67.87
+# DM              2.64476                       7.000e-05
+# PEPOCH          54500
+# F0              173.6879458121843             5.000e-13
+# F1              -1.728361E-15                 5.000e-21
+# P0              0.005757451936712637          1.700e-17
+# P1              5.729215E-20                  1.700e-25
+# DIST_DM         0.156
+# DIST_DM1        0.139
+# SURVEY          pks70,pkshl
+# PMRA            121.4385                      2.000e-03
+# PMDEC           -71.4754                      2.000e-03
+# S150            870                           3.000e+01
+# S200            507                           6.000e+00
+# S400            550                           1.000e+02
+# S600            300                           2.000e+01
+# S800            300                           5.000e+01
+# S1400           150.2                         1.600e+00
+# S5000           8.5                           2.500e+00
+# W50             0.1410                        5.000e-04
+# W10             1.02
+~/github/mwafrb/scripts/process_offline.sh J0437-4715 J0437-4715_Ch121.obsid 043715.8961737 -471509.110714 /datax2/mwa_fil/ 1 > J0437_ch121.out 2>&1
+# cd J0837+0610_Ch121/Folding
+# ~/github/mwafrb/scripts/presto_fold_all.sh
+# cd ../../
+cd J0437-4715_Ch121/Fredda/
+~/github/mwafrb/scripts/prepare_all_plots.sh
+
+
+# ch=169 :
+# cd ../../
+# ~/github/mwafrb/scripts/process_offline.sh J0837+0610 J0837+0610_Ch169.obsid 083705.642 061014.56 /datax2/mwa_fil/ 1 > J0837_ch169.out 2>&1
+# cd J0837+0610_Ch169/Fredda/
+# ~/github/mwafrb/scripts/prepare_all_plots.sh
+
+
