@@ -1,0 +1,5 @@
+#!/bin/bash
+
+dtm=`date +%Y%m%d%H%M`
+
+rsync -avP mwa@blc00:/home/mwa/bl_beamformer_cfg.txt bl_beamformer_cfg_${dtm}.txt
