@@ -46,6 +46,7 @@ public:
 	// write :
 	int Write( const char* filename, SigprocFile& right, int bFlipFreq=0, bool bSetBits=false );
 	int Write( const char* filename );
+	int CopyFilFile( const char* filename, SigprocFile& infile );
 	int WriteHeader( const char* filename , bool bClose=true, bool bNewFile=false );
 	int WriteData( float* buffer, int n_channels );
 	int WriteData( unsigned char* buffer, int n_channels );

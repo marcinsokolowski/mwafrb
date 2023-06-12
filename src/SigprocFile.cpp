@@ -42,7 +42,8 @@ char* mystrnstr(const char* s1, const char* s2, size_t n)
 }
 
 SigprocFile::SigprocFile()
-: m_file(NULL), m_filename(NULL), m_samples_read(0), m_fd(0)
+: m_file
+(NULL), m_filename(NULL), m_samples_read(0), m_fd(0)
 {
 }
 
@@ -328,8 +329,46 @@ int SigprocFile::Write( const char* filename, SigprocFile& right, int bFlipFreq,
    return 0;
 }
 
+int SigprocFile::CopyFilFile( const char* filename, SigprocFile& infile )
+{
+   float* data = new float[10240472];
+   int n_read = fread(data, sizeof(uint8_t), 10240472, infile.m_file);
+   printf("Read %d bytes\n",n_read);
+
+   // close if previously opened :
+   name( filename );
+   if( m_file ){ 
+      fclose(m_file); 
+   }
+   
+   // create a new file :
+   m_file = fopen( m_filename, "wb" );
+   m_fd = fileno(m_file);
+   int written = fwrite( infile.m_hdr, sizeof(char), infile.m_hdr_nbytes, m_file );
+   
+   int total_written = 0;
+   total_written += WriteData( data, n_read/sizeof(float) );
+
+   // read and write the remaining data - usually the files can be longer than just 10240472 bytes ( = 10.24 MB )   
+   while( (n_read = fread(data, sizeof(uint8_t), 10240472, infile.m_file)) >0 ){
+       total_written += WriteData( data, n_read/sizeof(float) );
+   }
+   
+   delete [] data;
+   
+   printf("SigprocFile::CopyFilFile( SigprocFile& infile ) : written %d bytes\n",total_written);
+   
+   return 0;
+
+}
+
 int SigprocFile::Write( const char* filename )
 {
+   printf("ERROR : this function should not be used as this is wrong !!! it uses m_file for both read and write tile\n");
+   printf("ERROR : this means that the entire file cannot be read/written !!!\n");
+   printf("ERROR : instead use Write( SigprocFile& infile )\n");
+   exit(-1);
+
    float* data = new float[10240472];
    int n_read = fread(data, sizeof(uint8_t), 10240472, m_file);
    printf("Read %d bytes\n",n_read);
@@ -360,6 +399,8 @@ int SigprocFile::WriteData( float* buffer, int n_channels )
            m_fd   = 0;
            return -n_channels;
         }
+        
+        return written*sizeof(float);
     }
     
     return 0;
@@ -376,6 +417,8 @@ int SigprocFile::WriteData( unsigned char* buffer, int n_channels )
            m_fd   = 0;
            return -n_channels;
         }
+        
+        return written;
     }
     
     return 0;

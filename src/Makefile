@@ -16,7 +16,7 @@ dada2fits : dada2fits.cpp
 	cp dada2fits  $(MWA_FRB)/bin/
 	
 
-all : read_dada read_eda2_dada dada2fits compare_filfiles dumpfilfile_float merge_coarse_channels avg_channels_fil dumpfilfile read_filfile fits2fil fits2fil2
+all : read_dada read_eda2_dada dada2fits compare_filfiles dumpfilfile_float merge_coarse_channels avg_channels_fil dumpfilfile read_filfile fits2fil fits2fil2 update_fil_header
 	mkdir -p $(MWA_FRB)/bin/
 	cp dumpfilfile $(MWA_FRB)/bin/	
 	cp dumpfilfile_float $(MWA_FRB)/bin/    
@@ -26,6 +26,7 @@ all : read_dada read_eda2_dada dada2fits compare_filfiles dumpfilfile_float merg
 	cp merge_coarse_channels $(MWA_FRB)/bin/
 	cp fits2fil $(MWA_FRB)/bin/
 	cp fits2fil2 $(MWA_FRB)/bin/
+	cp update_fil_header $(MWA_FRB)/bin/
 	chmod +x $(MWA_FRB)/bin/*
 
 read_filfile : read_filfile.c

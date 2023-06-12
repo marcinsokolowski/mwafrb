@@ -145,8 +145,9 @@ int main(int argc,char* argv[])
       filfile.SetHeaderValue( "src_dej" , gDEC_degrees );
       // filfile.SetHeaderValue( "src_dej" ,  75535.75 ); // src dej (double): declination (J2000) of source (ddmmss.s)
    }
-      
-   if( filfile.Write( gOutFile.c_str() ) ){
+
+   SigprocFile out_filfile;      
+   if( out_filfile.CopyFilFile( gOutFile.c_str() , filfile ) ){
       printf("ERROR : could not write header file -> exiting now !\n");
       exit(-1);
    }
