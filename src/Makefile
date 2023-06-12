@@ -63,7 +63,7 @@ merge_coarse_channels : merge_coarse_channels.cpp SigprocFile.cpp SigprocFile.h
 	cp merge_coarse_channels $(MWA_FRB)/bin/     
 
 compare_filfiles : main_compare.cpp
-	g++ CpuTimer.cpp  DataOrder.cpp  DataSource.cpp  InvalidSourceFormat.cpp  main_compare.cpp  SigprocFile.cpp -o compare_filfiles
+	g++ CpuTimer.cpp  DataOrder.cpp  DataSource.cpp  InvalidSourceFormat.cpp  main_compare.cpp  SigprocFile.cpp -o compare_filfiles $(COMMON_LIBS)
 	cp compare_filfiles $(MWA_FRB)/bin/
 
 update_fil_header : update_fil_header.cpp SigprocFile.cpp

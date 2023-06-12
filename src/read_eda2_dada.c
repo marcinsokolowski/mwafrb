@@ -177,7 +177,7 @@ int main(int argc,char* argv[])
       int block_size = ((n_inputs*7408000) / 200) * 2; // *2 for real / imag;
       char* buffer_data = new char[block_size]; // *2 for real / imag
       memset( buffer_data, '\0', block_size );
-      printf("Block size = %d chars ( = %d bytes )\n",(block_size/sizeof(char)),block_size);
+      printf("Block size = %d chars ( = %d bytes )\n",int(block_size/sizeof(char)),block_size);
       
       FILE* out_dump_f   = NULL;      
       if( gDumpToTxt > 0 ){

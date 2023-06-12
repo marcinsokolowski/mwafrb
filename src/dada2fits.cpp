@@ -174,7 +174,7 @@ int main(int argc,char* argv[])
 //      float* buffer_data = new float[block_size];
       float* buffer_data = (float*)malloc(block_size);
       memset( buffer_data, '\0', block_size );
-      printf("Block size = %d floats ( = %d bytes )\n",(block_size/sizeof(float)),block_size);
+      printf("Block size = %d floats ( = %d bytes )\n",int(block_size/sizeof(float)),block_size);
       
       int block_count = 0;
       int n_total_timesteps = 0;
@@ -195,7 +195,7 @@ int main(int argc,char* argv[])
 
               n_total_timesteps += 1;
           }
-          printf("\tProcessed %d x %d = %d floats out of total blocksize = %d\n",n_timesteps,n_channels,(n_channels*n_timesteps),(block_size/sizeof(float)));
+          printf("\tProcessed %d x %d = %d floats out of total blocksize = %d\n",n_timesteps,n_channels,(n_channels*n_timesteps),int(block_size/sizeof(float)));
           
           block_count++;
       }      

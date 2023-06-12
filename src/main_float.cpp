@@ -93,7 +93,7 @@ void parse_cmdline(int argc, char * argv[]) {
 
    if( strlen(gNormFile.c_str()) > 0 ){
       read_file( gNormFile.c_str() , normalisation_spectrum );
-      printf("Read %d points from normalisation file %s\n",normalisation_spectrum.size(),gNormFile.c_str());
+      printf("Read %d points from normalisation file %s\n",int(normalisation_spectrum.size()),gNormFile.c_str());
    }
 }
 
@@ -108,7 +108,7 @@ void print_parameters( string& filfilename, string& outfile )
   printf("Write flipped      = %d (flip data = %d, flip header = %d)\n",gWriteFlipped,gFlipData,gFlipHeader);
   printf("Float2Uchar        = %d\n",gFloat2UChar);
   printf("Save spectrum      = %d\n",gSaveSpectra);
-  printf("Max. spectra count = %d\n",gMaxSpectraCount); 
+  printf("Max. spectra count = %d\n",int(gMaxSpectraCount)); 
   printf("Output FITS files :\n");
   printf("\t\t%s\n",gOutFitsFileName.c_str());
   printf("\t\t%s\n",gOutFitsTransposedFileName.c_str());
@@ -169,8 +169,8 @@ int main(int argc,char* argv[])
    printf("nchans = %d\n",filfile.nchans());
    printf("npols  = %d\n",filfile.npols());
    printf("nants  = %d\n",filfile.nants());
-   printf("samples_read = %d\n",filfile.samples_read());
-   printf("current_sample = %d\n",filfile.current_sample());
+   printf("samples_read = %d\n",int(filfile.samples_read()));
+   printf("current_sample = %d\n",int(filfile.current_sample()));
    printf("fch1 = %.8f\n",filfile.fch1());
    printf("foff = %.8f\n",filfile.foff());
    printf("tstart = %.4f\n",filfile.tstart());
@@ -182,7 +182,7 @@ int main(int argc,char* argv[])
       filfile_norm.name( gOutNormFilFile.c_str() );
    
       if( normalisation_spectrum.size() > 0 ){
-         printf("Saving of normalised file (%s) is required , normalisation spectrum size = %d channels\n",gOutNormFilFile.c_str(),normalisation_spectrum.size());
+         printf("Saving of normalised file (%s) is required , normalisation spectrum size = %d channels\n",gOutNormFilFile.c_str(),int(normalisation_spectrum.size()));
          if( normalisation_spectrum.size() != filfile.nchans() ){
             printf("ERROR : wrong normalisation spectrum provided in file %s -> cannot normalise -> exiting now !\n",gNormFile.c_str());
             exit(-1);
@@ -261,7 +261,7 @@ int main(int argc,char* argv[])
        // if required subtract mean spectra in the 1st step :
        if( normalisation_spectrum.size() > 0 ){
            if( n_sample_size != normalisation_spectrum.size() ){ 
-              printf("ERROR : normalisation spectrum has %d channels != .fil file spectrum %d with %d channels\n",normalisation_spectrum.size(),spectra_count,n_sample_size);
+              printf("ERROR : normalisation spectrum has %d channels != .fil file spectrum %d with %d channels\n",int(normalisation_spectrum.size()),spectra_count,n_sample_size);
               exit(-1);
            }
 

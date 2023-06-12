@@ -70,11 +70,11 @@ int main(int argc,char* argv[])
       headers_diffs++;
    }
    if( filfile1.samples_read() != filfile2.samples_read() ){
-      printf("samples_read() differ : %d != %d\n",filfile1.samples_read(),filfile2.samples_read() );
+      printf("samples_read() differ : %d != %d\n",int(filfile1.samples_read()),int(filfile2.samples_read()) );
       headers_diffs++;
    }
    if( filfile1.current_sample() != filfile2.current_sample() ){
-      printf("current_sample() differ : %d != %d\n",filfile1.current_sample(),filfile2.current_sample() );
+      printf("current_sample() differ : %d != %d\n",int(filfile1.current_sample()),int(filfile2.current_sample()) );
       headers_diffs++;
    }
    if( filfile1.fch1() != filfile2.fch1() ){
@@ -104,8 +104,8 @@ int main(int argc,char* argv[])
       printf("\tnchans = %d\n",filfile1.nchans());
       printf("\tnpols  = %d\n",filfile1.npols());
       printf("\tnants  = %d\n",filfile1.nants());
-      printf("\tsamples_read = %d\n",filfile1.samples_read());
-      printf("\tcurrent_sample = %d\n",filfile1.current_sample());
+      printf("\tsamples_read = %d\n",int(filfile1.samples_read()));
+      printf("\tcurrent_sample = %d\n",int(filfile1.current_sample()));
       printf("\tfch1 = %.8f (%.8f)\n",filfile1.fch1(),filfile2.fch1());
       printf("\tfoff = %.4f\n",filfile1.foff());
       printf("\ttstart = %.4f\n",filfile1.tstart());

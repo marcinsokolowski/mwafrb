@@ -338,6 +338,11 @@ int SigprocFile::Write( const char* filename )
    m_fd = fileno(m_file);
    int written = fwrite( m_hdr, sizeof(char), m_hdr_nbytes, m_file );
    WriteData( data, n_read/sizeof(float) );
+
+   // read and write the remaining data - usually the files can be longer than just 10240472 bytes ( = 10.24 MB )   
+   while( (n_read = fread(data, sizeof(uint8_t), 10240472, m_file)) >0 ){
+       WriteData( data, n_read/sizeof(float) );
+   }
    
    delete [] data;
    

@@ -28,11 +28,13 @@ int n_channels  = 1280;
 int n_timesteps = 1000;
 double psr_period_in_milisec = 253.0651649482;
 
-void mkdir( const char* dir )
+int mkdir( const char* dir )
 {
    char szCommand[1024];
    sprintf(szCommand,"mkdir -p %s", dir );
-   system(szCommand);   
+   int ret = system(szCommand);   
+   
+   return ret;
 }
 
 int gDumpToTxt=0;
@@ -174,7 +176,7 @@ int main(int argc,char* argv[])
 //      float* buffer_data = new float[block_size];
       float* buffer_data = (float*)malloc(block_size);
       memset( buffer_data, '\0', block_size );
-      printf("Block size = %d floats ( = %d bytes )\n",(block_size/sizeof(float)),block_size);
+      printf("Block size = %d floats ( = %d bytes )\n",int(block_size/sizeof(float)),block_size);
       
       FILE* out_totpow_f = fopen("total_power.txt","w");
       FILE* out_dump_f   = NULL;
