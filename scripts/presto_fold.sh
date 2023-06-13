@@ -47,5 +47,6 @@ update_fil_header ${filfile} -t 117 -r $ra_deg -d $dec_deg
 echo "readfile updated.fil"
 readfile updated.fil
 
-echo "prepfold -psr ${name} -debug -nopsearch -nodmsearch -nosearch -n 32 updated.fil"
-prepfold -psr ${name} -debug -nopsearch -nodmsearch -nosearch -n 32 updated.fil
+# to use all the data use -npart 40 (or different value !) see /home/msok/Desktop/FRBs/FRB_ASKAP_RW/MWA_FRB_searches_real-time/20230613_PRESTO_HELP_FROM_SAM.odt
+echo "prepfold -psr ${name} -debug -nopsearch -nodmsearch -nosearch -n 32 -npart 40 updated.fil"
+prepfold -psr ${name} -debug -nopsearch -nodmsearch -nosearch -n 32 -npart 40 updated.fil
