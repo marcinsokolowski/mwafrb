@@ -18,10 +18,28 @@ if [[ -n "$3" && "$3" != "-" ]]; then
    min_dm=$3
 fi
 
+max_candidates=1000
+if [[ -n "$4" && "$4" != "-" ]]; then
+   max_candidates=$4
+fi
+
+
 candfile=${filfile%%fil}cand
 sorted_cand=${candfile%%.cand}_sorted.cand
 # cat $candfile | sort -r --key=2 > ${sorted_cand}
 cat $candfile | sort --key=8 > ${sorted_cand}
+
+n_cand=`cat $candfile | wc -l`
+echo "INFO : number of candidates = $n_cand -> comparing with limit of $max_candidates"
+if [[ $n_cand -gt $max_candidates ]]; then
+   echo "WARNING : number of candidates larger than limit !!! $n_cand > $max_candidates -> cannot generate png files -> trying to use cand_merged"
+   
+   echo "showcand_merged.sh ${filfile} ${min_snr} ${min_dm} ${max_candidates}"
+   showcand_merged.sh ${filfile} ${min_snr} ${min_dm} ${max_candidates}
+   
+   echo "WARNING : script showcand.sh will not continue to individual events due to too many"
+   exit;
+fi
 
 prev_sampno=-1000
 step=100

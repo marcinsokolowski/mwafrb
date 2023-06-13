@@ -15,9 +15,20 @@ if [[ -n "$3" && "$3" != "-" ]]; then
    min_dm=$3
 fi
 
+max_candidates=1000
+if [[ -n "$4" && "$4" != "-" ]]; then
+   max_candidates=$4
+fi
 
 candfile=${filfile%%fil}cand_merged
 sorted_cand=${filfile%%.fil}_sorted.cand_merged
+
+n_cand=`cat $candfile | wc -l`
+if [[ $n_cand -gt $max_candidates ]]; then
+   echo "WARNING : number of candidates larger than limit !!! $n_cand > $max_candidates -> cannot generate png files -> cannot continue because it happened for .cand_merged file !"
+   exit
+fi
+
 
 prev_sampno=-1000
 step=100
