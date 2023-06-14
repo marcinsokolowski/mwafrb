@@ -1,0 +1,8 @@
+#!/bin/bash
+
+~/github/mwafrb/scripts/process_offline.sh J0835-4510 Vela_Ch121.obsid 83520.61149 -451034.8751 /datax2/mwa_fil/ 1 > J0835_ch121.out 2>&1
+cd Vela_Ch121/Fredda
+/home/msok/github/mwafrb/scripts/prepare_all_plots.sh
+
+
+

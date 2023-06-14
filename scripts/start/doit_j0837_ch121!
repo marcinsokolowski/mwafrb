@@ -1,0 +1,22 @@
+#!/bin/bash
+
+# PSRJ            J0837+0610
+# PSRB            B0834+06
+# NAME            B0834+06
+# RAJ             08:37:05.642                  3.000e-03
+# DECJ            +06:10:14.56                  1.400e-01
+~/github/mwafrb/scripts/process_offline.sh J0837+0610 J0837+0610_Ch121.obsid 083705.642 061014.56 /datax2/mwa_fil/ 1 > J0837_ch121.out 2>&1
+# cd J0837+0610_Ch121/Folding
+# ~/github/mwafrb/scripts/presto_fold_all.sh
+# cd ../../
+cd J0837+0610_Ch121/Fredda/
+~/github/mwafrb/scripts/prepare_all_plots.sh
+
+
+# ch=169 :
+# cd ../../
+# ~/github/mwafrb/scripts/process_offline.sh J0837+0610 J0837+0610_Ch169.obsid 083705.642 061014.56 /datax2/mwa_fil/ 1 > J0837_ch169.out 2>&1
+# cd J0837+0610_Ch169/Fredda/
+# ~/github/mwafrb/scripts/prepare_all_plots.sh
+
+

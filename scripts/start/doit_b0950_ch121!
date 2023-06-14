@@ -1,0 +1,14 @@
+#!/bin/bash
+
+# PSRJ            J0953+0755
+# PSRB            B0950+08
+# NAME            B0950+08
+# RAJ             09:53:09.3097                 1.900e-03
+# DECJ            +07:55:35.75                  8.000e-02
+# J0953+0755_Ch121.obsid
+~/github/mwafrb/scripts/process_offline.sh J0953+0755 J0953+0755_Ch121.obsid 095309.3097 +075535.75 /datax2/mwa_fil/ 1 > B0950_ch121.out 2>&1
+cd J0953+0755_Ch121/Fredda
+/home/msok/github/mwafrb/scripts/prepare_all_plots.sh
+
+
+
