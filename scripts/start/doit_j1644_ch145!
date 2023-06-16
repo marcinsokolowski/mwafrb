@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# PSRJ            J1644-4559
+# PSRB            B1641-45
+# NAME            B1641-45
+# RAJ             16:44:49.273                  2.000e-03
+# DECJ            -45:59:09.71                  5.000e-02
+# ELONG           255.87
+# ELAT            -23.46
+# DM              478.66                        4.000e-02
+# PEPOCH          57600
+# F0              2.197424522481                9.000e-12
+# F1              -97.0042E-15                  3.000e-19
+# P0              0.4550782016717               1.900e-12
+# P1              2.008920E-14                  7.000e-20
+# DIST_DM         4.437
+# DIST_DM1        5.085
+# SURVEY          misc,mol2,pks1,pks70,pksmb,htr
+# S400            375
+# S800            1040                          6.000e+01
+# S1400           300                           6.000e+01
+# S5000           30                  
+~/github/mwafrb/scripts/process_offline.sh J1644-4559 J1644-4559_Ch145.obsid 164449.273 -455909.71 /datax2/mwa_fil/ 1 > J1644-4559_Ch145.out 2>&1
+cd J1644-4559_Ch145/Fredda
+/home/msok/github/mwafrb/scripts/prepare_all_plots.sh
+
+
