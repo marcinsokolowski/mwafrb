@@ -23,6 +23,18 @@ if [[ -n "$4" && "$4" != "-" ]]; then
    max_candidates=$4
 fi
 
+skip_time_in_sec=2 # skip events in the first two seconds as power drops occur then :
+if [[ -n "$5" && "$5" != "-" ]]; then
+   skip_time_in_sec=$5
+fi
+
+echo "###############################################"
+echo "# PARAMETERS :"
+echo "###############################################"
+echo "skip_time_in_sec = $skip_time_in_sec"
+echo "###############################################"
+
+
 
 candfile=${filfile%%fil}cand
 sorted_cand=${candfile%%.cand}_sorted.cand
@@ -53,9 +65,11 @@ do
 
    if [[ $snr != "#" ]]; then
       sampno=`echo $line | awk '{print $2;}'`               
+      timesec=`echo $line | awk '{print $3;}'`
       dm=`echo $line | awk '{print $6;}'`
       dm_ok=`echo $dm $min_dm | awk '{if($1>=$2){print 1;}else{print 0;}}'`
       snr_ok=`echo $snr $min_snr | awk '{if($1>=$2){print 1;}else{print 0;}}'`
+      timesec_ok=`echo $timesec | awk -v skip_time_in_sec=${skip_time_in_sec} '{if($1>skip_time_in_sec){print 1;}else{print 0;}}'`
  
       if [[ $dm_ok -gt 0 && $snr_ok -gt 0 ]]; then   
          if [[ $sampno -gt $prev_sampno ]]; then
