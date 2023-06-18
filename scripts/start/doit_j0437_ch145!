@@ -1,0 +1,11 @@
+#!/bin/bash
+
+# ~/github/mwafrb/scripts/prepare_csv.sh
+
+# ~/github/mwafrb/scripts/process_offline.sh J0835-4510 Vela_Ch145.obsid 83520.61149 -451034.8751 /datax2/mwa_fil/ 1 > J0835_ch145.out 2>&1
+~/github/mwafrb/scripts/process_offline.sh J0437-4715 J0437-4715_Ch145.obsid 43715.8961737 -471509.110714 /datax2/mwa_fil/ 1 > J0437_ch145.out 2>&1
+cd J0437-4715_Ch145/Fredda
+/home/msok/github/mwafrb/scripts/prepare_all_plots.sh
+
+
+
