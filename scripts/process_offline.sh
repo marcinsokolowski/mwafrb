@@ -83,6 +83,12 @@ else
    echo "INFO : getting data is not required"
 fi   
 
+cnt_ok=`cat ok_files.txt | wc -l`
+if [[ $cnt_ok -le 0 ]]; then
+   echo "WARNING / ERROR : no filterbank files found on server -> nothing to process"
+   exit -1
+fi
+
 mkdir -p ${outdir}
 echo "cp ${obslist_file} ${outdir}/"
 cp ${obslist_file} ${outdir}/
