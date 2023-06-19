@@ -1,0 +1,33 @@
+#!/bin/bash
+
+#PSRJ            J0837-4135
+#PSRB            B0835-41
+#NAME            B0835-41
+#RAJ             08:37:21.1943                 6.000e-04
+#DECJ            -41:35:14.563                 6.000e-03
+#ELONG           150.64
+#ELAT            -57.04
+#DM              147.20                        1.000e-02
+#PEPOCH          57600
+#F0              1.330449942221                2.000e-12
+#F1              -6.26345E-15                  6.000e-20
+#P0              0.7516254225474               1.200e-12
+#P1              3.53848E-15                   4.000e-20
+#DIST_DM         1.421
+#DIST_DM1        1.043
+#SURVEY          mol1,mol2,pks70,pksmb,pkshl,ht
+#PMRA            11                            2.000e+00
+#PMDEC           -13                           1.000e+00
+#S200            151                           4.000e+00
+#S400            197
+#S800            77                            6.000e+00
+#S1400           35                            9.000e+00
+#S5000           3.5                           1.700e+00
+#W50             4.4
+#W10             18
+~/github/mwafrb/scripts/process_offline.sh J0837-4135 J0837-4135_Ch121.obsid 083721.1943 -413514.563 /datax2/mwa_fil/ 1 > J0837-4135_ch121.out 2>&1
+cd J0837-4135_Ch121/Fredda
+/home/msok/github/mwafrb/scripts/prepare_all_plots.sh
+
+
+
