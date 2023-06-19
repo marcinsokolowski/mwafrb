@@ -50,5 +50,5 @@ readfile updated.fil
 # to use all the data use -npart 40 (or different value !) see /home/msok/Desktop/FRBs/FRB_ASKAP_RW/MWA_FRB_searches_real-time/20230613_PRESTO_HELP_FROM_SAM.odt
 # Explanations of options :
 # -start 0.02 : skip the 1st 6sec/300sec = 0.02 of observation (this is assuming 300sec observations) - because the start is always some power drop (due to lost packets !?)
-echo "prepfold -psr ${name} -debug -nopsearch -nodmsearch -nosearch -n 32 -npart 40 -start 0.02 updated.fil"
-prepfold -psr ${name} -debug -nopsearch -nodmsearch -nosearch -n 32 -npart 40 -start 0.02 updated.fil
+echo "prepfold -psr ${name} -debug -nopsearch -nodmsearch -nosearch -n 32 -npart 40 -start 0.08 updated.fil"
+prepfold -psr ${name} -debug -nopsearch -nodmsearch -nosearch -n 32 -npart 40 -start 0.08 updated.fil
