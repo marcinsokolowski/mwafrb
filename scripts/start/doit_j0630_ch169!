@@ -25,7 +25,7 @@
 # S1400           31.9                          6.400e+00
 # W50             63
 # W10             122
-~/github/mwafrb/scripts/process_offline.sh J0630-2834 J0630-2834_Ch169.obsid 63049.404393 -283442.77881/datax2/mwa_fil/ 1 > J0630_ch169.out 2>&1
+~/github/mwafrb/scripts/process_offline.sh J0630-2834 J0630-2834_Ch169.obsid 63049.404393 -283442.77881 /datax2/mwa_fil/ 1 > J0630_ch169.out 2>&1
 cd J0630-2834_Ch169/Fredda
 /home/msok/github/mwafrb/scripts/prepare_all_plots.sh
 
