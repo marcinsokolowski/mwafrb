@@ -158,6 +158,8 @@ process_new_fil_files.sh 1 $path $path
 
 # calculated expected sensitivity 
 if [[ $calc_expected -gt 0 ]]; then
+   cd ../
+   pwd
    half_cnt=`cat $obslist_file | wc -l | awk '{print $1/2;}'`
    
    middle_obsid=`cat $obslist_file | head --lines=${half_cnt} | tail -1`
