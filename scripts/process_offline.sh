@@ -82,6 +82,7 @@ if [[ -n "${13}" && "${13}" != "-" ]]; then
    external_flux_density=${13}
 fi
 
+n_bins=32
 
 echo "##########################################"
 echo "PARAMETERS:"
@@ -98,6 +99,7 @@ echo "   inttime_sec        = $inttime_sec"
 echo "   freq_channel       = $freq_channel ($freq_mhz MHz)"
 echo "   external_pulse_width = $external_pulse_width_ms [ms]"
 echo "   external_flux_density = $external_flux_density"
+echo "   n_bins                = $n_bins"
 echo "##########################################"
 
 
@@ -193,8 +195,8 @@ if [[ $calc_expected -gt 0 ]]; then
       echo "Using external flux density = $flux_density [Jy]"
    fi
    
-   echo "python ~/github/mwa_pb/scripts/mwa_sensitivity.py -c ${freq_channel} -m full_EE -g ${middle_obsid} --pointing_ra_deg=${ra_deg} --pointing_dec_deg=${dec_deg} --metafits=${middle_obsid}.metafits --inttime=${inttime_sec} --antnum=128 --total_observing_time=${inttime_sec} --incoherent --pulsar_observing_time=${observing_time_sec} --n_phase_bins=25 --psr_mean_flux=${flux_density} --psr_period=${period} --psr_pulse_width=${pulse_width_sec} --show_snr --bandwidth=1280000 > ${object}_ch${freq_channel}_expected.out 2>&1"
-   python ~/github/mwa_pb/scripts/mwa_sensitivity.py -c ${freq_channel} -m full_EE -g ${middle_obsid} --pointing_ra_deg=${ra_deg} --pointing_dec_deg=${dec_deg} --metafits=${middle_obsid}.metafits --inttime=${inttime_sec} --antnum=128 --total_observing_time=${inttime_sec} --incoherent --pulsar_observing_time=${observing_time_sec} --n_phase_bins=25 --psr_mean_flux=${flux_density} --psr_period=${period} --psr_pulse_width=${pulse_width_sec} --show_snr --bandwidth=1280000 > ${object}_ch${freq_channel}_expected.out 2>&1
+   echo "python ~/github/mwa_pb/scripts/mwa_sensitivity.py -c ${freq_channel} -m full_EE -g ${middle_obsid} --pointing_ra_deg=${ra_deg} --pointing_dec_deg=${dec_deg} --metafits=${middle_obsid}.metafits --inttime=${inttime_sec} --antnum=128 --total_observing_time=${inttime_sec} --incoherent --pulsar_observing_time=${observing_time_sec} --n_phase_bins=${n_bins} --psr_mean_flux=${flux_density} --psr_period=${period} --psr_pulse_width=${pulse_width_sec} --show_snr --bandwidth=1280000 > ${object}_ch${freq_channel}_expected.out 2>&1"
+   python ~/github/mwa_pb/scripts/mwa_sensitivity.py -c ${freq_channel} -m full_EE -g ${middle_obsid} --pointing_ra_deg=${ra_deg} --pointing_dec_deg=${dec_deg} --metafits=${middle_obsid}.metafits --inttime=${inttime_sec} --antnum=128 --total_observing_time=${inttime_sec} --incoherent --pulsar_observing_time=${observing_time_sec} --n_phase_bins=${n_bins} --psr_mean_flux=${flux_density} --psr_period=${period} --psr_pulse_width=${pulse_width_sec} --show_snr --bandwidth=1280000 > ${object}_ch${freq_channel}_expected.out 2>&1
    # python ~/github/mwa_pb/scripts/mwa_sensitivity.py -c ${ch} -m full_EE -g ${middle_obsid} --pointing_az_deg=0.00 --pointing_za_deg=0.00 --delays 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 --inttime=${inttime}  --antnum=128 --total_observing_time=${inttime} --incoherent --pulsar_observing_time=296.00 --n_phase_bins=32 --psr_mean_flux=2.37 --psr_period=0.2530651649482 --psr_pulse_width=0.0206 --show_snr --bandwidth=${bw_hz}
 fi
 
