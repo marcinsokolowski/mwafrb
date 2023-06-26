@@ -1,8 +1,19 @@
 #!/bin/bash
 
+do_plots=1
+if [[ -n "$1" && "$1" != "-" ]]; then
+   do_plots=$1
+fi
+
 ~/github/mwafrb/scripts/process_offline.sh J0835-4510 Vela_Ch169.obsid 83520.61149 -451034.8751 /datax2/mwa_fil/ 1 > J0835_ch169.out 2>&1
 cd Vela_Ch169/Fredda
-/home/msok/github/mwafrb/scripts/prepare_all_plots.sh
 
+if [[ $do_plots -gt 0 ]]; then
+   echo "/home/msok/github/mwafrb/scripts/prepare_all_plots.sh"
+   /home/msok/github/mwafrb/scripts/prepare_all_plots.sh
+else
+   echo "WARNING : creating plots of FREDDA candidates is not required in order to execute manually, run command:"
+   echo "          /home/msok/github/mwafrb/scripts/prepare_all_plots.sh"
+fi
 
 

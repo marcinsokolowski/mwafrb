@@ -20,6 +20,12 @@ if [[ -n "$4" && "$4" != "-" ]]; then
    step_file=$4
 fi
 
+max_candidates_for_fof=10000
+if [[ -n "$5" && "$5" != "-" ]]; then
+   max_candidates_for_fof=$5
+fi
+
+
 # turn off in testing stage :
 check_step_file=0
 
@@ -27,6 +33,7 @@ echo "###############################################"
 echo "PARAMETERS :"
 echo "###############################################"
 echo "check_step_file = $check_step_file"
+echo "max_candidates_for_fof = $max_candidates_for_fof"
 echo "###############################################"
 
 
@@ -58,13 +65,19 @@ do
    
    # simple grouping to have reasonable number of candidates to inspect :
    # --step_file=total_power_fil_RunningMedian5_median.steps_vs_timeindex 
+   cand_count=`cat $cand_file | wc -l | awk '{print $1;}'`
+   echo "INFO : number of candidates in file $cand_file is $cand_count"
 
-   if [[ $check_step_file -gt 0 ]]; then
-      echo "python $MWA_FRB/scripts/my_friends_of_friends.py $cand_file --outfile=${merged_cand_file} --step_file=${step_file}"
-      python $MWA_FRB/scripts/my_friends_of_friends.py $cand_file --outfile=${merged_cand_file} --step_file=${step_file}
+   if [[ $cand_count -le $max_candidates_for_fof ]]; then
+      if [[ $check_step_file -gt 0 ]]; then
+         echo "python $MWA_FRB/scripts/my_friends_of_friends.py $cand_file --outfile=${merged_cand_file} --step_file=${step_file}"
+         python $MWA_FRB/scripts/my_friends_of_friends.py $cand_file --outfile=${merged_cand_file} --step_file=${step_file}
+      else
+         echo "python $MWA_FRB/scripts/my_friends_of_friends.py $cand_file --outfile=${merged_cand_file}"
+         python $MWA_FRB/scripts/my_friends_of_friends.py $cand_file --outfile=${merged_cand_file}
+      fi
    else
-      echo "python $MWA_FRB/scripts/my_friends_of_friends.py $cand_file --outfile=${merged_cand_file}"
-      python $MWA_FRB/scripts/my_friends_of_friends.py $cand_file --outfile=${merged_cand_file}
+      echo "WARNING : number of candidates ($cand_count) too large to execute script $MWA_FRB/scripts/my_friends_of_friends.py -> ignored"      
    fi
    
    ux_end=`date +%s`

@@ -1,5 +1,13 @@
 #!/bin/bash
 
+
+do_plots=1
+if [[ -n "$1" && "$1" != "-" ]]; then
+   do_plots=$1
+fi
+
+
+
 # PSRJ            J0953+0755
 # PSRB            B0950+08
 # NAME            B0950+08
@@ -8,7 +16,11 @@
 # J0953+0755_Ch121.obsid
 ~/github/mwafrb/scripts/process_offline.sh J0953+0755 J0953+0755_Ch121.obsid 095309.3097 +075535.75 /datax2/mwa_fil/ 1 > B0950_ch121.out 2>&1
 cd J0953+0755_Ch121/Fredda
-/home/msok/github/mwafrb/scripts/prepare_all_plots.sh
 
-
-
+if [[ $do_plots -gt 0 ]]; then
+   echo "/home/msok/github/mwafrb/scripts/prepare_all_plots.sh"
+   /home/msok/github/mwafrb/scripts/prepare_all_plots.sh
+else
+   echo "WARNING : creating plots of FREDDA candidates is not required in order to execute manually, run command:"
+   echo "          /home/msok/github/mwafrb/scripts/prepare_all_plots.sh"
+fi
