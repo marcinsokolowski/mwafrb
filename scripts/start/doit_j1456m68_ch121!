@@ -1,0 +1,46 @@
+#!/bin/bash
+
+do_plots=1
+if [[ -n "$1" && "$1" != "-" ]]; then
+   do_plots=$1
+fi
+
+# PSRJ            J1456-6843
+# PSRB            B1451-68
+# NAME            B1451-68
+# RAJ             14:55:59.923                  3.000e-03
+# DECJ            -68:43:39.50                  2.000e-02
+# ELONG           246.56
+# ELAT            -49.00
+# DM              8.613                         4.000e-03
+# PEPOCH          57600
+# F0              3.796840090121                6.000e-12
+# F1              -1.4264E-15                   3.000e-19
+# P0              0.2633769071818               5.000e-13
+# P1              9.895E-17                     3.000e-20
+# DIST_DM         0.436
+# DIST_DM1        0.459
+# SURVEY          mol1,mol2,pks70,pkssw,htru_pks
+# PMRA            -39.5                         4.000e-01
+# PMDEC           -12.3                         3.000e-01
+# S150            930                           3.000e+01
+# S200            878                           2.800e+01
+# S400            350
+# S800            90                            3.000e+01
+# S1400           64                            1.300e+01
+# W50             13
+# W10             26
+
+~/github/mwafrb/scripts/process_offline.sh J1456-6843 J1456-6843_Ch121.obsid 145559.923 -684339.50 /datax2/mwa_fil/ 1 > J1456_ch121.out 2>&1
+cd J1456-6843_Ch121/Fredda
+
+
+if [[ $do_plots -gt 0 ]]; then
+   echo "/home/msok/github/mwafrb/scripts/prepare_all_plots.sh"
+   /home/msok/github/mwafrb/scripts/prepare_all_plots.sh
+else
+   echo "WARNING : creating plots of FREDDA candidates is not required in order to execute manually, run command:"
+   echo "          /home/msok/github/mwafrb/scripts/prepare_all_plots.sh"
+fi
+
+
