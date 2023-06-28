@@ -192,7 +192,7 @@ if [[ $calc_expected -gt 0 ]]; then
    flux_density=`echo $flux_density_line | awk '{print $2/1000.00;}'` # in Jy 
 
    ok=`echo $external_flux_density | awk '{if($1>0){print 1;}else{print 0;}}'`   
-   if [[ $external_flux_density -gt 0 ]]; then
+   if [[ $ok -gt 0 ]]; then
       flux_density=$external_flux_density
       echo "Using external flux density = $flux_density [Jy]"
    fi
