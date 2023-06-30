@@ -1,5 +1,11 @@
 #!/bin/bash
 
+do_plots=1
+if [[ -n "$1" && "$1" != "-" ]]; then
+   do_plots=$1
+fi
+
+
 # PSRJ            J1752-2806
 # PSRB            B1749-28
 # NAME            B1749-28
@@ -10,7 +16,15 @@
 # ~/github/mwafrb/scripts/presto_fold_all.sh
 # cd ../../
 cd J1752-2806_Ch169/Fredda/
-~/github/mwafrb/scripts/prepare_all_plots.sh
+
+if [[ $do_plots -gt 0 ]]; then
+   echo "/home/msok/github/mwafrb/scripts/prepare_all_plots.sh"
+   /home/msok/github/mwafrb/scripts/prepare_all_plots.sh
+else
+   echo "WARNING : creating plots of FREDDA candidates is not required in order to execute manually, run command:"
+   echo "          /home/msok/github/mwafrb/scripts/prepare_all_plots.sh"
+fi
+
 
 
 # ch=169 :

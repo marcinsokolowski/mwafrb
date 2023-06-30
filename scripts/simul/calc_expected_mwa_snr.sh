@@ -1,8 +1,28 @@
 #!/bin/bash
 
 obsid=1360078208
+if [[ -n "$1" && "$1" != "-" ]]; then
+   obsid=$1
+fi
+
 inttime=0.10
+if [[ -n "$2" && "$2" != "-" ]]; then
+   inttime=$2
+fi
+
 total_time=240
+if [[ -n "$3" && "$3" != "-" ]]; then
+   total_time=$3
+fi
+
+echo "------------------------------"
+echo "PARAMETERS:"
+echo "------------------------------"
+echo "obsid   = $obsid"
+echo "inttime = $inttime [sec]"
+echo "total_time = $total_time [sec]"
+echo "------------------------------"
+
 
 getmeta! ${obsid}
 
