@@ -20,7 +20,7 @@ if [[ -n "$4" && "$4" != "-" ]]; then
    step_file=$4
 fi
 
-max_candidates_for_fof=10000
+max_candidates_for_fof=100000
 if [[ -n "$5" && "$5" != "-" ]]; then
    max_candidates_for_fof=$5
 fi
