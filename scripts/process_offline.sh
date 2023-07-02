@@ -82,6 +82,12 @@ if [[ -n "${13}" && "${13}" != "-" ]]; then
    external_flux_density=${13}
 fi
 
+do_fredda=1
+if [[ -n "${14}" && "${14}" != "-" ]]; then
+   do_fredda=${14}
+fi
+
+
 n_bins=32
 
 echo "##########################################"
@@ -100,6 +106,8 @@ echo "   freq_channel       = $freq_channel ($freq_mhz MHz)"
 echo "   external_pulse_width = $external_pulse_width_ms [ms]"
 echo "   external_flux_density = $external_flux_density"
 echo "   n_bins                = $n_bins"
+echo
+echo "do_fredda = $do_fredda"
 echo "##########################################"
 
 
@@ -145,22 +153,11 @@ create_links "${obslist_file}"
 echo "presto_fold_all.sh \"*_02.fil\" ${object} ${ra} ${dec}"
 presto_fold_all.sh "*_02.fil" ${object} ${ra} ${dec}
 
-
-# FREDDA :
-cd ../Fredda/
-echo "cp ../${obslist_file} ."
-cp ../${obslist_file} .
-create_links "${obslist_file}"
-
-path=`pwd`
-echo "process_new_fil_files.sh 1 $path $path"
-process_new_fil_files.sh 1 $path $path
-
 # calculated expected sensitivity 
 if [[ $calc_expected -gt 0 ]]; then
-   cd ../
    pwd
-   half_cnt=`cat $obslist_file | wc -l | awk '{print $1/2;}'`
+   ls -al $obslist_file 
+   half_cnt=`cat $obslist_file | wc -l | awk '{printf("%d\n",int($1/2));}'`
    
    middle_obsid=`cat $obslist_file | head --lines=${half_cnt} | tail -1`
    echo "Calculating expected sensitivity and SNRs for middle obsID = $middle_obsid"
@@ -202,3 +199,17 @@ if [[ $calc_expected -gt 0 ]]; then
    # python ~/github/mwa_pb/scripts/mwa_sensitivity.py -c ${ch} -m full_EE -g ${middle_obsid} --pointing_az_deg=0.00 --pointing_za_deg=0.00 --delays 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0 --inttime=${inttime}  --antnum=128 --total_observing_time=${inttime} --incoherent --pulsar_observing_time=296.00 --n_phase_bins=32 --psr_mean_flux=2.37 --psr_period=0.2530651649482 --psr_pulse_width=0.0206 --show_snr --bandwidth=${bw_hz}
 fi
 
+
+if [[ $do_fredda -gt 0 ]]; then
+   # FREDDA :
+   cd ../Fredda/
+   echo "cp ../${obslist_file} ."
+   cp ../${obslist_file} .
+   create_links "${obslist_file}"
+
+   path=`pwd`
+   echo "process_new_fil_files.sh 1 $path $path"
+   process_new_fil_files.sh 1 $path $path
+else
+   echo "WARNING : FREDDA execution is not required"
+fi   

@@ -22,8 +22,8 @@ if [[ -n "$1" && "$1" != "-" ]]; then
    do_plots=$1
 fi
 
-~/github/mwafrb/scripts/process_offline.sh B0531+21 B0531+21_Ch121.obsid 053431.973 +220052.06 /datax2/mwa_fil/ 1 - - - 0.0001 > Crab_ch121.out 2>&1
-cd B0531+21_Ch121/Fredda
+~/github/mwafrb/scripts/process_offline.sh B0531+21 B0531+21_Ch169.obsid 053431.973 +220052.06 /datax2/mwa_fil/ 1 - - - 0.0001 > Crab_ch169.out 2>&1
+cd B0531+21_Ch169/Fredda
 
 if [[ $do_plots -gt 0 ]]; then
    echo "/home/msok/github/mwafrb/scripts/prepare_all_plots.sh"
