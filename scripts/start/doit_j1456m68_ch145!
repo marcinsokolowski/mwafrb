@@ -31,7 +31,7 @@ fi
 # W50             13
 # W10             26
 
-~/github/mwafrb/scripts/process_offline.sh J1456-6843 J1456-6843_Ch145.obsid 145559.923 -684339.50 /datax2/mwa_fil/ 1 > J1456_ch145.out 2>&1
+~/github/mwafrb/scripts/process_offline.sh J1456-6843 J1456-6843_Ch145.obsid 145559.923 -684339.50 /datax2/mwa_fil/ 1 - 1 480 0.001 145 > J1456_ch145.out 2>&1
 cd J1456-6843_Ch145/Fredda
 
 
