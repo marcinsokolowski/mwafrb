@@ -172,7 +172,8 @@ def read_file(file,verb=False,frbsearch_input=False) :
       if frbsearch_input : # input as from frb_search package 
          # TIME  DM  SNR  N_PIX
          # 201.3 10.0 11.4423 0 20277.0 0.0
-         t = int( float( words[0+0] ) )
+         # t = int( float( words[0+0] ) ) why it was int() ??? use float !
+         t = float( words[0+0] ) # 2023-07-14 - changed to float so that I can read time in seconds too 
          snr = float( words[2+0] )
          dm  = float( words[1+0] )
          
@@ -397,13 +398,17 @@ if __name__ == '__main__':
       for i in range(0,len(out_list)) :   
          cand = out_list[i]
          
-         cand_start_time = cand.min_timestep*options.timeres_sec 
-         cand_end_time = cand.max_timestep*options.timeres_sec 
+         cand_start_time = cand.min_timestep*options.timeres_sec - 0.1 
+         cand_end_time = cand.max_timestep*options.timeres_sec  + 0.1 
+         
+         print("Checking candidates at %.6f - %.6f" % (cand_start_time,cand_end_time))
 
          found=False
-         for real_pulse in real_pulse_list :
+         for real_pulse in real_pulse_list :            
+            # print("\tcompare with %.6f [sec]" % (real_pulse.timestep))
             if cand_start_time <= real_pulse.timestep and real_pulse.timestep <= cand_end_time :
                # event caused by a real pulse 
+               print("\tFound true pulse at %.6f [sec]" % (real_pulse.timestep))
                found=True
                break
         
