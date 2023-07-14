@@ -26,6 +26,8 @@ def parse_options(idx):
    parser.add_option('--frbsearch_format','--frbsearch_input',action="store_true",dest="frbsearch_input",default=False, help="Format of input files [default %default]")
    parser.add_option('-d','--debug','--verbose',action="store_true",dest="debug",default=False, help="Debug mode [default %default]")
    parser.add_option('--print_max_snr_range',action="store_false",dest="print_as_is",default=True, help="For each merged candidate print time range of top 10 SNR candidates in this range [default %default]")
+   parser.add_option("--pulse_list_file","--pulse_list",'-p',dest="pulse_list_file",default=None,help="File with list of known pulses to check for FREDDA false-positives [default: %default]")
+   parser.add_option("--time_res","--time_res_sec","--timeres_sec",dest="timeres_sec",default=0.001,help="Time resolution in seconds  [default: %default]",type="float")
 #   parser.add_option("--station","-s",dest="station",default="aavs2",help="Station name [default: %default]")
 #   parser.add_option("--max_sun_elev","--max_sun","--sun_max",dest="max_sun_elev",default=20,help="Max Sun elevation [default: %default]",type="float")
    (options,args)=parser.parse_args(sys.argv[idx:])
@@ -239,6 +241,7 @@ def add( list , new_cand ) :
    
 
 def friends_of_friends( cand_list, radius=1000, debug=False ) :
+   print("INFO : friends_of_friends , radius = %.1f" % (radius))
    print_modulo=100
    if debug :
       print_modulo=1
@@ -380,7 +383,38 @@ if __name__ == '__main__':
       line = ("%05d : %06.2f %08.2f %012.4f  |%012.4f - %012.4f|   %s" % (i,max_snr,max_dm,(cand.max_timestep+cand.min_timestep)/2.00,min_time,max_time,file))
       print("%s" % (line))
       out_f.write( line + "\n" )
-      
-      
+            
    out_f.close()
+   
+   # check for false positives 
+   if options.pulse_list_file is not None :
+      # def read_file(file,verb=False,frbsearch_input=False) :
+      real_pulse_list = read_file( options.pulse_list_file,verb=True,frbsearch_input=True)      
+      
+      true_pulses = 0
+      false_positives = 0
+      
+      for i in range(0,len(out_list)) :   
+         cand = out_list[i]
+         
+         cand_start_time = cand.min_timestep*options.timeres_sec 
+         cand_end_time = cand.max_timestep*options.timeres_sec 
+
+         found=False
+         for real_pulse in real_pulse_list :
+            if cand_start_time <= real_pulse.timestep and real_pulse.timestep <= cand_end_time :
+               # event caused by a real pulse 
+               found=True
+               break
+        
+         if found :
+            true_pulses += 1
+         else :
+            false_positives += 1 
+                       
+
+      print("Fredda found %d real pulses (confirmed on the list)" % (true_pulses))
+      print("Fredda found %d false-positives" % (false_positives))
+         
+
 
