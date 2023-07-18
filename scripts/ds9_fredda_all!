@@ -60,12 +60,14 @@ do
          start_t=`echo $line | awk '{s=$6;if(substr(s,1,1)=="|"){s=substr(s,2);}printf("%d\n",s);}'`
          end_t=`echo $line | awk '{s=$8;l=length(s);s=substr(s,1,l-1);printf("%d\n",s);}'`
          dm_ok=`echo $line | awk -v min_dm=${min_dm} -v max_dm=10000000 '{if($4>=min_dm && $4<=max_dm){print 1;}else{print 0;}}'`
+         echo "DEBUG (merged_cand file) : snr = $snr -> snr_ok = $snr_ok , dm_ok = $dm_ok"
       else
          snr=`echo $line | awk '{print $1;}'`
          snr_ok=`echo $line | awk -v min_snr=${min_snr} -v max_snr=${max_snr} '{if($1>min_snr && $1<=max_snr){print 1;}else{print 0;}}'`
          start_t=`echo $line | awk '{print $2-100;}'`
          end_t=`echo $line | awk '{print $2+100;}'`
          dm_ok=`echo $line | awk -v min_dm=${min_dm} -v max_dm=10000000 '{if($5>=min_dm && $5<=max_dm){print 1;}else{print 0;}}'`
+         echo "DEBUG : snr = $snr -> snr_ok = $snr_ok , dm_ok = $dm_ok"
       fi
       
       
