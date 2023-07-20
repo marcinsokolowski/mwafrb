@@ -43,6 +43,11 @@ if [[ -n "$7" && "$7" != "-" ]]; then
    frb_width_pixels=$7
 fi 
 
+zoom=1
+if [[ -n "$8" && "$8" != "-" ]]; then
+   zoom=$8
+fi
+
 echo "#######################################"
 echo "PARAMETERS:"
 echo "#######################################"
@@ -51,8 +56,10 @@ echo "infile  = $infile"
 echo "merged_file = $merged_file"
 echo "dm_column = $dm_column"
 echo "frb_width_pixels = $frb_width_pixels"
+echo "zoom = $zoom"
 echo "#######################################"
 
+prev_start_t=-1000
 while read line 
 do
    first=`echo $line | awk '{print $1;}'`   
@@ -84,17 +91,25 @@ do
       # line x1 y1 x2 y2 # line=[0|1] [0|1]
       
       if [[ $snr_ok -gt 0 && $dm_ok -gt 0 ]]; then
-         echo " snr=$snr , snr_ok = $snr_ok   start_time = $start_t , end_t = $end_t"
-         echo "line $start_t 0 $start_t 128 # color = green" > ${start_t}_${end_t}.reg
-         echo "line $end_t 0 $end_t 128 # color = green" >> ${start_t}_${end_t}.reg
+         max_y=`fitshdr $fits | grep NAXIS2 | awk '{print $3;}'`
+         diff=$(($start_t-$prev_start_t))
+         
+         if [[ $diff -gt $frb_width_pixels ]]; then      
+            echo " snr=$snr , snr_ok = $snr_ok   start_time = $start_t , end_t = $end_t"
+            echo "line $start_t 0 $start_t $max_y # color = green" > ${start_t}_${end_t}.reg
+            echo "line $end_t 0 $end_t $max_y # color = green" >> ${start_t}_${end_t}.reg
 
-         if [[ $do_open -gt 0 ]]; then      
-            echo "ds9_fredda! ${start_t} ${fits} - - - - ${start_t}_${end_t}.reg"
-            ds9_fredda! ${start_t} ${fits} - - - - ${start_t}_${end_t}.reg 
+            if [[ $do_open -gt 0 ]]; then      
+               echo "ds9_fredda! ${start_t} ${fits} - - ${zoom} - ${start_t}_${end_t}.reg"
+               ds9_fredda! ${start_t} ${fits} - - ${zoom} - ${start_t}_${end_t}.reg 
             
-            sleep 1
-         else 
-            echo "WARNING : opening in ds9 is not requred"
+               sleep 1
+            else 
+               echo "WARNING : opening in ds9 is not requred"
+            fi
+            prev_start_t=$start_t
+         else
+            echo "Event at $start_t not much differnet than the previous one at $prev_start_t -> skipped"
          fi
       else
          echo "   INFO : snr = $snr is too low or wrong dm (dm_ok = $dm_ok) -> event not shown"
