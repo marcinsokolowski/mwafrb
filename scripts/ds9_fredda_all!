@@ -33,7 +33,15 @@ if [[ -n "$6" && "$6" != "-" ]]; then
    min_dm=$6
 fi
 
-# 
+dm_column=5
+if [[ -n "$7" && "$7" != "-" ]]; then
+   dm_column=$7
+fi
+
+frb_width_pixels=100
+if [[ -n "$7" && "$7" != "-" ]]; then
+   frb_width_pixels=$7
+fi 
 
 echo "#######################################"
 echo "PARAMETERS:"
@@ -41,6 +49,8 @@ echo "#######################################"
 echo "min_snr = $min_snr"
 echo "infile  = $infile"
 echo "merged_file = $merged_file"
+echo "dm_column = $dm_column"
+echo "frb_width_pixels = $frb_width_pixels"
 echo "#######################################"
 
 while read line 
@@ -64,9 +74,9 @@ do
       else
          snr=`echo $line | awk '{print $1;}'`
          snr_ok=`echo $line | awk -v min_snr=${min_snr} -v max_snr=${max_snr} '{if($1>min_snr && $1<=max_snr){print 1;}else{print 0;}}'`
-         start_t=`echo $line | awk '{print $2-100;}'`
-         end_t=`echo $line | awk '{print $2+100;}'`
-         dm_ok=`echo $line | awk -v min_dm=${min_dm} -v max_dm=10000000 '{if($5>=min_dm && $5<=max_dm){print 1;}else{print 0;}}'`
+         start_t=`echo $line | awk -v frb_width_pixels=$frb_width_pixels '{print $2-frb_width_pixels;}'`
+         end_t=`echo $line | awk -v frb_width_pixels=$frb_width_pixels '{print $2+frb_width_pixels;}'`
+         dm_ok=`echo $line | awk -v min_dm=${min_dm} -v max_dm=10000000 -v dm_column=${dm_column} '{if($dm_column>=min_dm && $dm_column<=max_dm){print 1;}else{print 0;}}'`
          echo "DEBUG : snr = $snr -> snr_ok = $snr_ok , dm_ok = $dm_ok"
       fi
       
@@ -87,7 +97,7 @@ do
             echo "WARNING : opening in ds9 is not requred"
          fi
       else
-         echo "   INFO : snr = $snr is too low -> event not shown"
+         echo "   INFO : snr = $snr is too low or wrong dm (dm_ok = $dm_ok) -> event not shown"
       fi
    else
       echo "$line"
