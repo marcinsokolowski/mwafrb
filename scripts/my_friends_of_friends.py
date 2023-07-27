@@ -23,7 +23,7 @@ def parse_options(idx):
    parser.add_option("--outfile","--out_script","--outf","-o",dest="outfile",default="merged_fredda.cand",help="Name of output file [default: %default]")
    parser.add_option("--stepfile","--step_file",dest="stepfile",default=None,help="File with steps vs. timeindex  [default: %default]")
    parser.add_option("--step_radius","--step_radius_timesteps","--stepradius",dest="step_radius_timesteps",default=10000,help="Step radius in timesteps [default: %default]",type="int")
-   parser.add_option('--frbsearch_format','--frbsearch_input',action="store_true",dest="frbsearch_input",default=False, help="Format of input files [default %default]")
+   parser.add_option('--frbsearch_format','--frbsearch_input',action="store_true",dest="frbsearch_input",default=False, help="Format of input files, True-frb_search, False-FREDDA [default %default]")
    parser.add_option('-d','--debug','--verbose',action="store_true",dest="debug",default=False, help="Debug mode [default %default]")
    parser.add_option('--print_max_snr_range',action="store_false",dest="print_as_is",default=True, help="For each merged candidate print time range of top 10 SNR candidates in this range [default %default]")
    parser.add_option("--pulse_list_file","--pulse_list",'-p',dest="pulse_list_file",default=None,help="File with list of known pulses to check for FREDDA false-positives [default: %default]")
@@ -101,6 +101,7 @@ class cFreddaCandidate :
           if new_cand.snr > self.snr :
              self.snr = new_cand.snr
              self.dm  = new_cand.dm
+
           self.cand_list.append( copy.copy(new_cand) )   
           new_cand.added = True
           
@@ -112,8 +113,11 @@ class cFreddaCandidate :
       
     def get_snrs( self ) :
        snr_list = []
+       i = 0 
        for cand in self.cand_list :
+          # print("DEBUG : %d : get_snrs adding %.4f" % (i,cand.snr))
           snr_list.append( cand.snr )
+          i = i + 1
           
        return numpy.array(snr_list)
        
@@ -121,7 +125,8 @@ class cFreddaCandidate :
        
     def get_maxsnr_range( self , top_n=10 ) :
        snr_list = self.get_snrs()
-       snr_sorted = numpy.argsort( snr_list )
+       snr_sorted = numpy.argsort( snr_list ) # WARNING : sorted from MIN to MAX !!!
+       # snr_sorted = numpy.sort( snr_list )
        
        min_time = 1e20
        max_time = -1e20
@@ -131,9 +136,19 @@ class cFreddaCandidate :
        max_i = len(snr_sorted)
        if max_i > top_n :
           max_i = top_n
-       for i in range(0,max_i) :
+          
+       print("DEBUG : get_maxsnr_range : %.4f (at %d) - %.4f (at %d), snr = %.4f" % (self.cand_list[snr_sorted[0]].snr,snr_sorted[0],self.cand_list[snr_sorted[len(snr_sorted)-1]].snr,snr_sorted[len(snr_sorted)-1],self.snr))   
+          
+       lowest_index = len(snr_sorted)-1-max_i
+       if lowest_index < 0 :
+          lowest_index = 0   
+   
+       i = len(snr_sorted)-1
+       while i >= lowest_index :
           idx = snr_sorted[i]
           cand = self.cand_list[ idx ]
+          # cand = snr_sorted[i]
+          print("\tDEBUG snr = %.4f ( index = %d )" % (cand.snr,idx))
           
           if cand.timestep < min_time :
              min_time = cand.timestep
@@ -147,6 +162,9 @@ class cFreddaCandidate :
           if cand.dm > max_dm :
              max_dm = cand.dm
              
+          i = i - 1
+
+       print("\treturn (%.4f,%.4f,%.4f,%.4f)" % (min_time,max_time,max_snr,max_dm))             
        return (min_time,max_time,max_snr,max_dm)
        
 
@@ -180,7 +198,7 @@ def read_file(file,verb=False,frbsearch_input=False) :
       else : # normal FREDDA output :
          # S/N, sampno, secs from file start, boxcar, idt, dm, beamno, mjd
          # 10.56 642 6.4200 3 0 0.00 0 40587.694168436 
-         t   = int( words[1+0] )
+         t   = int( float(words[1+0]) )
          snr = float(words[0+0])
          dm  = float(words[5+0])
          
