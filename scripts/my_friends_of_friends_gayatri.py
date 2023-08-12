@@ -1,5 +1,5 @@
-import pdb
-
+# test in /home/msok/Desktop/PAWSEY/PaCER/doc/PhD_project/APPLICATION/Applicants/Domestic/Gayatri/doc/Milestones/M1_Candidacy/CONDITIONAL/NEW/MASTERS/data/candidates/20230601
+# python ./my_friends_of_friends.py data1_dataframe.txt --outfile=data1_dataframe_merged.txt --gayatri_format --group_radius=1 --debug
 
 import copy
 import math
