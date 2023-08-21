@@ -194,6 +194,10 @@ def add_merge( cand_list, new_cand, merge_radius=5 ) :
             cand.y = new_cand.y
             cand.snr = new_cand.snr            
             found=True
+
+         if new_cand.dm > cand.dm :
+            # use higher DM to find the highest DM candidate
+            cand.dm = new_cand.dm
          
          found = True
          break
