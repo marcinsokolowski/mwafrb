@@ -11,15 +11,17 @@ int    gSaveSpectra = 0;
 string gOutFits;
 int gVerb=0;
 int gSpectraToProcess=-1;
+bool gASKAPData=false;
 
 void usage()
 {
    printf("dumpfilfile test.fil [test.fits - specify to save FITS file]\n");   
    printf("\t-n SPECTRA : number of spectra to process [default ALL]\n");
+   printf("\t-a : ASKAP .fil files - require some flip\n");
 }
 
 void parse_cmdline(int argc, char * argv[]) {
-   char optstring[] = "n:";
+   char optstring[] = "n:a";
    int opt,opt_param,i;
 
    while ((opt = getopt(argc, argv, optstring)) != -1) {
@@ -31,9 +33,17 @@ void parse_cmdline(int argc, char * argv[]) {
             
             break;
             
+         case 'a':
+            gASKAPData=true;
+            break;
+
+
          case 'h':
             usage();
             break;
+
+
+
          default:  
             fprintf(stderr,"Unknown option %c\n",opt);
             usage();
@@ -134,7 +144,12 @@ int main(int argc,char* argv[])
              buffer_float = new float[n_sample_size];
           }
           for(int i=0;i<n_sample_size;i++){
-             buffer_float[i] = buffer[i];
+          
+             if( gASKAPData ){
+                buffer_float[n_sample_size-1-i] = buffer[i];
+             }else{
+                buffer_float[i] = buffer[i];
+             }
           }
 //          pOutFits->set_line( line, buffer_float );
           pOutFits->add_line( buffer_float, n_sample_size );
