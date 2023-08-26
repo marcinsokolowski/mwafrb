@@ -5,6 +5,9 @@
 #include <string>
 #include <bg_fits.h>
 #include <bg_globals.h>
+#include <time.h>
+#include <sys/time.h>
+#include <sys/timeb.h>
 
 
 #include "SigprocFile.h"
@@ -29,6 +32,50 @@ long int gMaxSpectraCount=-1;
 int gFloat2UChar=0;
 
 int gVerb=0;
+
+static time_t get_gmtime_from_string_localfunc( const char* szGmTime , const char* format="%Y%m%d_%H%M%S")
+{
+   struct tm gmtime_tm;
+   // sscanf( szGmTime, "%.4u%.2u%.2u_%.2u%.2u%.2u", &gmtime_tm.tm_year,&gmtime_tm.tm_mon,
+   // &gmtime_tm.tm_mday,&gmtime_tm.tm_hour,&gmtime_tm.tm_min,&gmtime_tm.tm_sec);
+
+   strptime( szGmTime, format, &gmtime_tm );
+
+   // gmtime_tm.tm_year -= 1900;
+   // gmtime_tm.tm_mon--;
+   time_t ret = timegm( &gmtime_tm );
+        // time_t ret = timegm( &gmtime_tm );
+   return ret;
+}
+
+
+time_t get_filfile_uxtime( const char* filfile )
+{
+   // 1359220824_20230131172006_ch120_02.fil
+   long int gps;
+   int ch,beam;
+
+   char gps_str[64];
+   char dtm[64],dt[16],tm[16],dtm2[64];;
+   memset(gps_str,'\0',64);
+   memset(dtm,'\0',64);
+   memset(dt,'\0',16);
+   memset(tm,'\0',16);
+   
+   strncpy(gps_str,filfile,10);
+   strncpy(dtm,filfile+11,14);
+   strncpy(dt,dtm,8);
+   strncpy(tm,dtm+8,6);   
+   sprintf(dtm2,"%s_%s",dt,tm);
+   
+   gps = atol(gps_str);
+   time_t ux = get_gmtime_from_string_localfunc( dtm2 );
+   time_t ux_gps = gps+315964782;
+   
+   printf("DEBUG : parsed filfile |%s| -> gps = %d (from %s), dtm = %s (%s/%s) -> ux = %d (vs. ux_gps = %d) \n",filfile,gps,gps_str,dtm,dt,tm,ux,ux_gps);
+  
+   return ux;   
+}
 
 void usage()
 {
@@ -416,7 +463,8 @@ int main(int argc,char* argv[])
    printf("DEBUG : freq_start = %.4f [MHz]\n",freq_start);
 //   double freq_start = filfile.fch1() + filfile.nchans()*filfile.foff(); // ( was - filfile.nchans()*fabs( filfile.foff() ); 
 //   double freq_start = 110.00*1.28 - 0.64;
-   out_fits.PrepareBigHornsHeader( get_dttm(), filfile.tsamp(), freq_start, fabs(filfile.foff()) );
+   time_t filfile_uxtime = get_filfile_uxtime( filfile.name() );
+   out_fits.PrepareBigHornsHeader( filfile_uxtime, filfile.tsamp(), freq_start, fabs(filfile.foff()) );
    out_fits.WriteFits( gOutFitsFileName.c_str() );
    printf("INFO : wrote output FITS file to %s\n",gOutFitsFileName.c_str());
 
@@ -433,7 +481,7 @@ int main(int argc,char* argv[])
             out_fits_t.setXY( t, ch, val );
          }
       }
-      out_fits_t.PrepareBigHornsHeaderTransposed( get_dttm(), filfile.tsamp(), freq_start, fabs(filfile.foff()) );
+      out_fits_t.PrepareBigHornsHeaderTransposed( filfile_uxtime, filfile.tsamp(), freq_start, fabs(filfile.foff()) );
       out_fits_t.WriteFits( gOutFitsTransposedFileName.c_str() );
       
       // write transposed and averaged in time / frequency :
@@ -456,7 +504,7 @@ int main(int argc,char* argv[])
             }
          }
       }
-      out_fits_t_avg.PrepareBigHornsHeaderTransposed( get_dttm(), filfile.tsamp()*2.00, freq_start, fabs(filfile.foff()) );
+      out_fits_t_avg.PrepareBigHornsHeaderTransposed( filfile_uxtime, filfile.tsamp()*2.00, freq_start, fabs(filfile.foff()) );
       out_fits_t_avg.WriteFits( gOutFitsAvgTransposedFileName.c_str() );
       printf("DEBUG : saved averaged dynamic spectrum to file %s\n",gOutFitsAvgTransposedFileName.c_str() );      
    }

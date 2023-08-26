@@ -11,10 +11,20 @@ import errno
 import getopt
 import optparse
 import numpy
+from enum import Enum
 
 from datetime import datetime
 import time
 from astropy.time import Time
+
+# format types:
+class Format(Enum):
+    FREDDA = 1
+    FRB_SEARCH = 2
+    FRB_SEARCH_MERGED = 3
+    GAYATRI = 4
+    
+Format = Enum('Format', ['FREDDA', 'FRB_SEARCH', 'FRB_SEARCH_MERGED' , 'GAYATRI' ])    
 
 
 def parse_options(idx):
@@ -24,8 +34,9 @@ def parse_options(idx):
    parser.add_option("--outfile","--out_script","--outf","-o",dest="outfile",default="merged_fredda.cand",help="Name of output file [default: %default]")
    parser.add_option("--stepfile","--step_file",dest="stepfile",default=None,help="File with steps vs. timeindex  [default: %default]")
    parser.add_option("--step_radius","--step_radius_timesteps","--stepradius",dest="step_radius_timesteps",default=10000,help="Step radius in timesteps [default: %default]",type="int")
-   parser.add_option('--frbsearch_format','--frbsearch_input',action="store_true",dest="frbsearch_input",default=False, help="Format of input files, True-frb_search, False-FREDDA [default %default]")
-   parser.add_option('--gayatri_format','--gayatri_input',action="store_true",dest="gayatri_input",default=False, help="Format of input files, Gayatri's [default %default]") # /home/msok/Desktop/PAWSEY/PaCER/doc/PhD_project/APPLICATION/Applicants/Domestic/Gayatri/doc/Milestones/M1_Candidacy/CONDITIONAL/NEW/MASTERS/data/candidates/20230601
+#   parser.add_option('--frbsearch_format','--frbsearch_input',action="store_true",dest="frbsearch_input",default=False, help="Format of input files, True-frb_search, False-FREDDA [default %default]")
+#   parser.add_option('--gayatri_format','--gayatri_input',action="store_true",dest="gayatri_input",default=False, help="Format of input files, Gayatri's [default %default]") # /home/msok/Desktop/PAWSEY/PaCER/doc/PhD_project/APPLICATION/Applicants/Domestic/Gayatri/doc/Milestones/M1_Candidacy/CONDITIONAL/NEW/MASTERS/data/candidates/20230601
+   parser.add_option('--format','--input_format','--file_format',dest="file_format",default="FREDDA", help="Format of input files [default %default], other values FREDDA,FRB_SEARCH,FRB_SEARCH_MERGED,GAYATRI")
    parser.add_option('-d','--debug','--verbose',action="store_true",dest="debug",default=False, help="Debug mode [default %default]")
    parser.add_option('--print_max_snr_range',action="store_false",dest="print_as_is",default=True, help="For each merged candidate print time range of top 10 SNR candidates in this range [default %default]")
    parser.add_option("--pulse_list_file","--pulse_list",'-p',dest="pulse_list_file",default=None,help="File with list of known pulses to check for FREDDA false-positives [default: %default]")
@@ -207,14 +218,14 @@ def add_merge( cand_list, new_cand, merge_radius=5 ) :
       cand_list.append( new_cand )
             
 
-def read_file(file,verb=False,frbsearch_input=False,gayatri_format=False,merge=False) :
-   print("DEBUG : read_file(%s) in format : gayatri_format=%d" % (file,gayatri_format))
+def read_file(file,verb=False,file_format="FREDDA",merge=False) :
+   print("DEBUG : read_file(%s) in format %s" % (file,file_format))
    cand_list = []
 
    f = open(file)
    data=f.readlines()
    
-   if gayatri_format :
+   if string.upper(file_format) == Format.GAYATRI._name_ :
       merge=True
 
    for line in data : 
@@ -234,7 +245,7 @@ def read_file(file,verb=False,frbsearch_input=False,gayatri_format=False,merge=F
   
       try : 
          # print("here 1 ??? len = %d" % (len(words)))
-         if gayatri_format :
+         if string.upper(file_format) == Format.GAYATRI._name_ :
              # print("DEBUG : |%s|%s|%s|" % (words[6+0],words[5+0],words[8+0]))
              x = int( words[3+0] ) 
              y = int( words[4+0] ) 
@@ -242,23 +253,33 @@ def read_file(file,verb=False,frbsearch_input=False,gayatri_format=False,merge=F
              t = float( words[6+0] ) # 2023-08-11 - /home/msok/Desktop/PAWSEY/PaCER/doc/PhD_project/APPLICATION/Applicants/Domestic/Gayatri/doc/Milestones/M1_Candidacy/CONDITIONAL/NEW/MASTERS/data/candidates/20230601
              snr = float( words[5+0] )
              dm  = float( words[8+0] )                           
-         else :
-            if frbsearch_input : # input as from frb_search package 
-               # TIME  DM  SNR  N_PIX
-               # 201.3 10.0 11.4423 0 20277.0 0.0
-               # t = int( float( words[0+0] ) ) why it was int() ??? use float !
-               t = float( words[0+0] ) # 2023-07-14 - changed to float so that I can read time in seconds too 
-               snr = float( words[2+0] )
-               dm  = float( words[1+0] )
-            else : # normal FREDDA output :
-               # S/N, sampno, secs from file start, boxcar, idt, dm, beamno, mjd
-               # 10.56 642 6.4200 3 0 0.00 0 40587.694168436 
-               t   = int( float(words[1+0]) )
-               snr = float(words[0+0])
-               dm  = float(words[5+0])
+         elif string.upper(file_format) == Format.FRB_SEARCH_MERGED._name_ : # merged FRB_search output (merged with DATE/TIME as using /home/msok/github/pacer/software/imager/scripts/candidates/merge_candidates_new.sh
+             # TIME  DM  SNR  N_PIX
+             # 201.3 10.0 11.4423 0 20277.0 0.0
+             # t = int( float( words[0+0] ) ) why it was int() ??? use float !
+             t = float( words[0+0] ) # 2023-07-14 - changed to float so that I can read time in seconds too 
+             snr = float( words[2+0] )
+             dm  = float( words[1+0] )
+             x   = int( words[9+0] )
+             y   = int( words[10+0] )
+             dtm = words[11+0]
+         elif string.upper(file_format) == Format.FRB_SEARCH._name_ : # input as from frb_search package 
+             # TIME  DM  SNR  N_PIX
+             # 201.3 10.0 11.4423 0 20277.0 0.0
+             # t = int( float( words[0+0] ) ) why it was int() ??? use float !
+             t = float( words[0+0] ) # 2023-07-14 - changed to float so that I can read time in seconds too 
+             snr = float( words[2+0] )
+             dm  = float( words[1+0] )
+         else : # normal FREDDA output :
+             # S/N, sampno, secs from file start, boxcar, idt, dm, beamno, mjd
+             # 10.56 642 6.4200 3 0 0.00 0 40587.694168436 
+             t   = int( float(words[1+0]) )
+             snr = float(words[0+0])
+             dm  = float(words[5+0])
+             
       except:
          print("ERROR : failed to parse line = |%s|" % (line))
-         if gayatri_format :
+         if string.upper(file_format) == Format.GAYATRI._name_ :
             for idx in range(0,len(words)):
                print("%d : %s" % (idx,words[idx]))
          sys.exit(-1)
@@ -416,10 +437,10 @@ if __name__ == '__main__':
    print("#################################")
    print("PARAMATERS")
    print("#################################")
-   print("Gayatri format = %d" % (options.gayatri_input))
+   print("Input (candidate) file format = %s" % (options.file_format))
    print("#################################")
 
-   (cand_list) = read_file( file , frbsearch_input=options.frbsearch_input, gayatri_format=options.gayatri_input, verb=options.debug )
+   (cand_list) = read_file( file , file_format=options.file_format, verb=options.debug )
    
    step_times = []
    step_steps = []
@@ -479,8 +500,7 @@ if __name__ == '__main__':
    
    # check for false positives 
    if options.pulse_list_file is not None :
-      # def read_file(file,verb=False,frbsearch_input=False) :
-      real_pulse_list = read_file( options.pulse_list_file,verb=True,frbsearch_input=True,gayatri_format=options.gayatri_input)      
+      real_pulse_list = read_file( options.pulse_list_file,verb=True,file_format=options.file_format)      
       
       true_pulses = 0
       false_positives = 0
