@@ -453,8 +453,8 @@ int SigprocFile::GetFileSize( const char* filename )
 
 int  SigprocFile::MergeCoarseChannels( std::vector<string>& fil_file_list, const char* out_file , double*& avg_spectrum )
 {
-   int max_filfiles = 24;
-   SigprocFile* infiles[24]; // maximum 24 
+   int max_filfiles = fil_file_list.size();
+   SigprocFile* infiles[fil_file_list.size()]; // maximum 24 
    
    if( fil_file_list.size() > max_filfiles || fil_file_list.size() <= 0 ){
       printf("ERROR : maximum number of fil files for SigprocFile::MergeCoarseChannels exceeded (%d given , %d is limit , no files is not allowed either)\n",int(fil_file_list.size()),max_filfiles);
