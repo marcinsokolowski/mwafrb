@@ -49,9 +49,11 @@ void parse_cmdline(int argc, char * argv[]) {
    }
 
    // bg_globals.h:int ParseCommaList( char* szList, vector<string>& out_list, const char * sep="," );
-   char szInputFilFiles[1024];
+   int len = strlen( gInputFilFiles.c_str() );
+   char* szInputFilFiles = new char[len+1];
    strcpy(szInputFilFiles , gInputFilFiles.c_str() );
    ParseCommaList( szInputFilFiles, input_fil_files );
+   delete [] szInputFilFiles;
 }
 
 void print_parameters()

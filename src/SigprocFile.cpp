@@ -474,7 +474,9 @@ int  SigprocFile::MergeCoarseChannels( std::vector<string>& fil_file_list, const
       if( (infiles[i])->nchans() != n_channels_file0 ){
          printf("WARNING : fil file %s has %d (first one has %d)\n",fil_file_list[i].c_str(),(infiles[i])->nchans() ,n_channels_file0);
       }
+      printf("DEBUG : added %d channels -> total %d channels\n",(infiles[i])->nchans(),n_out_channels);
    }
+   printf("DEBUG : number of output channels = %d\n",n_out_channels);
 
    if( !avg_spectrum ){
       avg_spectrum = new double[n_out_channels];
