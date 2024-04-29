@@ -24,23 +24,25 @@ string gInputFilFiles="in1.fil,in2.fil,in3.fil";
 string gAvgSpectrumFile="avg_spectrum.txt";
 vector<string> input_fil_files;
 string gOutputFilFile="out.fil";
+int gFOFFSign=1;
 
 void usage()
 {
    printf("merge_coarse_channels in1.fil,in2.fil,in3.fil output_filfile\n");   
+   printf("-s FOFF_SIGN : sign of FOFF (+1 or -1 to flip it) [default %d], 1-no change, -1 flip sign\n",gFOFFSign);
 }
 
 void parse_cmdline(int argc, char * argv[]) {
-   char optstring[] = "h";
+   char optstring[] = "hs:";
    int opt,opt_param,i;
 
    while ((opt = getopt(argc, argv, optstring)) != -1) {
       switch (opt) {
-/*         case 'n':
+         case 's':
             if( optarg ){   
-               gNormFile = optarg;
+               gFOFFSign = atol( optarg );
             }
-            break;*/
+            break;
 
          default:
             fprintf(stderr,"Unknown option %c\n",opt);
@@ -67,6 +69,7 @@ void print_parameters()
   }
   printf("Output fil file  = %s\n",gOutputFilFile.c_str());
   printf("Average spectrum output file = %s\n",gAvgSpectrumFile.c_str());
+  printf("FOFF SIGN = %d\n",gFOFFSign);
   printf("#####################################\n");
   fflush(stdout);
 }
@@ -120,7 +123,7 @@ int main(int argc,char* argv[])
 
    double* avg_spectrum = NULL;  
    // int  SigprocFile::MergeCoarseChannels( std::vector<string>& fil_file_list, const char* out_file )
-   int out_channels = SigprocFile::MergeCoarseChannels( input_fil_files , gOutputFilFile.c_str(), avg_spectrum );   
+   int out_channels = SigprocFile::MergeCoarseChannels( input_fil_files , gOutputFilFile.c_str(), avg_spectrum, gFOFFSign );   
    
    FILE* out_f = fopen( gAvgSpectrumFile.c_str(), "w" );
    for(int ch=0;ch<out_channels;ch++){

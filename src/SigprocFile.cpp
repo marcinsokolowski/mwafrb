@@ -451,7 +451,7 @@ int SigprocFile::GetFileSize( const char* filename )
 }
 
 
-int  SigprocFile::MergeCoarseChannels( std::vector<string>& fil_file_list, const char* out_file , double*& avg_spectrum )
+int  SigprocFile::MergeCoarseChannels( std::vector<string>& fil_file_list, const char* out_file , double*& avg_spectrum, int foff_sign )
 {
    int max_filfiles = fil_file_list.size();
    SigprocFile* infiles[fil_file_list.size()]; // maximum 24 
@@ -492,7 +492,7 @@ int  SigprocFile::MergeCoarseChannels( std::vector<string>& fil_file_list, const
 
    
    outfil_file.SetHeaderValue( "nchans" , n_out_channels );
-   outfil_file.SetHeaderValue( "foff", foff );
+   outfil_file.SetHeaderValue( "foff", foff*foff_sign );
    outfil_file.WriteHeader( out_file , false /* do not close */ , true /* new file -> set m_file := out_f */ );
    outfil_file.FillHeader();
    float* out_spectrum = new float[n_out_channels];

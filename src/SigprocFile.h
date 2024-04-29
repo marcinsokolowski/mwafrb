@@ -57,7 +57,7 @@ public:
 	
 	int WriteAveragedChannels( const char* out_file, int n_avg_factor );
 	
-	static int MergeCoarseChannels( std::vector<string>& fil_file_list, const char* out_file, double*& avg_spectrum );
+	static int MergeCoarseChannels( std::vector<string>& fil_file_list, const char* out_file, double*& avg_spectrum, int foff_sign=1 );
 
 	int nifs() {
 		return m_nifs;
