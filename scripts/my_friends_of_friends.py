@@ -208,7 +208,7 @@ def read_file(file,verb=False,frbsearch_input=False) :
 
    f.close()
 
-   print "Read %d candidates from file %s" % (len(cand_list),file)
+   print("Read %d candidates from file %s" % (len(cand_list),file))
 
    return (cand_list)
    
@@ -235,7 +235,7 @@ def read_step_file(file,verb=False,step_radius=-1) :
 
    f.close()
 
-   print "Read %d steps from file %s" % (len(timeidx_list),file)
+   print("Read %d steps from file %s" % (len(timeidx_list),file))
    
    if step_radius > 0 :
       l = len( timeidx_list )

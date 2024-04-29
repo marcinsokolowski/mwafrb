@@ -55,6 +55,7 @@ generate_fil_files : generate_fil_files.cpp SigprocFile.cpp random.cpp
 
 install :
 	mkdir -p $(MWA_FRB)/bin/
+	cp dumpfilfile $(MWA_FRB)/bin/
 	cp dumpfilfile_float $(MWA_FRB)/bin/
 	cp fits2fil_bad $(MWA_FRB)/bin/    
 	cp fits2fil $(MWA_FRB)/bin/
