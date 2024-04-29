@@ -228,16 +228,22 @@ int SigprocFile::SetHeaderValue( char* pHeader, int header_len, const char* keyw
    return start_index;
 }
 
-int SigprocFile::FillHeader()
+int SigprocFile::FillHeader( bool recalc_tstart )
 {
    bool b_tstart_utc = false;
    
    m_hdr_nbytes = MAX_HDR_SIZE;
    memset( m_hdr, '\0', m_hdr_nbytes );
    
-   double mjd = ux2mjd( int(m_tstart), (m_tstart-int(m_tstart))*1000000.00 ); 
+
+   double mjd = m_tstart;
+   if( recalc_tstart ){
+      mjd = ux2mjd( int(m_tstart), (m_tstart-int(m_tstart))*1000000.00 ); 
 //   void get_ymd_hms_ut( time_t ut_time, int& year, int& month, int& day,
 //                  int& hour, int& minute, double& sec )
+   }
+
+   // Only for test/presentation reasons :
    int year, month, day, hour, minute;
    double sec;
    get_ymd_hms_ut( m_tstart, year, month, day, hour, minute, sec );
@@ -245,7 +251,6 @@ int SigprocFile::FillHeader()
    char szUTC[128]; // 2019-07-18T14:53:13.920
    sprintf(szUTC,"%04d-%02d-%02dT%02d:%02d:%.3f",year, month, day, hour, minute, sec );   
    printf("DEBUG : CFilFile::WriteHeader ux = %.6f -> mjd = %.8f and %s\n",m_tstart,mjd,szUTC);
-
    
    int idx=0;
    // int SigprocFile::SetHeaderValue( char* pHeader, int header_len, const char* keyword, double value, int value_int, const char* value_str, int start_index )
@@ -263,6 +268,8 @@ int SigprocFile::FillHeader()
    idx = SetHeaderValue( m_hdr, m_hdr_nbytes, "HEADER_END" , 0.00 , 0       , NULL, idx);
    m_hdr_nbytes = idx;
    
+   printf("DEBUG : set nbits := %d\n",m_nbits);
+      
    return idx;         
 }
 
@@ -463,6 +470,9 @@ int  SigprocFile::MergeCoarseChannels( std::vector<string>& fil_file_list, const
 
    // read zero file into output buffer :   
    SigprocFile outfil_file( fil_file_list[0].c_str() );
+   // SigprocFile( int nbits, int nifs, int nchans, double fch1, double foff, double tstart, double tsamp );
+   // SigprocFile filfile_norm( filfile.nbits(), filfile.nifs(), filfile.nchans(), filfile.fch1(), filfile.foff(), filfile.tstart(), filfile.tsamp() );
+   outfil_file.nbits( 32 ); // always output file is 32 bits float (no matter input)
    outfil_file.Close();
    
    int n_channels_file0 = outfil_file.nchans();
@@ -492,27 +502,50 @@ int  SigprocFile::MergeCoarseChannels( std::vector<string>& fil_file_list, const
 
    
    outfil_file.SetHeaderValue( "nchans" , n_out_channels );
-   outfil_file.SetHeaderValue( "foff", foff*foff_sign );
+   // outfil_file.SetHeaderValue( "foff", foff*foff_sign );
+   outfil_file.foff( foff*foff_sign );
+   outfil_file.FillHeader( false );
+   outfil_file.SetHeaderValue( "nchans" , n_out_channels );
    outfil_file.WriteHeader( out_file , false /* do not close */ , true /* new file -> set m_file := out_f */ );
-   outfil_file.FillHeader();
    float* out_spectrum = new float[n_out_channels];
+   unsigned char*  char_buffer = new unsigned char[n_out_channels];
    bool all_ok = true;
    int n_out_spectra = 0;
+   int sizeof_sample = sizeof(float);
+   int out_bytes_count = n_out_channels*sizeof(float);
    
    while( all_ok ){
        float* p_out_ptr = out_spectrum;
-       memset( out_spectrum, '\0', sizeof(float)*n_out_channels );
+       memset( out_spectrum, '\0', out_bytes_count );
        int n_read_total = 0;
        
        // read 1 spectrum from each file and put into out_spectrum :
        for(int i=0;i<fil_file_list.size();i++){
            // int read( void* buffer, int size );
            int in_channels = (infiles[i])->nchans();
-           int n_read = (infiles[i])->read( p_out_ptr , in_channels*sizeof(float) );
-           if( n_read != in_channels*sizeof(float) ){
-              printf("END OF FILE : read %d bytes expected %d bytes -> cannot continue\n",n_read,in_channels*int(sizeof(float)));
+           int bytes_to_read = in_channels*sizeof(float);
+           int n_read = 0;
+           
+           if( (infiles[i])->nbits() >= 32 ){ 
+              n_read = (infiles[i])->read( p_out_ptr , bytes_to_read );
+           }else{
+              // the case of merging 1-byte .fil files:
+              if( (infiles[i])->nbits() == 8 ){ 
+                 sizeof_sample = sizeof(unsigned char);
+                 bytes_to_read = in_channels*sizeof_sample;
+                 n_read = (infiles[i])->read( char_buffer, bytes_to_read );
+                 for(int ch=0;ch<in_channels;ch++){
+                    p_out_ptr[ch] = char_buffer[ch];
+                 }
+              }
+           }
+           if( n_read != bytes_to_read ){
+              printf("END OF FILE : read %d bytes expected %d bytes -> cannot continue\n",n_read,bytes_to_read);
               all_ok = false;
               break;
+           }
+           if( n_out_spectra <= 0 ){
+              printf("INFO : auto-detected sizeof sample %d bits\n",(infiles[i])->nbits()); 
            }
            p_out_ptr += in_channels;
            n_read_total += n_read;
@@ -531,17 +564,18 @@ int  SigprocFile::MergeCoarseChannels( std::vector<string>& fil_file_list, const
           }
        }
        
-       if( n_read_total == n_out_channels*sizeof(float) ){
+       if( n_read_total == n_out_channels*sizeof_sample ){
        // int SigprocFile::WriteData( float* buffer, int n_channels )
           outfil_file.WriteData( out_spectrum , n_out_channels );
           n_out_spectra++;
        }else{
-          printf("END OF file : number bytes to be written = %d vs. %d actually read\n",(n_out_channels*int(sizeof(float))),n_read_total);
+          printf("END OF file : number bytes to be written = %d vs. %d actually read\n",out_bytes_count,n_read_total);
           all_ok = false;
           printf("Written %d spectra in total\n",n_out_spectra);
        }
    }
    delete [] out_spectrum;
+   delete [] char_buffer;
     
    outfil_file.Close();
    
@@ -613,6 +647,8 @@ int SigprocFile::WriteAveragedChannels( const char* out_file, int n_avg_factor )
    delete [] out_spectrum;   
    delete [] data_buffer;
    fclose( out_f );
+   
+   return 0;
 }
 
 int SigprocFile::WriteHeader( const char* filename , bool bClose, bool bNewFile )
@@ -698,6 +734,8 @@ SigprocFile::SigprocFile(const char* filename, int header_size /* = -1 */) {
 	m_foff = header_double("foff");
 	m_tstart = header_double("tstart");
 	m_tsamp = header_double("tsamp");
+	
+	printf("DEBUG : m_tstart = %.8f (SigprocFile::SigprocFile)\n",m_tstart);
 
 	// tell_linux we'll be reading sequentailly
 	m_fd = fileno(m_file);

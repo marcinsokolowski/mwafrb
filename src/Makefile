@@ -5,7 +5,6 @@ COMMON_LIBS=/usr/local/lib/libmsfitslib.so -lcfitsio -lnova -lfftw3 -ldl
 
 
 read_dada : read_dada.c 
-	mkdir -p $(MWA_FRB)/bin/
 	g++ read_dada.c $(OPT) -o read_dada
 
 read_eda2_dada : read_eda2_dada.c
@@ -13,7 +12,6 @@ read_eda2_dada : read_eda2_dada.c
 
 dada2fits : dada2fits.cpp
 	g++  dada2fits.cpp -I$(MWA_FRB)/msfitslib/src/ -lcfitsio -L$(MWA_FRB)/slib/ -lmsfitslib $(OPT) $(COMMON_LIBS) -o dada2fits
-	cp dada2fits  $(MWA_FRB)/bin/
 	
 
 all : read_dada read_eda2_dada dada2fits compare_filfiles dumpfilfile_float merge_coarse_channels avg_channels_fil dumpfilfile read_filfile fits2fil fits2fil2 update_fil_header
@@ -66,6 +64,7 @@ install :
 	cp merge_coarse_channels $(MWA_FRB)/bin/
 	cp compare_filfiles $(MWA_FRB)/bin/
 	cp update_fil_header $(MWA_FRB)/bin/
+	cp dada2fits  $(MWA_FRB)/bin/
 	chmod +x $(MWA_FRB)/bin/*
 	
 clean :

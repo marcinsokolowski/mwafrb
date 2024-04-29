@@ -50,13 +50,14 @@ public:
 	int WriteHeader( const char* filename , bool bClose=true, bool bNewFile=false );
 	int WriteData( float* buffer, int n_channels );
 	int WriteData( unsigned char* buffer, int n_channels );
-	int FillHeader();
+	int FillHeader( bool recalc_tstart=true );
 	int SetHeaderValue( char* pHeader, int header_len, const char* keyword, double value, int value_int=0, const char* value_str=NULL, int start_index=-1 );
 	int SetHeaderValue( const char* keyword, double value );
 	int SetHeaderValue( const char* keyword, int value );
 	
 	int WriteAveragedChannels( const char* out_file, int n_avg_factor );
 	
+	// output is always nbits=32 (float) .fil file (no matter input - 1 byte char or 4 bytes float) 
 	static int MergeCoarseChannels( std::vector<string>& fil_file_list, const char* out_file, double*& avg_spectrum, int foff_sign=1 );
 
 	int nifs() {
@@ -91,6 +92,10 @@ public:
 		return m_fch1;
 	}
 	double foff() {
+		return m_foff;
+	}
+	double foff( double _foff) {
+		m_foff = _foff;
 		return m_foff;
 	}
 	double tstart() {

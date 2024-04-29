@@ -96,6 +96,8 @@ int CFilFile::ParseHeader( CBgFits& fits, cFilFileHeader& filHeader, bool bTrans
    }
    
    printf("DEBUG : CFilFile::ParseHeader : fch1 = %.6f MHz , foff = %.6f MHz\n",filHeader.fch1,filHeader.foff);
+   
+   return 0;
 }
 
 int CFilFile::WriteHeader( const cFilFileHeader& filHeader )
@@ -156,6 +158,8 @@ int CFilFile::WriteHeader( const cFilFileHeader& filHeader )
 
       
    WriteKeyword( "HEADER_END"  );   
+   
+   return 0;
 }
 
 int CFilFile::WriteString( const char* keyname )
