@@ -17,17 +17,6 @@ dada2fits : dada2fits.cpp
 	
 
 all : read_dada read_eda2_dada dada2fits compare_filfiles dumpfilfile_float merge_coarse_channels avg_channels_fil dumpfilfile read_filfile fits2fil fits2fil2 update_fil_header
-	mkdir -p $(MWA_FRB)/bin/
-	cp dumpfilfile $(MWA_FRB)/bin/	
-	cp dumpfilfile_float $(MWA_FRB)/bin/    
-	cp read_filfile $(MWA_FRB)/bin/
-	cp read_dada $(MWA_FRB)/bin/
-	cp read_eda2_dada $(MWA_FRB)/bin/
-	cp merge_coarse_channels $(MWA_FRB)/bin/
-	cp fits2fil $(MWA_FRB)/bin/
-	cp fits2fil2 $(MWA_FRB)/bin/
-	cp update_fil_header $(MWA_FRB)/bin/
-	chmod +x $(MWA_FRB)/bin/*
 
 read_filfile : read_filfile.c
 	gcc read_filfile.c -o read_filfile $(OPT)
@@ -67,6 +56,7 @@ generate_fil_files : generate_fil_files.cpp SigprocFile.cpp random.cpp
 	g++ generate_fil_files.cpp CpuTimer.cpp  DataOrder.cpp  DataSource.cpp  InvalidSourceFormat.cpp  SigprocFile.cpp random.cpp -o generate_fil_files -I $(MWA_FRB)/msfitslib/src// $(OPT) $(COMMON_LIBS)
 
 install :
+	mkdir -p $(MWA_FRB)/bin/
 	cp dumpfilfile_float $(MWA_FRB)/bin/
 	cp fits2fil_bad $(MWA_FRB)/bin/    
 	cp fits2fil $(MWA_FRB)/bin/
@@ -76,6 +66,7 @@ install :
 	cp merge_coarse_channels $(MWA_FRB)/bin/
 	cp compare_filfiles $(MWA_FRB)/bin/
 	cp update_fil_header $(MWA_FRB)/bin/
+	chmod +x $(MWA_FRB)/bin/*
 	
 clean :
 	rm -f *.o read_dada read_eda2_dada dada2fits dumpfilfile_float generate_fil_files update_fil_header compare_filfiles merge_coarse_channels avg_channels_fil pipe_filfiles fits2fil fits2fil2 dumpfilfile
