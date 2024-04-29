@@ -77,5 +77,5 @@ generate_fil_files : generate_fil_files.cpp SigprocFile.cpp random.cpp
 	cp generate_fil_files $(MWA_FRB)/bin/
 	
 clean :
-	rm -f *.o read_dada read_eda2_dada dada2fits dumpfilfile_float generate_fil_files update_fil_header compare_filfiles merge_coarse_channels avg_channels_fil pipe_filfiles fits2fil fits2fil2
+	rm -f *.o read_dada read_eda2_dada dada2fits dumpfilfile_float generate_fil_files update_fil_header compare_filfiles merge_coarse_channels avg_channels_fil pipe_filfiles fits2fil fits2fil2 dumpfilfile
 		

@@ -467,8 +467,10 @@ int  SigprocFile::MergeCoarseChannels( std::vector<string>& fil_file_list, const
    
    int n_channels_file0 = outfil_file.nchans();
    int n_out_channels = 0;
+   float foff = 0.00;
    for(int i=0;i<fil_file_list.size();i++){
       infiles[i] = new SigprocFile( fil_file_list[i].c_str() );
+      foff = (infiles[i])->foff();
  
       n_out_channels += (infiles[i])->nchans();     
       if( (infiles[i])->nchans() != n_channels_file0 ){
@@ -490,7 +492,9 @@ int  SigprocFile::MergeCoarseChannels( std::vector<string>& fil_file_list, const
 
    
    outfil_file.SetHeaderValue( "nchans" , n_out_channels );
+   outfil_file.SetHeaderValue( "foff", foff );
    outfil_file.WriteHeader( out_file , false /* do not close */ , true /* new file -> set m_file := out_f */ );
+   outfil_file.FillHeader();
    float* out_spectrum = new float[n_out_channels];
    bool all_ok = true;
    int n_out_spectra = 0;
