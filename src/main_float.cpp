@@ -399,7 +399,12 @@ int main(int argc,char* argv[])
        }
        
 
-       
+       if( spectra_count < 10 ){
+          for(int ch=0;ch<filfile.nchans();ch++){
+             printf("%.2f ",buffer[ch]);
+          }
+          printf("\n");          
+       }
        out_fits.add_line( buffer, filfile.nchans() );
        
        char szOutFile[1024];
