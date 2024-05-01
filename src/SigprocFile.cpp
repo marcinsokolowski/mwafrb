@@ -267,7 +267,7 @@ int SigprocFile::FillHeader( bool recalc_tstart, bool fill_radec )
    idx = SetHeaderValue( m_hdr, m_hdr_nbytes, "nbits" , 0.00      , m_nbits , NULL, idx );
    if( fill_radec ){
       idx = SetHeaderValue( m_hdr, m_hdr_nbytes, "src_raj" , 0.00   , 0     , NULL, idx );
-      idx = SetHeaderValue( m_hdr, m_hdr_nbytes, "src_decj" , 0.00  , 0     , NULL, idx );
+      idx = SetHeaderValue( m_hdr, m_hdr_nbytes, "src_dej" , 0.00  , 0     , NULL, idx );
       idx = SetHeaderValue( m_hdr, m_hdr_nbytes, "telescope_id" , 117  , 0     , NULL, idx ); 
       printf("DEBUG : added src_raj, src_decj and telescope_id to the header\n");
    }
