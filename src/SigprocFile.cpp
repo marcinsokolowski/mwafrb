@@ -228,7 +228,7 @@ int SigprocFile::SetHeaderValue( char* pHeader, int header_len, const char* keyw
    return start_index;
 }
 
-int SigprocFile::FillHeader( bool recalc_tstart )
+int SigprocFile::FillHeader( bool recalc_tstart, bool fill_radec )
 {
    bool b_tstart_utc = false;
    
@@ -265,6 +265,12 @@ int SigprocFile::FillHeader( bool recalc_tstart )
    }
    idx = SetHeaderValue( m_hdr, m_hdr_nbytes, "tsamp" , m_tsamp   , 0       , NULL, idx );
    idx = SetHeaderValue( m_hdr, m_hdr_nbytes, "nbits" , 0.00      , m_nbits , NULL, idx );
+   if( fill_radec ){
+      idx = SetHeaderValue( m_hdr, m_hdr_nbytes, "src_raj" , 0.00   , 0     , NULL, idx );
+      idx = SetHeaderValue( m_hdr, m_hdr_nbytes, "src_decj" , 0.00  , 0     , NULL, idx );
+      idx = SetHeaderValue( m_hdr, m_hdr_nbytes, "telescope_id" , 117  , 0     , NULL, idx ); 
+      printf("DEBUG : added src_raj, src_decj and telescope_id to the header\n");
+   }
    idx = SetHeaderValue( m_hdr, m_hdr_nbytes, "HEADER_END" , 0.00 , 0       , NULL, idx);
    m_hdr_nbytes = idx;
    
@@ -504,7 +510,7 @@ int  SigprocFile::MergeCoarseChannels( std::vector<string>& fil_file_list, const
    outfil_file.SetHeaderValue( "nchans" , n_out_channels );
    // outfil_file.SetHeaderValue( "foff", foff*foff_sign );
    outfil_file.foff( foff*foff_sign );
-   outfil_file.FillHeader( false );
+   outfil_file.FillHeader( false, true );
    outfil_file.SetHeaderValue( "nchans" , n_out_channels );
    outfil_file.WriteHeader( out_file , false /* do not close */ , true /* new file -> set m_file := out_f */ );
    float* out_spectrum = new float[n_out_channels];

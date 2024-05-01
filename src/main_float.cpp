@@ -72,7 +72,7 @@ time_t get_filfile_uxtime( const char* filfile )
    time_t ux = get_gmtime_from_string_localfunc( dtm2 );
    time_t ux_gps = gps+315964782;
    
-   printf("DEBUG : parsed filfile |%s| -> gps = %d (from %s), dtm = %s (%s/%s) -> ux = %d (vs. ux_gps = %d) \n",filfile,gps,gps_str,dtm,dt,tm,ux,ux_gps);
+   printf("DEBUG : parsed filfile |%s| -> gps = %ld (from %s), dtm = %s (%s/%s) -> ux = %ld (vs. ux_gps = %ld) \n",filfile,gps,gps_str,dtm,dt,tm,ux,ux_gps);
   
    return ux;   
 }

@@ -50,7 +50,7 @@ public:
 	int WriteHeader( const char* filename , bool bClose=true, bool bNewFile=false );
 	int WriteData( float* buffer, int n_channels );
 	int WriteData( unsigned char* buffer, int n_channels );
-	int FillHeader( bool recalc_tstart=true );
+	int FillHeader( bool recalc_tstart=true, bool fill_radec=false );
 	int SetHeaderValue( char* pHeader, int header_len, const char* keyword, double value, int value_int=0, const char* value_str=NULL, int start_index=-1 );
 	int SetHeaderValue( const char* keyword, double value );
 	int SetHeaderValue( const char* keyword, int value );
