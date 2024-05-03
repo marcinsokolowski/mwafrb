@@ -10,14 +10,28 @@ if [[ -n "$2" && "$2" != "-" ]]; then
    name=$2
 fi
 
-ra_deg=95309.3097
+psrcat_path=`which psrcat`
+if [[ -n ${psrcat_path} ]]; then
+   ra_deg=`psrcat -e ${name} | grep RAJ | awk '{ra=$2;gsub(":","",ra);if(substr(ra,1,1)=="0"){ra=substr(ra,2);}print ra;}'`
+   dec_deg=`psrcat -e ${name} | grep DECJ | awk '{dec=$2;gsub(":","",dec);if(substr(dec,1,1)=="0"){dec=substr(dec,2);}print dec;}'`
+   psrcat -e ${name}
+   echo "DEBUG : PSR name = $name -> ( RA , DEC ) from psrcat = ( $ra_deg , $dec_deg )"
+else
+   ra_deg=95309.3097
+   dec_deg=75535.75
+fi
+
 if [[ -n "$3" && "$3" != "-" ]]; then
    ra_deg=$3
 fi
 
-dec_deg=75535.75
 if [[ -n "$4" && "$4" != "-" ]]; then
    dec_deg=$4
+fi
+
+nsub=16
+if [[ -n "$5" && "$5" != "-" ]]; then
+   nsub=$5
 fi
 
 
@@ -27,6 +41,7 @@ echo "########################################"
 echo "filfile = $filfile"
 echo "name    = $name"
 echo "(RA,DEC) = ($ra_deg,$dec_deg) [RA,DEC string -> DECIMAL value]"
+echo "nsub = $nsub"
 echo "########################################"
 
 
@@ -50,6 +65,6 @@ readfile updated.fil
 # to use all the data use -npart 40 (or different value !) see /home/msok/Desktop/FRBs/FRB_ASKAP_RW/MWA_FRB_searches_real-time/20230613_PRESTO_HELP_FROM_SAM.odt
 # Explanations of options :
 # -start 0.02 : skip the 1st 6sec/300sec = 0.02 of observation (this is assuming 300sec observations) - because the start is always some power drop (due to lost packets !?)
-echo "prepfold -psr ${name} -debug -nopsearch -nodmsearch -nosearch -n 32 -npart 40 -start 0.08 -nsub 16 updated.fil" >> history_prepfold.txt 
-echo "prepfold -psr ${name} -debug -nopsearch -nodmsearch -nosearch -n 32 -npart 40 -start 0.08 -nsub 16 updated.fil"
-prepfold -psr ${name} -debug -nopsearch -nodmsearch -nosearch -n 32 -npart 40 -start 0.08 -nsub 16 updated.fil
+echo "prepfold -psr ${name} -debug -nopsearch -nodmsearch -nosearch -n 32 -npart 40 -start 0.08 -nsub $nsub updated.fil" >> history_prepfold.txt 
+echo "prepfold -psr ${name} -debug -nopsearch -nodmsearch -nosearch -n 32 -npart 40 -start 0.08 -nsub $nsub updated.fil"
+prepfold -psr ${name} -debug -nopsearch -nodmsearch -nosearch -n 32 -npart 40 -start 0.08 -nsub $nsub updated.fil
