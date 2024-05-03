@@ -6,9 +6,14 @@ if [[ -n "$1" && "$1" != "-" ]]; then
 fi
 
 
-merged_cand=merged_16channels_1709032218.737421_merged.cand
+merged_cand=merged_16channels_1709032218.737421.cand_merged
 if [[ -n "$2" && "$2" != "-" ]]; then
    merged_cand=$2
+fi
+
+outdir=candidates_fits/
+if [[ -n "$3" && "$3" != "-" ]]; then
+   outdir=$3
 fi
 
 tmpfile=${merged_cand}.tmp
@@ -23,8 +28,10 @@ do
    evt=`echo $line | awk '{print $1;}'` 
    start=`echo $line | awk '{print $2;}'`
    end=`echo $line | awk '{print $3;}'`
+   outfits=${outdir}/cand_${evt}.fits
    
-   echo "cutimage $fits -s ${start} -e ${end} -c -f cand_${evt}.fits" >> ${doit_file}
+   echo "cutimage $fits -s ${start} -e ${end} -c -f ${outfits}"
+   echo "cutimage $fits -s ${start} -e ${end} -c -f ${outfits}" >> ${doit_file}
 done < ${tmpfile}
 
 chmod +x ${doit_file}
