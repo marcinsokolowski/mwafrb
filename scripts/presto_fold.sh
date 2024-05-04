@@ -56,8 +56,9 @@ ln -s ../${filfile}
 
 # set telescope_id := 'u' for MWA :
 # J0953+0755 : RAJ 09:53:09.3097 , DECJ +07:55:35.75 -> 95309.3097 , 75535.75 
-echo "update_fil_header ${filfile} -t 117 -r $ra_deg -d $dec_deg"
-update_fil_header ${filfile} -t 117 -r $ra_deg -d $dec_deg
+# NEW PRESTO CODE MWA = 30 (was 117 ???) see sigproc_fb.c case 30: strcpy(s->telescope, "MWA");
+echo "update_fil_header ${filfile} -t 30 -r $ra_deg -d $dec_deg"
+update_fil_header ${filfile} -t 30 -r $ra_deg -d $dec_deg
 
 echo "readfile updated.fil"
 readfile updated.fil
@@ -67,4 +68,4 @@ readfile updated.fil
 # -start 0.02 : skip the 1st 6sec/300sec = 0.02 of observation (this is assuming 300sec observations) - because the start is always some power drop (due to lost packets !?)
 echo "prepfold -psr ${name} -debug -nopsearch -nodmsearch -nosearch -n 32 -npart 40 -start 0.08 -nsub $nsub updated.fil" >> history_prepfold.txt 
 echo "prepfold -psr ${name} -debug -nopsearch -nodmsearch -nosearch -n 32 -npart 40 -start 0.08 -nsub $nsub updated.fil"
-prepfold -psr ${name} -debug -nopsearch -nodmsearch -nosearch -n 32 -npart 40 -start 0.08 -nsub $nsub updated.fil
+prepfold -psr ${name} -debug -nopsearch -nodmsearch -nosearch -n 32 -npart 40 -start 0.08 -nsub $nsub updated.fil 

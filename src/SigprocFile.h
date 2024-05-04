@@ -140,6 +140,36 @@ public:
 	   m_sourcename = src;
 	}
 	
+	void src_raj( double _src_raj )
+	{
+	   m_src_raj = _src_raj;
+	}
+	
+	double src_raj()
+	{
+	   return m_src_raj;
+	}
+	
+	void src_dej( double _src_dej )
+	{
+	   m_src_dej = _src_dej;
+	}
+	
+	double src_dej()
+	{
+	   return m_src_dej;
+	}
+	
+	void telescope_id( int tele_id ){
+	   m_telescope_id = tele_id;	   	   
+	}
+	
+	int telescope_id()
+	{
+	   return m_telescope_id;
+	}
+	
+	
 	void rewind()
 	{
 	   if( m_file ){
@@ -168,6 +198,9 @@ private:
 	int m_nchans;
 	int m_nbits;
 	std::string m_sourcename;
+	int m_telescope_id;
+	double m_src_raj;
+	double m_src_dej;
 
 	size_t m_samples_read;
 	size_t m_current_sample;

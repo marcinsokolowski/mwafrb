@@ -265,12 +265,11 @@ int SigprocFile::FillHeader( bool recalc_tstart, bool fill_radec )
    }
    idx = SetHeaderValue( m_hdr, m_hdr_nbytes, "tsamp" , m_tsamp   , 0       , NULL, idx );
    idx = SetHeaderValue( m_hdr, m_hdr_nbytes, "nbits" , 0.00      , m_nbits , NULL, idx );
-   if( fill_radec ){
-      idx = SetHeaderValue( m_hdr, m_hdr_nbytes, "src_raj" , 0.00   , 0     , NULL, idx );
-      idx = SetHeaderValue( m_hdr, m_hdr_nbytes, "src_dej" , 0.00  , 0     , NULL, idx );
-      idx = SetHeaderValue( m_hdr, m_hdr_nbytes, "telescope_id" , 117  , 0     , NULL, idx ); 
-      printf("DEBUG : added src_raj, src_decj and telescope_id to the header\n");
-   }
+   idx = SetHeaderValue( m_hdr, m_hdr_nbytes, "src_raj" , m_src_raj   , 0     , NULL, idx );
+   idx = SetHeaderValue( m_hdr, m_hdr_nbytes, "src_dej" , m_src_dej  , 0     , NULL, idx );
+   idx = SetHeaderValue( m_hdr, m_hdr_nbytes, "telescope_id" , 0.00, m_telescope_id, NULL, idx ); 
+   printf("DEBUG : added src_raj, src_decj and telescope_id to the header [%.8f,%.8f,%d]\n",m_src_raj,m_src_dej,m_telescope_id);
+
    idx = SetHeaderValue( m_hdr, m_hdr_nbytes, "HEADER_END" , 0.00 , 0       , NULL, idx);
    m_hdr_nbytes = idx;
    

@@ -33,6 +33,10 @@ int gFloat2UChar=0;
 
 int gVerb=0;
 
+int gFoffSign=+1;
+
+double gUnixTime=-1;
+
 static time_t get_gmtime_from_string_localfunc( const char* szGmTime , const char* format="%Y%m%d_%H%M%S")
 {
    struct tm gmtime_tm;
@@ -88,10 +92,12 @@ void usage()
    printf("\t-T 255 : truncate to 0 - 255 range and saved 8bits filterbank file\n");   
    printf("\t-S Save_spectrum_index : save spectrum index = %d [only if >= 0]\n",gSaveSpectra);
    printf("\t-L MAX_SPECTRA_COUNT : only save maximum this number of spectra\n");
+   printf("\t-s SIGN : sign of FOFF in .fil file (should be correct but may need a tweak) [default %d]\n",gFoffSign);
+   printf("\t-U UNIXTIME : start unix time of filterbank data\n");
 }
 
 void parse_cmdline(int argc, char * argv[]) {
-   char optstring[] = "hfFHn:o:T:S:L:";
+   char optstring[] = "hfFHn:o:T:S:L:s:U:";
    int opt,opt_param,i;
 
    while ((opt = getopt(argc, argv, optstring)) != -1) {
@@ -124,12 +130,24 @@ void parse_cmdline(int argc, char * argv[]) {
             gMaxSpectraCount = atol( optarg );
             break;
 
+         case 's':
+            if( optarg ){
+               gFoffSign = atol( optarg );
+            }
+            break;
+
          case 'S':
             gSaveSpectra = atol( optarg );
             break;
 
          case 'T':
             gFloat2UChar = atol( optarg );
+            break;
+
+         case 'U':
+            if( optarg ){
+               gUnixTime = atof( optarg );
+            }
             break;
       
          default:
@@ -156,6 +174,8 @@ void print_parameters( string& filfilename, string& outfile )
   printf("Float2Uchar        = %d\n",gFloat2UChar);
   printf("Save spectrum      = %d\n",gSaveSpectra);
   printf("Max. spectra count = %d\n",int(gMaxSpectraCount)); 
+  printf("Foff sign          = %d\n",gFoffSign);
+  printf("Unixtime           = %.8f\n",gUnixTime);
   printf("Output FITS files :\n");
   printf("\t\t%s\n",gOutFitsFileName.c_str());
   printf("\t\t%s\n",gOutFitsTransposedFileName.c_str());
@@ -464,11 +484,16 @@ int main(int argc,char* argv[])
    out_fits.set_ysize();
    // PrepareBigHornsHeader( double ux_start, double _inttime, double freq_start, double delta_freq_mhz )
    // double freq_start = filfile.fch1();
-   double freq_start = filfile.fch1() - filfile.nchans()*fabs(filfile.foff()); // 2023-01-26 - same as on blc00 (on laptop was just freq_start = filfile.fch1() )
+   double freq_start = filfile.fch1() + gFoffSign*filfile.nchans()*fabs(filfile.foff()); // 2023-01-26 - same as on blc00 (on laptop was just freq_start = filfile.fch1() )
    printf("DEBUG : freq_start = %.4f [MHz]\n",freq_start);
 //   double freq_start = filfile.fch1() + filfile.nchans()*filfile.foff(); // ( was - filfile.nchans()*fabs( filfile.foff() ); 
 //   double freq_start = 110.00*1.28 - 0.64;
-   time_t filfile_uxtime = get_filfile_uxtime( filfile.name() );
+   time_t filfile_uxtime = 0;
+   if( gUnixTime > 0 ){
+      filfile_uxtime = (time_t)gUnixTime;
+   }else{
+      filfile_uxtime = get_filfile_uxtime( filfile.name() );
+   }
    out_fits.PrepareBigHornsHeader( filfile_uxtime, filfile.tsamp(), freq_start, fabs(filfile.foff()) );
    out_fits.WriteFits( gOutFitsFileName.c_str() );
    printf("INFO : wrote output FITS file to %s\n",gOutFitsFileName.c_str());

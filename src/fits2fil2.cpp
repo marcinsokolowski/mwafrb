@@ -24,7 +24,6 @@ string gOutTotalPowerFile="total_power_fil.txt";
 int gWriteFlipped=0;
 int gFlipData=0;
 int gFlipHeader=0;
-string gSourceName;
 
 long int gMaxSpectraCount=-1;
 
@@ -35,12 +34,29 @@ int gFloat2UChar=0;
 // FIL header filling 
 bool gUseFitsHeader=false;
 
+int gNewTelescopeID = -1; // (int)'u' -> MWA (117 or 85 ASCII) or 30 in new PRESTO (sigproc_fb.c)
+double gRA_degrees  = 95309.3097;
+string gRA_string;
+double gDEC_degrees = 75535.75;
+string gDEC_string;
+string gSourceName = "unknown";
+
+bool gTimeYAxis=false;
+
 void usage()
 {
    printf("fits2fil test.fits out.fil\n");   
    printf("\t-u : use FITS file header to fil .fil file header [default %d]\n",gUseFitsHeader);
    printf("\t-S OFFSET_SIGN : frequency offset sign +/-1 to specify if freq. start from low and goes up (+1) or from upper to lower (-1) [default %d]\n",gFreqOffsetSign);
    printf("\t-s SOURCE_NAME [default not set]\n");
+   printf("\t-t TELESCOPE_ID [default %d]\n",gNewTelescopeID);
+   printf("\t-r RA[deg decimal]\n");
+   printf("\t-d DEC[deg decimal]\n");
+   printf("\t-R RA_string  [e.g. 09:53:09.3097]\n");
+   printf("\t-D DEC_string [e.g. +07:55:35.75 ]\n");
+   printf("\t-s SOURCE_NAME [default %s]\n",gSourceName.c_str());
+   printf("\t-X : dynamic spectrum is transposed (Time on Y axis) [default NOT]\n");
+
    
 /*   printf("\t-n normalisation_file : file with mean spectrum to use for normalisation [default not set]\n");
    printf("\t-o output normalised fil file [default not required]\n");
@@ -53,7 +69,7 @@ void usage()
 }
 
 void parse_cmdline(int argc, char * argv[]) {
-   char optstring[] = "hfFHn:o:T:S:L:us:";
+   char optstring[] = "hfFHn:o:T:S:L:us:t:r:d:R:D:s:X";
    int opt,opt_param,i;
 
    while ((opt = getopt(argc, argv, optstring)) != -1) {
@@ -94,14 +110,50 @@ void parse_cmdline(int argc, char * argv[]) {
             gFreqOffsetSign = atol( optarg );
             break;
 
-         case 's':
-            gSourceName = optarg;
-            break;
-
          case 'T':
             gFloat2UChar = atol( optarg );
             break;
       
+         case 't':
+            if( optarg ){   
+               gNewTelescopeID = atol( optarg );
+            }
+            break;
+
+         case 'r':
+            if( optarg ){   
+               gRA_degrees = atof( optarg );
+            }
+            break;
+
+         case 'd':
+            if( optarg ){   
+               gDEC_degrees = atof( optarg );
+            }
+            break;
+
+         case 'R':
+            if( optarg ){   
+               gRA_string = optarg;
+            }
+            break;
+
+         case 'D':
+            if( optarg ){   
+               gDEC_string = optarg;
+            }
+            break;
+
+         case 's':
+            if( optarg ){   
+               gSourceName = optarg;
+            }
+            break;
+
+         case 'X':
+            gTimeYAxis = true;
+            break;
+
          default:
             fprintf(stderr,"Unknown option %c\n",opt);
             usage();
@@ -121,19 +173,14 @@ void print_parameters( string& filfilename, string& outfile )
   printf("#####################################\n");
   printf("FITS file          = %s\n",gFitsFile.c_str());
   printf("Input .fil file (just to use the same header)  = %s\n",filfilename.c_str());
+  printf("Input transposed   = %d\n",gTimeYAxis);
   printf("Output .fil file = %s\n",gOutFilFile.c_str());
   printf("Use FITS header  = %d\n",gUseFitsHeader);
   printf("Frequency offset sign = %d\n",gFreqOffsetSign);
   printf("Source name        = %s\n",gSourceName.c_str());
-/*  printf("Norm file          = %s\n",gNormFile.c_str());
-  printf("Write flipped      = %d (flip data = %d, flip header = %d)\n",gWriteFlipped,gFlipData,gFlipHeader);
-  printf("Float2Uchar        = %d\n",gFloat2UChar);
-  printf("Save spectrum      = %d\n",gSaveSpectra);
-  printf("Max. spectra count = %d\n",gMaxSpectraCount); 
-  printf("Output FITS files :\n");
-  printf("\t\t%s\n",gOutFitsFileName.c_str());
-  printf("\t\t%s\n",gOutFitsTransposedFileName.c_str());
-  printf("\t\t%s\n",gOutFitsAvgTransposedFileName.c_str());*/
+  printf("Telescope ID      = %d\n",gNewTelescopeID);
+  printf("(RA,DEC)          = (%.6f,%.6f)\n",gRA_degrees,gDEC_degrees);
+  printf("(RA,DEC) - string = (%s,%s)\n",gRA_string.c_str(),gDEC_string.c_str());  
   printf("#####################################\n");
   fflush(stdout);
 }
@@ -203,6 +250,15 @@ int main(int argc,char* argv[])
    if( strlen(gSourceName.c_str()) ){
       filfile_out.sourcename( gSourceName.c_str() );
    }
+   if( gNewTelescopeID >= 0 ){
+      filfile_out.telescope_id( gNewTelescopeID );
+   }
+   if( fabs(gRA_degrees) > 0.0001 ){
+      filfile_out.src_raj( gRA_degrees );
+   }
+   if( fabs(gDEC_degrees) > 0.0001 ){
+      filfile_out.src_dej( gDEC_degrees );
+   }
 
    printf("File : %s\n", gFitsFile.c_str() );
    printf("-------------------------------------------\n");
@@ -219,20 +275,57 @@ int main(int argc,char* argv[])
    printf("tstart = %.4f\n",tstart);
    printf("tsamp  = %.6f\n",tsamp);
    printf("source name = %s\n",filfile_out.sourcename());
+   printf("telescope_id = %d\n",filfile_out.telescope_id());
+   printf("Source (ra,dec) = (%.8f,%.8f) [deg]\n",filfile_out.src_raj(),filfile_out.src_dej());
+   
+/*   if( gNewTelescopeID >= 0 ){
+      filfile_out.SetHeaderValue( "telescope_id", gNewTelescopeID ); // "MWA" );
+   }
+
+   if( fabs(gRA_degrees) > 0.0001 ){ // or isnan
+      filfile_out.SetHeaderValue( "src_raj" , gRA_degrees );
+      // filfile.SetHeaderValue( "src_raj" , 95309.3097 ); // see sgiproc.pdf : src raj (double): right ascension (J2000) of source (hhmmss.s)
+   }
+
+   if( fabs(gDEC_degrees) > 0.0001 ){ // or isnan
+      filfile_out.SetHeaderValue( "src_dej" , gDEC_degrees );
+      // filfile.SetHeaderValue( "src_dej" ,  75535.75 ); // src dej (double): declination (J2000) of source (ddmmss.s)
+   }*/
+
 
    printf("DEBUG : writting header ...\n");
-   filfile_out.FillHeader();
+   filfile_out.FillHeader( true, false );
    int ret = filfile_out.WriteHeader( gOutFilFile.c_str() , false, true );
    printf("DEBUG : header written OK ( %d bytes written )\n",ret);
    
    
    int fits_n_channels = fits.GetYSize();
    int fits_n_timesteps = fits.GetXSize();
+   if( gTimeYAxis ){
+      fits_n_channels = fits.GetXSize();
+      fits_n_timesteps = fits.GetYSize();      
+   }
+   
+   printf("FITS dimensions are %d channels and %d timesteps\n",fits_n_channels,fits_n_timesteps);
+   
    float* buffer = new float[fits_n_channels];
    for(int t=0;t<fits_n_timesteps;t++){
+      double total_power = 0.00;
       for(int ch=0;ch<fits_n_channels;ch++){
-         buffer[ch] = fits.getXY(t,ch);
+         double val = 0.00;
+         if( gTimeYAxis ){
+            val = fits.getXY(ch,t);
+         }else{
+            val = fits.getXY(t,ch);
+         }
+         buffer[ch] = val;
+         total_power += val;         
       }      
+      
+      if( total_power <= 1.00 ){
+         printf("WARNING : low total power = %.8f\n",total_power);
+      }
+      printf("TOTAL POWER : %d %.8f\n",t,total_power);
       
       filfile_out.WriteData( buffer , fits_n_channels );
    }
