@@ -29,6 +29,7 @@ cat ${merged_cand} | awk '{if($1!="#"){print $1" "int(substr($6,2))" "int(substr
 doit_file=${merged_cand}.cutouts.sh
 rm -f ${doit_file}
 
+mkdir ${outdir}
 while read line # example 
 do
    evt=`echo $line | awk '{print $1;}'`       
@@ -54,5 +55,6 @@ done < ${tmpfile}
 chmod +x ${doit_file}
 cat ${doit_file}
 ./${doit_file}
+
 
 
