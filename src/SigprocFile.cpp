@@ -1,4 +1,4 @@
-/*
+ /*
  * SigprocFile.cpp
  *
  *  Created on: 27 Oct 2016
@@ -42,8 +42,7 @@ char* mystrnstr(const char* s1, const char* s2, size_t n)
 }
 
 SigprocFile::SigprocFile()
-: m_file
-(NULL), m_filename(NULL), m_samples_read(0), m_fd(0)
+: m_file(NULL), m_filename(NULL), m_samples_read(0), m_fd(0), m_nifs(0), m_nchans(0), m_nbits(0), m_src_raj(0.00), m_src_dej(0.00) 
 {
 }
 
@@ -688,7 +687,7 @@ int SigprocFile::WriteHeader( const char* filename , bool bClose, bool bNewFile 
 }*/
 
 SigprocFile::SigprocFile( int nbits, int nifs, int nchans, double fch1, double foff, double tstart, double tsamp )
-: m_nbits(nbits), m_nifs(nifs), m_nchans(nchans), m_fch1(fch1), m_foff(foff), m_tstart(tstart), m_tsamp(tsamp), m_file(NULL), m_filename(NULL)
+: m_nbits(nbits), m_nifs(nifs), m_nchans(nchans), m_fch1(fch1), m_foff(foff), m_tstart(tstart), m_tsamp(tsamp), m_file(NULL), m_filename(NULL),m_hdr_nbytes(MAX_HDR_SIZE), m_src_raj(0.00), m_src_dej(0.00) 
 {}
 
 void SigprocFile::name( const char* filename )
@@ -700,7 +699,10 @@ void SigprocFile::name( const char* filename )
    m_filename = strcpy(m_filename, filename);
 }
 
-SigprocFile::SigprocFile(const char* filename, int header_size /* = -1 */) {
+SigprocFile::SigprocFile(const char* filename, int header_size /* = -1 */) 
+: m_file(NULL), m_filename(NULL), m_samples_read(0), m_fd(0), m_nifs(0), m_nchans(0), m_nbits(0), m_src_raj(0.00), m_src_dej(0.00) 
+{
+        m_hdr_nbytes = MAX_HDR_SIZE;
         m_file_nbytes = GetFileSize( filename );
 
 	m_file = fopen(filename, "r");
@@ -730,7 +732,7 @@ SigprocFile::SigprocFile(const char* filename, int header_size /* = -1 */) {
 	m_data_nbytes = m_file_nbytes - m_hdr_nbytes;
 	assert(m_hdr_nbytes < MAX_HDR_SIZE);
 	m_hdr[m_hdr_nbytes] = 0;
-	seek_sample(0);
+	seek_sample(0); // ,m_hdr_nbytes);
 	printf("File %s has header %d bytes long. i.e. 0x%x\n", filename, int(m_hdr_nbytes), int(m_hdr_nbytes));
 	m_nbits = header_int("nbits");
 	m_nifs = header_int("nifs");
@@ -803,9 +805,10 @@ int SigprocFile::header_int(const char* hname) const {
 	return value;
 }
 
-size_t SigprocFile::seek_sample(size_t t)
+size_t SigprocFile::seek_sample(size_t t ) // , size_t hdr_size )
 {
 	size_t boff = t*nifs()*nchans()*nbits()/8 + m_hdr_nbytes;
+	printf("DEBUG : t = %ld , m_hdr_nbytes = %ld -> boff = %ld, file = %ld\n",t,m_hdr_nbytes,boff,(long int)m_file);
 	if(fseek(m_file, boff, SEEK_SET) < 0) {
 		printf("SigprocFile: Could not seek to offset of file %s\n. Error: %s", m_filename, strerror(errno));
 		assert(0);

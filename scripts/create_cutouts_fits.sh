@@ -16,6 +16,12 @@ if [[ -n "$3" && "$3" != "-" ]]; then
    outdir=$3
 fi
 
+evt_required=""
+if [[ -n "$4" && "$4" != "-" ]]; then
+   evt_required="$4"
+fi
+
+
 tmpfile=${merged_cand}.tmp
 
 cat ${merged_cand} | awk '{if($1!="#"){print $1" "int(substr($6,2))" "int(substr($8,1,length($8)-1));}}' > ${tmpfile}
@@ -25,13 +31,24 @@ rm -f ${doit_file}
 
 while read line # example 
 do
-   evt=`echo $line | awk '{print $1;}'` 
+   evt=`echo $line | awk '{print $1;}'`       
    start=`echo $line | awk '{print $2;}'`
    end=`echo $line | awk '{print $3;}'`
    outfits=${outdir}/cand_${evt}.fits
+   do_cutout=1
    
-   echo "cutimage $fits -s ${start} -e ${end} -c -f ${outfits}"
-   echo "cutimage $fits -s ${start} -e ${end} -c -f ${outfits}" >> ${doit_file}
+   if [[ -n $evt_required ]]; then
+      if [[ $evt != $evt_required ]]; then
+         do_cutout=0
+      fi
+   fi
+   
+   if [[ $do_cutout -gt 0 ]]; then
+      echo "cutimage $fits -s ${start} -e ${end} -c -f ${outfits}"
+      echo "cutimage $fits -s ${start} -e ${end} -c -f ${outfits}" >> ${doit_file}
+   else
+      echo "Event $evt skipped"
+   fi
 done < ${tmpfile}
 
 chmod +x ${doit_file}

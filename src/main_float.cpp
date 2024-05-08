@@ -9,6 +9,9 @@
 #include <sys/time.h>
 #include <sys/timeb.h>
 
+// to check maximum stack limits:
+#include <sys/time.h>
+#include <sys/resource.h>
 
 #include "SigprocFile.h"
 
@@ -40,6 +43,7 @@ double gUnixTime=-1;
 static time_t get_gmtime_from_string_localfunc( const char* szGmTime , const char* format="%Y%m%d_%H%M%S")
 {
    struct tm gmtime_tm;
+   memset(&gmtime_tm, '\0', sizeof(struct tm));
    // sscanf( szGmTime, "%.4u%.2u%.2u_%.2u%.2u%.2u", &gmtime_tm.tm_year,&gmtime_tm.tm_mon,
    // &gmtime_tm.tm_mday,&gmtime_tm.tm_hour,&gmtime_tm.tm_min,&gmtime_tm.tm_sec);
 
@@ -223,10 +227,19 @@ int main(int argc,char* argv[])
       filfile_norm.nbits( 8 );
       nbytes = 1;
    }
-   int initial_fits_size = int( filfile_size/(filfile.nchans()*nbytes) ) + 10;
+   long int initial_fits_size = (long int)( filfile_size/(filfile.nchans()*nbytes) ) + 10;
    if( gMaxSpectraCount > 0 ){
       initial_fits_size = gMaxSpectraCount;
    }
+   
+   struct rlimit rlim;
+   getrlimit( RLIMIT_STACK, &rlim);
+   printf("SYSTEM INFO : maximum stack size = %ld bytes (soft limit) and %ld bytes of hard limit\n",rlim.rlim_cur,rlim.rlim_max);
+/*   if( initial_fits_size >= 4000 || filfile.nchans()>= 8000 ){
+      rlim.rlim_cur = 33554432*2;
+      setrlimit( RLIMIT_STACK, &rlim);
+      printf("SYSTEM INFO : maximum stack size set to %ld bytes\n",rlim.rlim_cur);
+   }*/
    
    printf("File : %s\n", filfile.name() );
    printf("-------------------------------------------\n");
@@ -241,9 +254,11 @@ int main(int argc,char* argv[])
    printf("fch1 = %.8f\n",filfile.fch1());
    printf("foff = %.8f\n",filfile.foff());
    printf("tstart = %.4f\n",filfile.tstart());
+   printf("Source name = %s\n",filfile.sourcename());
+   printf("(RA,DEC) = (%.4f, %.f4)\n",filfile.src_raj(),filfile.src_dej());
    printf("tsamp  = %.6f\n",filfile.tsamp());
    printf("file size = %ld\n",filfile_size);
-   printf("Initial out FITS size = %d\n",initial_fits_size);
+   printf("Initial out FITS size = %ld\n",initial_fits_size);   
 
    if( strlen( gOutNormFilFile.c_str() ) > 0 ){
       filfile_norm.name( gOutNormFilFile.c_str() );
@@ -480,7 +495,8 @@ int main(int argc,char* argv[])
        spectra_count++;
    }
    fclose( out_total_power_f );
-   
+
+   printf("DEBUG : out_fits.get_lines_counter() = %d, out_fits.GetXSize() = %d\n",out_fits.get_lines_counter(),out_fits.GetYSize());
    out_fits.set_ysize();
    // PrepareBigHornsHeader( double ux_start, double _inttime, double freq_start, double delta_freq_mhz )
    // double freq_start = filfile.fch1();
@@ -501,18 +517,22 @@ int main(int argc,char* argv[])
    if( true ){
       // write transposed :
       printf("DEBUG : creating transposed FITS file with dimensions (%d,%d) from original FITS file (%d,%d)\n",out_fits.GetYSize(), filfile.nchans() , filfile_nchans , out_fits.GetYSize() );      
-      CBgFits out_fits_t( out_fits.GetYSize(), filfile.nchans() ); // create horizontal fits (X axis time , Y axis channels)
+      CBgFits out_fits_t( out_fits.GetYSize(), out_fits.GetXSize() ); // create horizontal fits (X axis time , Y axis channels)
                                                                    // based on vertical FITS (channels on X axis and time on Y axis): 
                                                                    // CBgFits out_fits( filfile.nchans(), initial_fits_size );
 
+      printf("DEBUG : out_fits size %d x %d -> transposing to %d x %d\n",out_fits.GetXSize(),out_fits.GetYSize(),out_fits_t.GetXSize(),out_fits_t.GetYSize());
       for(int ch=0;ch<out_fits.GetXSize();ch++){
          for(int t=0;t<out_fits.GetYSize();t++){
             double val = out_fits.getXY( ch, t );
             out_fits_t.setXY( t, ch, val );
          }
       }
+      printf("DEBUG : transposition finished\n");fflush(stdout);
       out_fits_t.PrepareBigHornsHeaderTransposed( filfile_uxtime, filfile.tsamp(), freq_start, fabs(filfile.foff()) );
+      printf("DEBUG : output FITS header prepared\n");
       out_fits_t.WriteFits( gOutFitsTransposedFileName.c_str() );
+      printf("DEBUG : wrote FITS file %s\n",gOutFitsTransposedFileName.c_str() );
       
       // write transposed and averaged in time / frequency :
       int n_time_avg=1000; // 1ms -> 1second (assuming orginally 1ms integrations)
@@ -522,15 +542,20 @@ int main(int argc,char* argv[])
          for(int ch=0;ch<out_fits_t.GetYSize();ch++){ // for each frequency channel, average n_time_avg - see next loop
             
             double sum = 0.00;
+            int n_time_avg_real=0;
             for(int k=0;k<n_time_avg;k++){
-               sum += out_fits_t.getXY( t + k , ch );
+               if( (t+k) < out_fits_t.GetXSize() ){
+                  sum += out_fits_t.getXY( t + k , ch );
+                  n_time_avg_real++;
+               }
             }       
             
-            int t_avg = t / n_time_avg;
-            out_fits_t_avg.setXY( t_avg, ch, (sum / n_time_avg) );
+            int t_avg = int( t / n_time_avg_real );
+            out_fits_t_avg.setXY( t_avg, ch, (sum / n_time_avg_real) );
             
             if( t == 0 ){
-               printf("DEBUG : t = %d -> t_avg = %d , ch = %d, value = %.4f\n",t,t_avg,ch, (sum / n_time_avg) );
+               float avg_val = float( sum / double(n_time_avg_real) );
+               printf("DEBUG : t = %d -> t_avg = %d , ch = %d, value = %.4f\n",t,t_avg,ch,avg_val);
             }
          }
       }

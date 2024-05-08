@@ -15,7 +15,8 @@
 #include <string>
 #include "DataSource.h"
 
-const size_t MAX_HDR_SIZE = 4096;
+// const size_t MAX_HDR_SIZE = 4096;
+#define MAX_HDR_SIZE 4096
 
 /**
  * Reads a sigproc file.
@@ -183,7 +184,7 @@ public:
 
 	void advise_block(off_t nt);
 
-	size_t seek_sample(size_t t);
+	size_t seek_sample( size_t t );
 
 // static functions :
         static bool DoesFileExist(const char* fname);
