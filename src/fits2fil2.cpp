@@ -233,14 +233,17 @@ int main(int argc,char* argv[])
       printf("\t\t %.6f + %.6f*(%d-1) + %.6f/2.00\n",fits.start_freq,fits.delta_freq,nchans,fits.delta_freq);      
       if( gFreqOffsetSign > 0 ){
          fits_end_freq = fits.start_freq - fits.delta_freq/2.00;
+         printf("DEBUG : gFreqOffsetSign >0 -> frequency end = %.6f MHz as  fits.start_freq - fits.delta_freq/2.00 (%.6f - %.6f/2.00)\n",fits_end_freq,fits.start_freq,fits.delta_freq);
       }
       fch1 = fits_end_freq; // fits.start_freq - fits.delta_freq/2.00; // assuming start frequency 
+      printf("DEBUG : final end freq = %.6f MHz\n",fits_end_freq);
       foff = gFreqOffsetSign*fits.delta_freq;
       tsamp = fits.inttime;
       tstart = fits.dtime_fs + fits.dtime_fu/1000000.00;
       
       printf("FITS header information:\n");
       printf("\tStart freq = %.8f MHz\n",fits.start_freq);
+      printf("\tFOFF       = %.8f MHz\n",foff);
       printf("\tN channels = %d\n",nchans);
       printf("\tInttime    = %.6f [sec]\n",tsamp);
       printf("\tTstart     = %.6f [uxtime]\n",tstart);

@@ -741,6 +741,8 @@ SigprocFile::SigprocFile(const char* filename, int header_size /* = -1 */)
 	m_foff = header_double("foff");
 	m_tstart = header_double("tstart");
 	m_tsamp = header_double("tsamp");
+	m_src_raj = header_double("src_raj");
+	m_src_dej = header_double("src_dej");
 	
 	printf("DEBUG : m_tstart = %.8f (SigprocFile::SigprocFile)\n",m_tstart);
 

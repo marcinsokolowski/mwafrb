@@ -1,5 +1,8 @@
 # include ../../make.cfg/flags.mak
 
+MWA_FRB=~/github/mwafrb/
+# MWA_FRB=/usr/local/
+
 # CMN_INCLUDES=-I../../fitslib/
 COMMON_LIBS=/usr/local/lib/libmsfitslib.so -lcfitsio -lnova -lfftw3 -ldl
 

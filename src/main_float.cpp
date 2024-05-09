@@ -255,7 +255,7 @@ int main(int argc,char* argv[])
    printf("foff = %.8f\n",filfile.foff());
    printf("tstart = %.4f\n",filfile.tstart());
    printf("Source name = %s\n",filfile.sourcename());
-   printf("(RA,DEC) = (%.4f, %.f4)\n",filfile.src_raj(),filfile.src_dej());
+   printf("(RA,DEC) = (%.4f, %.4f)\n",filfile.src_raj(),filfile.src_dej());
    printf("tsamp  = %.6f\n",filfile.tsamp());
    printf("file size = %ld\n",filfile_size);
    printf("Initial out FITS size = %ld\n",initial_fits_size);   
