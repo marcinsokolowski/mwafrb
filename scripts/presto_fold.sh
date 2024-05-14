@@ -39,6 +39,11 @@ if [[ -n "$6" && "$6" != "-" ]]; then
    start=$6
 fi
 
+options=""
+if [[ -n "$7" && "$7" != "-" ]]; then
+   options="$7"
+fi
+
 
 echo "########################################"
 echo "PARAMETERS:"
@@ -48,6 +53,7 @@ echo "name    = $name"
 echo "(RA,DEC) = ($ra_deg,$dec_deg) [RA,DEC string -> DECIMAL value]"
 echo "nsub = $nsub"
 echo "start = $start"
+echo "options = $options"
 echo "########################################"
 
 
@@ -73,14 +79,14 @@ if [[ -n ${psrcat_path} ]]; then
    echo "${psrcat_path} -e ${name} > ${name}.eph"
    ${psrcat_path} -e ${name} > ${name}.eph
    
-   echo "prepfold -timing ${name}.eph -debug -n 32 -npart 40 -nsub 16 updated.fil" >> history_prepfold.txt
-   echo "prepfold -timing ${name}.eph -debug -n 32 -npart 40 -nsub 16 updated.fil"
-   prepfold -timing ${name}.eph -debug -n 32 -npart 40 -nsub 16 updated.fil
+   echo "prepfold -timing ${name}.eph -debug -n 32 -npart 40 -nsub 16 ${options} updated.fil" >> history_prepfold.txt
+   echo "prepfold -timing ${name}.eph -debug -n 32 -npart 40 -nsub 16 ${options} updated.fil"
+   prepfold -timing ${name}.eph -debug -n 32 -npart 40 -nsub 16 ${options} updated.fil
 else
    # to use all the data use -npart 40 (or different value !) see /home/msok/Desktop/FRBs/FRB_ASKAP_RW/MWA_FRB_searches_real-time/20230613_PRESTO_HELP_FROM_SAM.odt
    # Explanations of options :
    # -start 0.02 : skip the 1st 6sec/300sec = 0.02 of observation (this is assuming 300sec observations) - because the start is always some power drop (due to lost packets !?)
-   echo "prepfold -psr ${name} -debug -nopsearch -nodmsearch -nosearch -n 32 -npart 40 -start ${start} -nsub $nsub updated.fil" >> history_prepfold.txt 
-   echo "prepfold -psr ${name} -debug -nopsearch -nodmsearch -nosearch -n 32 -npart 40 -start ${start} -nsub $nsub updated.fil"
-   prepfold -psr ${name} -debug -nopsearch -nodmsearch -nosearch -n 32 -npart 40 -start ${start} -nsub $nsub updated.fil 
+   echo "prepfold -psr ${name} -debug -nopsearch -nodmsearch -nosearch -n 32 -npart 40 -start ${start} -nsub $nsub ${options} updated.fil" >> history_prepfold.txt 
+   echo "prepfold -psr ${name} -debug -nopsearch -nodmsearch -nosearch -n 32 -npart 40 -start ${start} -nsub $nsub ${options} updated.fil"
+   prepfold -psr ${name} -debug -nopsearch -nodmsearch -nosearch -n 32 -npart 40 -start ${start} -nsub $nsub ${options} updated.fil 
 fi   
