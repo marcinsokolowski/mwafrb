@@ -69,8 +69,6 @@ update_fil_header ${filfile} -t 30 -r $ra_deg -d $dec_deg
 echo "readfile updated.fil"
 readfile updated.fil
 
-psrcat_path=`which psrcat`
-
 if [[ -n ${psrcat_path} ]]; then
    echo "${psrcat_path} -e ${name} > ${name}.eph"
    ${psrcat_path} -e ${name} > ${name}.eph
