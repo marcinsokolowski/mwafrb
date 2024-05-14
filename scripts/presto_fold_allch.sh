@@ -29,13 +29,22 @@ if [[ -n "$4" && "$4" != "-" ]]; then
    dec_deg=$4
 fi
 
+force=0
+
 for dir in `ls -d ${template}`
 do
    cd $dir
    filfile=`ls *.fil | tail -1`
+   dirname=${filfile%%.fil}
+   
+   png_count=`ls ${dirname}/*pfd.png |wc -l`
 
-   echo "presto_fold.sh ${filfile} ${name} ${ra_deg} ${dec_deg}"
-   presto_fold.sh ${filfile} ${name} ${ra_deg} ${dec_deg}
+   if [[ -d $dirname && $png_count -gt 0 && $force -le 0 ]]; then
+      echo "INFO : $dir already processed -> skipped"
+   else
+      echo "presto_fold.sh ${filfile} ${name} ${ra_deg} ${dec_deg}"
+      presto_fold.sh ${filfile} ${name} ${ra_deg} ${dec_deg}
+   fi
    
    cd ../
 done
