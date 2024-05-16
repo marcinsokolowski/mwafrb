@@ -17,7 +17,7 @@ dada2fits : dada2fits.cpp
 	g++  dada2fits.cpp -I$(MWA_FRB)/msfitslib/src/ -lcfitsio -L$(MWA_FRB)/slib/ -lmsfitslib $(OPT) $(COMMON_LIBS) -o dada2fits
 	
 
-all : read_dada read_eda2_dada dada2fits compare_filfiles dumpfilfile_float merge_coarse_channels avg_channels_fil dumpfilfile read_filfile fits2fil fits2fil2 update_fil_header n_fine_channels 
+all : read_dada read_eda2_dada dada2fits compare_filfiles dumpfilfile_float merge_coarse_channels avg_channels_fil dumpfilfile read_filfile fits2fil fits2fil2 update_fil_header n_fine_channels dividers
 
 read_filfile : read_filfile.c
 	gcc read_filfile.c -o read_filfile $(OPT)
@@ -62,6 +62,9 @@ generate_fil_files : generate_fil_files.cpp SigprocFile.cpp random.cpp
 n_fine_channels : n_fine_channels.cpp
 	g++ n_fine_channels.cpp -o n_fine_channels
 
+dividers : dividers.cpp
+	g++ dividers.cpp -o dividers
+
 install :
 	mkdir -p $(MWA_FRB)/bin/
 	cp dumpfilfile $(MWA_FRB)/bin/
@@ -76,8 +79,10 @@ install :
 	cp update_fil_header $(MWA_FRB)/bin/
 	cp dada2fits  $(MWA_FRB)/bin/
 	cp n_fine_channels  $(MWA_FRB)/bin/
+	cp dividers $(MWA_FRB)/bin/
 	chmod +x $(MWA_FRB)/bin/*
 	
 clean :
-	rm -f *.o read_dada read_eda2_dada dada2fits dumpfilfile_float dumpfilfile_float_test generate_fil_files update_fil_header compare_filfiles merge_coarse_channels avg_channels_fil pipe_filfiles fits2fil fits2fil2 dumpfilfile n_fine_channels
+	rm -f *.o read_dada read_eda2_dada dada2fits dumpfilfile_float dumpfilfile_float_test generate_fil_files update_fil_header compare_filfiles merge_coarse_channels avg_channels_fil pipe_filfiles fits2fil fits2fil2 dumpfilfile n_fine_channels dividers
+	
 		

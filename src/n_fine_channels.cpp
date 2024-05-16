@@ -2,10 +2,40 @@
 #include <stdio.h>
 #include <string.h>
 
+#include <vector>
+
+bool is_prime( int number )
+{
+  bool is_prime = true;
+  
+  for(int i=2;i<=(number-1);i++){
+     if( (number % i) == 0 ){
+        return false;
+     }
+  }
+  
+  return true;
+}
+
+int find_dividers( int number, std::vector<int>& out_dividers )
+{
+   out_dividers.clear();
+
+   for(int i=2;i<=(number-1);i++){
+      if( is_prime(i) ){
+         if( (number % i) == 0 ){
+            out_dividers.push_back(i);
+         }
+      }
+   }
+
+   return out_dividers.size();
+}
+
 int main(int argc,char* argv[])
 {
    if( argc==2 && strcmp(argv[1],"-h")==0){
-      printf("n_fine_channels N_COARSE_CH N_FINE_CH\n");
+      printf("n_fine_channels N_COARSE_CH N_FINE_CH CALC_SUBBANDS\n");
       exit(0);
    }
 
@@ -14,10 +44,33 @@ int main(int argc,char* argv[])
       n_coarse_ch = atol(argv[1]);
    }
    
+printf("is_prime(%d) = %d\n",n_coarse_ch,is_prime(n_coarse_ch));
+std::vector<int> dividers;
+find_dividers(n_coarse_ch,dividers);
+if( dividers.size() > 0 ){
+   printf("Dividers:\n");
+   for(int i=0;i<dividers.size();i++){
+      printf("%d\n",dividers[i]);
+   }
+}else{ 
+   if( is_prime(n_coarse_ch) ){
+      printf("%d is a prime number -> no dividers\n",n_coarse_ch);
+   }else{
+      printf("ERROR in code : %d has no dividers, but is not prime !!!???\n",n_coarse_ch);
+   }
+}
+exit(0);   
+   
    int n_fine_ch = 16;
    if( argc>=3 ){
       n_fine_ch = atol(argv[2]);
    }
+   
+   bool b_calc_subbands = false;
+   if( argc>=4 ){
+      b_calc_subbands = (atol(argv[3]) > 0);
+   }
+
    
    double alpha = (400.00/512.00);
    double beta  = (32.00/27.00);
@@ -28,4 +81,12 @@ int main(int argc,char* argv[])
    int n_out_channels =  n_edge_channels + n_centre_channels; // number of final fine channels after excluding overlapping regions
 
    printf("Number of fine channels = %d (%d edge and %d centre)\n",n_out_channels,n_edge_channels,n_centre_channels);
+   
+   if( b_calc_subbands ){
+      if( is_prime( n_out_channels ) ){
+         printf("Prime number of fine channels -> nsubbands = %d\n",n_out_channels);
+      }else{
+         // find maximum reasonable divider ?
+      }   
+   }
 }
