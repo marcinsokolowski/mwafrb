@@ -496,7 +496,7 @@ int main(int argc,char* argv[])
    }
    fclose( out_total_power_f );
 
-   printf("DEBUG : out_fits.get_lines_counter() = %d, out_fits.GetXSize() = %d\n",out_fits.get_lines_counter(),out_fits.GetYSize());
+   printf("DEBUG : out_fits.get_lines_counter() = %d, out_fits.GetXSize() = %ld\n",out_fits.get_lines_counter(),out_fits.GetYSize());
    out_fits.set_ysize();
    // PrepareBigHornsHeader( double ux_start, double _inttime, double freq_start, double delta_freq_mhz )
    // double freq_start = filfile.fch1();
@@ -516,12 +516,12 @@ int main(int argc,char* argv[])
 
    if( true ){
       // write transposed :
-      printf("DEBUG : creating transposed FITS file with dimensions (%d,%d) from original FITS file (%d,%d)\n",out_fits.GetYSize(), filfile.nchans() , filfile_nchans , out_fits.GetYSize() );      
+      printf("DEBUG : creating transposed FITS file with dimensions (%ld,%d) from original FITS file (%d,%ld)\n",out_fits.GetYSize(), filfile.nchans() , filfile_nchans , out_fits.GetYSize() );      
       CBgFits out_fits_t( out_fits.GetYSize(), out_fits.GetXSize() ); // create horizontal fits (X axis time , Y axis channels)
                                                                    // based on vertical FITS (channels on X axis and time on Y axis): 
                                                                    // CBgFits out_fits( filfile.nchans(), initial_fits_size );
 
-      printf("DEBUG : out_fits size %d x %d -> transposing to %d x %d\n",out_fits.GetXSize(),out_fits.GetYSize(),out_fits_t.GetXSize(),out_fits_t.GetYSize());
+      printf("DEBUG : out_fits size %ld x %ld -> transposing to %ld x %ld\n",out_fits.GetXSize(),out_fits.GetYSize(),out_fits_t.GetXSize(),out_fits_t.GetYSize());
       for(int ch=0;ch<out_fits.GetXSize();ch++){
          for(int t=0;t<out_fits.GetYSize();t++){
             double val = out_fits.getXY( ch, t );
@@ -537,7 +537,7 @@ int main(int argc,char* argv[])
       // write transposed and averaged in time / frequency :
       int n_time_avg=1000; // 1ms -> 1second (assuming orginally 1ms integrations)
       CBgFits out_fits_t_avg( out_fits_t.GetXSize()/n_time_avg, out_fits_t.GetYSize() ); // create averaged by n_time_avg along the X axis on transposed file
-      printf("DEBUG : creating averated dynamic spectrum from vertical file (%d,%d) -> (%d,%d)\n",out_fits_t.GetXSize(), out_fits_t.GetYSize(),out_fits_t.GetXSize()/n_time_avg, out_fits_t.GetYSize());     
+      printf("DEBUG : creating averated dynamic spectrum from vertical file (%ld,%ld) -> (%ld,%ld)\n",out_fits_t.GetXSize(), out_fits_t.GetYSize(),out_fits_t.GetXSize()/n_time_avg, out_fits_t.GetYSize());     
       for(int t=0;t<out_fits_t.GetXSize();t+=n_time_avg){ // loop over start times t along the horizontal axis of out_fits_t (Time)
          for(int ch=0;ch<out_fits_t.GetYSize();ch++){ // for each frequency channel, average n_time_avg - see next loop
             

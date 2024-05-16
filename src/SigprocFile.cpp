@@ -637,7 +637,11 @@ int  SigprocFile::MergeOversampledCoarseChannels( std::vector<string>& fil_file_
    int n_coarse_ch = fil_file_list.size();
    int n_cc_center = n_coarse_ch -2;
    double nc = ( n_fine_ch*(beta-1)/beta ); // number of fine channels in the overlapping region
-   int n_out_channels = (n_coarse_ch-2)*(n_fine_ch-int(nc/2)-(int(nc/2)+1)) + (n_fine_ch-int(nc/2))*2; // number of final fine channels after excluding overlapping regions 
+   // int n_out_channels = (n_coarse_ch-2)*(n_fine_ch-int(nc/2)-(int(nc/2)+1)) + (n_fine_ch-int(nc/2))*2; // number of final fine channels after excluding overlapping regions 
+   int n_edge_channels = (n_fine_ch-int(nc/2))*2;
+   int n_centre_channels = (n_coarse_ch-2)*(n_fine_ch-int(nc/2)-(int(nc/2)+1));
+   int n_out_channels =  n_edge_channels + n_centre_channels; // number of final fine channels after excluding overlapping regions
+   printf("DEBIG : n_fine_ch-int(nc/2) = %d , n_fine_ch-int(nc/2)-(int(nc/2)+1) = %d\n",(n_fine_ch-int(nc/2)),(n_fine_ch-int(nc/2)-(int(nc/2)+1)));
 /*   if( (n_out_channels % 2) == 1 ){
       // make it even :
       printf("WARNING : number of output channels = %d (odd number), will skip last channel to make it even = %d\n",n_out_channels,(n_out_channels-1));
@@ -656,7 +660,10 @@ int  SigprocFile::MergeOversampledCoarseChannels( std::vector<string>& fil_file_
       }   
    }
    printf("INFO : number of fine channels = %d -> overlapping channels = %.2f (%.8f)\n",n_fine_ch,nc,(n_fine_ch*(beta-1)/beta));
-   printf("INFO : final number of channels in the stitched FIL file = %d\n",n_out_channels);
+   printf("INFO : final number of channels in the stitched FIL file = %d (%d edge channels + %d centre channels)\n",n_out_channels,n_edge_channels,n_centre_channels);
+   FILE* out_f = fopen("merged_fine_channels.txt","w");
+   fprintf(out_f,"%d\n",n_out_channels);
+   fclose(out_f);
 
    if( !avg_spectrum ){
       avg_spectrum = new double[n_out_channels];
