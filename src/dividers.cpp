@@ -52,6 +52,15 @@ int main(int argc,char* argv[])
       for(int i=0;i<dividers.size();i++){
          printf("%d\n",dividers[i]);
       }
+      
+      printf("\n\nMaximum divider = %d\n",dividers[dividers.size()-1]);
+      
+      for(int i=(dividers.size()-1);i>=0;i--){
+         if( (dividers[i] % 2)==0 ){
+            printf("\n\nMaximum even divider = %d\n",dividers[i]);
+            break;
+         }
+      }
    }else{ 
       if( is_prime(n_coarse_ch) ){
          printf("%d is a prime number -> no dividers\n",n_coarse_ch);
