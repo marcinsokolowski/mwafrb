@@ -26,6 +26,68 @@
 
 int gDebugLevel = 0;
 
+
+static bool is_prime( int number )
+{
+  bool is_prime = true;
+
+  for(int i=2;i<=(number-1);i++){
+     if( (number % i) == 0 ){
+        return false;
+     }
+  }
+
+  return true;
+}
+
+static int find_dividers( int number, std::vector<int>& out_dividers, bool all=true )
+{
+   out_dividers.clear();
+
+   for(int i=2;i<=(number-1);i++){
+      if( is_prime(i) || all ){
+         if( (number % i) == 0 ){
+            out_dividers.push_back(i);
+         }
+      }
+   }
+
+   return out_dividers.size();
+}
+
+static void check_number( int n_coarse_ch )
+{
+   FILE* out_f = fopen("dividers.txt","w");
+   
+   printf("is_prime(%d) = %d\n",n_coarse_ch,is_prime(n_coarse_ch));
+   std::vector<int> dividers;
+   find_dividers(n_coarse_ch,dividers);
+   if( dividers.size() > 0 ){
+      printf("Dividers:\n");
+      for(int i=0;i<dividers.size();i++){
+         printf("%d\n",dividers[i]);
+         fprintf(out_f,"%d\n",dividers[i]);
+      }
+
+      printf("\n\nMaximum divider = %d\n",dividers[dividers.size()-1]);
+      fprintf(out_f,"Maximum divider = %d\n",dividers[dividers.size()-1]);
+
+      for(int i=(dividers.size()-1);i>=0;i--){
+         if( (dividers[i] % 2)==0 ){
+            printf("\n\nMaximum even divider = %d\n",dividers[i]);
+            fprintf(out_f,"Maximum even divider = %d\n",dividers[i]);
+            break;
+         }
+      }
+   }else{ 
+      if( is_prime(n_coarse_ch) ){
+         printf("%d is a prime number -> no dividers\n",n_coarse_ch);
+      }else{
+         printf("ERROR in code : %d has no dividers, but is not prime !!!???\n",n_coarse_ch);
+      }
+   }
+}
+
 /* Same as strstr but goes through *all* the string - even if it contains nulls
  *
  */
