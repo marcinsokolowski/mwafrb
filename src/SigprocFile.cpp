@@ -598,7 +598,7 @@ int  SigprocFile::MergeCoarseChannels( std::vector<string>& fil_file_list, const
    return n_out_channels;
 }
 
-int  SigprocFile::MergeOversampledCoarseChannels( std::vector<string>& fil_file_list, const char* out_file , double*& avg_spectrum, int foff_sign )
+int  SigprocFile::MergeOversampledCoarseChannels( std::vector<string>& fil_file_list, const char* out_file , double*& avg_spectrum, int foff_sign, bool bDivideByFour /*=true*/ )
 {
    int max_filfiles = fil_file_list.size();
    SigprocFile* infiles[fil_file_list.size()]; // maximum 24 
@@ -636,14 +636,26 @@ int  SigprocFile::MergeOversampledCoarseChannels( std::vector<string>& fil_file_
    
    int n_coarse_ch = fil_file_list.size();
    int n_cc_center = n_coarse_ch -2;
-   int nc = round( n_fine_ch*(beta-1)/beta ); // number of fine channels in the overlapping region
-   int n_out_channels = (n_coarse_ch-2)*(n_fine_ch-nc) + (n_fine_ch-nc/2)*2; // number of final fine channels after excluding overlapping regions 
-   if( (n_out_channels % 2) == 1 ){
+   double nc = ( n_fine_ch*(beta-1)/beta ); // number of fine channels in the overlapping region
+   int n_out_channels = (n_coarse_ch-2)*(n_fine_ch-int(nc/2)-(int(nc/2)+1)) + (n_fine_ch-int(nc/2))*2; // number of final fine channels after excluding overlapping regions 
+/*   if( (n_out_channels % 2) == 1 ){
       // make it even :
       printf("WARNING : number of output channels = %d (odd number), will skip last channel to make it even = %d\n",n_out_channels,(n_out_channels-1));
 //     n_out_channels = n_out_channels - 1;
-   }  
-   printf("INFO : number of fine channels = %d -> overlapping channels = %d (%.8f)\n",n_fine_ch,nc,(n_fine_ch*(beta-1)/beta));
+   }  */
+   int skip_n_last_channels=0;
+   if( (n_out_channels % 4) != 0 ){
+      printf("WARNING : number of output channels = %d does not divide by 4 (required by FREDDA)\n",n_out_channels);
+      
+      if( bDivideByFour ){
+         int div4 = int(n_out_channels / 4);         
+         int new_out_channels = div4*4;
+         skip_n_last_channels = (n_out_channels - new_out_channels);
+         printf("WARNING : skipping last %d channels to make it divide by 4 : %d -> %d\n",skip_n_last_channels,n_out_channels,new_out_channels);
+         n_out_channels = new_out_channels;
+      }   
+   }
+   printf("INFO : number of fine channels = %d -> overlapping channels = %.2f (%.8f)\n",n_fine_ch,nc,(n_fine_ch*(beta-1)/beta));
    printf("INFO : final number of channels in the stitched FIL file = %d\n",n_out_channels);
 
    if( !avg_spectrum ){
@@ -716,7 +728,7 @@ int  SigprocFile::MergeOversampledCoarseChannels( std::vector<string>& fil_file_
            int n_cc_out = -1;
            if( i == 0 ){
               // first coarse channel 
-              n_cc_out = (n_fine_ch-(nc/2-1));
+              n_cc_out = (n_fine_ch-int(nc/2));
               for(int ch=0;ch<n_cc_out;ch++){
                  out_spectrum[out_channel_index] = float_buffer[ch];
                  out_channel_index++;
@@ -726,13 +738,13 @@ int  SigprocFile::MergeOversampledCoarseChannels( std::vector<string>& fil_file_
               out_spectrum[out_channel_index-1] = ( out_spectrum[out_channel_index-1] + float_buffer[int(nc/2)] ) / 2.00;
                  
               // add next fine channels 
-              int last_ch = (n_fine_ch-(nc/2-1)); // again skip the last 9 channels from the upper end, but keep 118th to be averaged with 10th fine channel from the next coarse cc.
+              int last_ch = (n_fine_ch-(int(nc/2)+1)); // again skip the last 9 channels from the upper end, but keep 118th to be averaged with 10th fine channel from the next coarse cc.
               if( i == (n_coarse_ch-1) ){
                  // add channels up to the end from the last file :
-                 last_ch = n_fine_ch;
+                 last_ch = n_fine_ch - skip_n_last_channels; // skip last channels to make it divide by 2 or 4 
               }
                  
-              for(int ch=int(nc/2)+1;ch<last_ch;ch++){
+              for(int ch=(int(nc/2));ch<last_ch;ch++){
                  out_spectrum[out_channel_index] = float_buffer[ch];
                  out_channel_index++;
               }         
