@@ -44,23 +44,6 @@ int main(int argc,char* argv[])
       n_coarse_ch = atol(argv[1]);
    }
    
-printf("is_prime(%d) = %d\n",n_coarse_ch,is_prime(n_coarse_ch));
-std::vector<int> dividers;
-find_dividers(n_coarse_ch,dividers);
-if( dividers.size() > 0 ){
-   printf("Dividers:\n");
-   for(int i=0;i<dividers.size();i++){
-      printf("%d\n",dividers[i]);
-   }
-}else{ 
-   if( is_prime(n_coarse_ch) ){
-      printf("%d is a prime number -> no dividers\n",n_coarse_ch);
-   }else{
-      printf("ERROR in code : %d has no dividers, but is not prime !!!???\n",n_coarse_ch);
-   }
-}
-exit(0);   
-   
    int n_fine_ch = 16;
    if( argc>=3 ){
       n_fine_ch = atol(argv[2]);

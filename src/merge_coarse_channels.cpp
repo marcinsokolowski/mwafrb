@@ -26,16 +26,18 @@ vector<string> input_fil_files;
 string gOutputFilFile="out.fil";
 int gFOFFSign=1;
 bool gOverSampled=false;
+bool gFreddaCompatibleOutput=false;
 
 void usage()
 {
    printf("merge_coarse_channels in1.fil,in2.fil,in3.fil output_filfile\n");   
    printf("-s FOFF_SIGN : sign of FOFF (+1 or -1 to flip it) [default %d], 1-no change, -1 flip sign\n",gFOFFSign);
    printf("-o : files are oversampled in the same SKA-Low coarse channels are (32/27) [default %d]\n",gOverSampled);
+   printf("-F : make sure FREDDA will be happy, for example : number of channels divides by 128 etc\n");
 }
 
 void parse_cmdline(int argc, char * argv[]) {
-   char optstring[] = "hs:o";
+   char optstring[] = "hs:oF";
    int opt,opt_param,i;
 
    while ((opt = getopt(argc, argv, optstring)) != -1) {
@@ -44,6 +46,10 @@ void parse_cmdline(int argc, char * argv[]) {
             if( optarg ){   
                gFOFFSign = atol( optarg );
             }
+            break;
+
+         case 'F':
+            gFreddaCompatibleOutput = true;
             break;
 
          case 'o':
@@ -77,6 +83,7 @@ void print_parameters()
   printf("Average spectrum output file = %s\n",gAvgSpectrumFile.c_str());
   printf("FOFF SIGN = %d\n",gFOFFSign);
   printf("Channels oversampled = %d\n",gOverSampled);
+  printf("FREDDA compatible    = %d\n",gFreddaCompatibleOutput);
   printf("#####################################\n");
   fflush(stdout);
 }
@@ -132,7 +139,7 @@ int main(int argc,char* argv[])
    // int  SigprocFile::MergeCoarseChannels( std::vector<string>& fil_file_list, const char* out_file )
    int out_channels = 0;
    if( gOverSampled ){
-      out_channels = SigprocFile::MergeOversampledCoarseChannels( input_fil_files , gOutputFilFile.c_str(), avg_spectrum, gFOFFSign );
+      out_channels = SigprocFile::MergeOversampledCoarseChannels( input_fil_files , gOutputFilFile.c_str(), avg_spectrum, gFOFFSign, gFreddaCompatibleOutput );
    }else{
       out_channels = SigprocFile::MergeCoarseChannels( input_fil_files , gOutputFilFile.c_str(), avg_spectrum, gFOFFSign );   
    }

@@ -60,7 +60,8 @@ public:
 	
 	// output is always nbits=32 (float) .fil file (no matter input - 1 byte char or 4 bytes float) 
 	static int MergeCoarseChannels( std::vector<string>& fil_file_list, const char* out_file, double*& avg_spectrum, int foff_sign=1 );
-	static int MergeOversampledCoarseChannels( std::vector<string>& fil_file_list, const char* out_file, double*& avg_spectrum, int foff_sign=1, bool bDivideByFour=true );
+	static int MergeOversampledCoarseChannels( std::vector<string>& fil_file_list, const char* out_file, double*& avg_spectrum, int foff_sign=1, 
+	                                           bool bFreddaCompatibleOutput=false );
 
 	int nifs() {
 		return m_nifs;

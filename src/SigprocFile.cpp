@@ -660,7 +660,8 @@ int  SigprocFile::MergeCoarseChannels( std::vector<string>& fil_file_list, const
    return n_out_channels;
 }
 
-int  SigprocFile::MergeOversampledCoarseChannels( std::vector<string>& fil_file_list, const char* out_file , double*& avg_spectrum, int foff_sign, bool bDivideByFour /*=true*/ )
+int  SigprocFile::MergeOversampledCoarseChannels( std::vector<string>& fil_file_list, const char* out_file , double*& avg_spectrum, int foff_sign, 
+                                                  bool bFreddaCompatibleOutput /*=false*/ )
 {
    int max_filfiles = fil_file_list.size();
    SigprocFile* infiles[fil_file_list.size()]; // maximum 24 
@@ -710,17 +711,19 @@ int  SigprocFile::MergeOversampledCoarseChannels( std::vector<string>& fil_file_
 //     n_out_channels = n_out_channels - 1;
    }  */
    int skip_n_last_channels=0;
-   if( (n_out_channels % 4) != 0 ){
-      printf("WARNING : number of output channels = %d does not divide by 4 (required by FREDDA)\n",n_out_channels);
+   if( bFreddaCompatibleOutput ){
+      printf("INFO : checking FREDDA requirements is enabled\n");
+      if( (n_out_channels % 128) != 0 ){ // was 4 but now for FREDDA it must divide by 128 
+         printf("WARNING : number of output channels = %d does not divide by 128 (required by FREDDA)\n",n_out_channels);
       
-      if( bDivideByFour ){
-         int div4 = int(n_out_channels / 4);         
-         int new_out_channels = div4*4;
+         int div128 = int(n_out_channels / 128);         
+         int new_out_channels = div128*128;
          skip_n_last_channels = (n_out_channels - new_out_channels);
-         printf("WARNING : skipping last %d channels to make it divide by 4 : %d -> %d\n",skip_n_last_channels,n_out_channels,new_out_channels);
+         printf("WARNING : skipping last %d channels to make it divide by 128 : %d -> %d\n",skip_n_last_channels,n_out_channels,new_out_channels);
          n_out_channels = new_out_channels;
-      }   
+      }         
    }
+         
    printf("INFO : number of fine channels = %d -> overlapping channels = %.2f (%.8f)\n",n_fine_ch,nc,(n_fine_ch*(beta-1)/beta));
    printf("INFO : final number of channels in the stitched FIL file = %d (%d edge channels + %d centre channels)\n",n_out_channels,n_edge_channels,n_centre_channels);
    FILE* out_f = fopen("merged_fine_channels.txt","w");
