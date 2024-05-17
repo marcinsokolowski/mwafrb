@@ -814,6 +814,10 @@ int  SigprocFile::MergeOversampledCoarseChannels( std::vector<string>& fil_file_
               if( i == (n_coarse_ch-1) ){
                  // add channels up to the end from the last file :
                  last_ch = n_fine_ch - skip_n_last_channels; // skip last channels to make it divide by 2 or 4 
+                 if( last_ch < 0 ){
+                    printf("ERROR in code / data : cannot deacrease number of channels by more than %d fine channels\n",n_fine_ch);
+                    exit(-1);
+                 }
               }
                  
               for(int ch=(int(nc/2));ch<last_ch;ch++){
