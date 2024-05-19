@@ -11,7 +11,7 @@ do
       echo "wc -l dynspec_avg7_i.cand"
       wc -l dynspec_avg7_i.cand
       ls -al *.cand      
-      echo "python ~/github/mwafrb/scripts/my_friends_of_friends.py dynspec_avg7_i.cand --outfile=dynspec_avg7_i.merged_cand"
+      echo "python ~/github/mwafrb/scripts/my_friends_of_friends.py dynspec_avg7_i.cand --outfile=dynspec_avg7_i.cand_merged"
       
       sleep 5
    else
