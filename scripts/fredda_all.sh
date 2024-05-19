@@ -1,12 +1,12 @@
 #!/bin/bash
 
-for chdir in `ls -ald ch???`
+for chdir in `ls -d ch???`
 do
    cd ${chdir}
    
    if [[ -s dynspec_avg7_i.fil ]]; then
-      echo "./fredda! dynspec_avg7_i.fil"
-      ./fredda! dynspec_avg7_i.fil
+      echo "~/github/mwafrb/scripts/fredda! dynspec_avg7_i.fil"
+      ~/github/mwafrb/scripts/fredda! dynspec_avg7_i.fil
       
       echo "wc -l dynspec_avg7_i.cand"
       wc -l dynspec_avg7_i.cand
