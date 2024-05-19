@@ -105,7 +105,9 @@ class cFreddaCandidate :
           self.cand_list.append( copy.copy(new_cand) )   
           new_cand.added = True
           
-          print("DEBUG : candidate time range updated to %.1f - %.1f , added candidate at time = %.1f" % (self.min_timestep,self.max_timestep,new_cand.timestep))
+          len_test=len(self.cand_list)
+          
+          print("DEBUG : candidate time range updated to %.1f - %.1f , added candidate (SNR=%.2f, DM=%.4f vs. added SNR=%.2f, DM=%.4f) at time = %.1f" % (self.min_timestep,self.max_timestep,new_cand.snr,new_cand.dm,self.cand_list[len_test-1].snr,self.cand_list[len_test-1].dm,new_cand.timestep))
           
           return True
           
@@ -143,12 +145,15 @@ class cFreddaCandidate :
        if lowest_index < 0 :
           lowest_index = 0   
    
-       i = len(snr_sorted)-1
-       while i >= lowest_index :
+# 2024-05-19 : do not do this top 10 sorted by SNR because the highest SNR candidates have ZERO DM and this is not super informative !   
+#       i = len(snr_sorted)-1
+#       while i >= lowest_index :
+       i = 0
+       while i < len(snr_sorted) :
           idx = snr_sorted[i]
           cand = self.cand_list[ idx ]
           # cand = snr_sorted[i]
-          print("\tDEBUG snr = %.4f ( index = %d )" % (cand.snr,idx))
+          print("\tDEBUG snr = %.4f ( index = %d ), dm = %.4f" % (cand.snr,idx,cand.dm))
           
           if cand.timestep < min_time :
              min_time = cand.timestep
@@ -162,7 +167,8 @@ class cFreddaCandidate :
           if cand.dm > max_dm :
              max_dm = cand.dm
              
-          i = i - 1
+          # i = i - 1   
+          i = i + 1
 
        print("\treturn (%.4f,%.4f,%.4f,%.4f)" % (min_time,max_time,max_snr,max_dm))             
        return (min_time,max_time,max_snr,max_dm)
@@ -201,7 +207,8 @@ def read_file(file,verb=False,frbsearch_input=False) :
          t   = int( float(words[1+0]) )
          snr = float(words[0+0])
          dm  = float(words[5+0])
-         
+
+      # print("DEBUG : DM = %.4f" % (dm))         
       cand = cFreddaCandidate( _timestep=t, _snr=snr, _dm=dm )
 
       cand_list.append( copy.copy(cand) )
@@ -392,6 +399,8 @@ if __name__ == '__main__':
       cand = out_list[i]
       
       # get time range from top 10 SNR candidates :
+      max_dm = -1.00
+      max_snr = -1.00
       if options.print_as_is :
          min_time = cand.min_timestep
          max_time = cand.max_timestep

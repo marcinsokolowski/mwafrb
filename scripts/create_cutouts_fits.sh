@@ -31,6 +31,11 @@ if [[ -n "$6" && "$6" != "-" ]]; then
    max_cutouts=$6
 fi
 
+min_timesteps=100
+if [[ -n "$7" && "$7" != "-" ]]; then
+   min_timesteps=$7
+fi
+
 
 tmpfile=${merged_cand}.tmp
 
@@ -53,6 +58,11 @@ do
    is_dm_ok=`echo $dm" "$min_dm | awk '{if($1>$2){print 1;}else{print 0;}}'`
    outfits=${outdir}/cand_${evt}.fits   
    do_cutout=1
+   
+   if [[ $(($end-$start)) -lt $min_timesteps ]]; then
+      echo "WARNING : end=$end , start=$start -> less then minimum $min_timesteps -> changing end to $start+$min_timesteps"
+      end=$(($start+$min_timesteps))
+   fi
    
    if [[ $counter -gt $max_cutouts ]]; then
       echo "WARNING : maximum number of cut-outs $counter exceeds limit -f $max_cutouts -> exiting loop"
