@@ -64,7 +64,7 @@ do
       end=$(($start+$min_timesteps))
    fi
    
-   if [[ $counter -gt $max_cutouts ]]; then
+   if [[ $max_cutouts -gt 0 && $counter -gt $max_cutouts ]]; then
       echo "WARNING : maximum number of cut-outs $counter exceeds limit -f $max_cutouts -> exiting loop"
       break
    fi
