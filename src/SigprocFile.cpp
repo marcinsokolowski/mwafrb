@@ -713,18 +713,29 @@ int  SigprocFile::MergeOversampledCoarseChannels( std::vector<string>& fil_file_
    int skip_n_last_channels=0;
    if( bFreddaCompatibleOutput ){
       printf("INFO : checking FREDDA requirements is enabled\n");
-      if( (n_out_channels % 128) != 0 ){ // was 4 but now for FREDDA it must divide by 128 
-         printf("WARNING : number of output channels = %d does not divide by 128 (required by FREDDA)\n",n_out_channels);
+      std::vector<int> required_dividers;
+      required_dividers.push_back(128);
+      required_dividers.push_back(64);
+      required_dividers.push_back(16); // secondary requirement, because if number divides by 128 it also divide by 16. So, if the first one is met we skip the next ones
+      required_dividers.push_back(4);
+      required_dividers.push_back(2);
+
+      for(int i=0;i<required_dividers.size();i++){
+         int divider = required_dividers[i];   
+         if( (n_out_channels % divider) != 0 ){ // was 4 but now for FREDDA it must divide by 128 
+            printf("WARNING : number of output channels = %d does not divide by %d (required by FREDDA)\n",n_out_channels,divider);
       
-         int div128 = int(n_out_channels / 128);         
-         int new_out_channels = div128*128;
+            int div_divider = int(n_out_channels / divider);
+            int new_out_channels = div_divider*divider;
          
-         if( new_out_channels >= 128 ){
-            skip_n_last_channels = (n_out_channels - new_out_channels);
-            printf("WARNING : skipping last %d channels to make it divide by 128 : %d -> %d\n",skip_n_last_channels,n_out_channels,new_out_channels);
-            n_out_channels = new_out_channels;
-         }else{
-            printf("WARNING : number of channels <128 (minimum dividable by 128) -> leaving unchanged at = %d\n",n_out_channels);
+            if( new_out_channels >= divider ){
+               skip_n_last_channels = (n_out_channels - new_out_channels);
+               printf("WARNING : skipping last %d channels to make it divide by %d : %d -> %d\n",skip_n_last_channels,divider,n_out_channels,new_out_channels);
+               n_out_channels = new_out_channels;
+               break; // do not check next conditions once at least one (highest level) is met
+            }else{
+               printf("WARNING : number of channels <%d (minimum dividable by %d) -> leaving unchanged at = %d\n",divider,divider,n_out_channels);
+            }
          }
       }         
    }
