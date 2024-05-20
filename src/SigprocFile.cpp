@@ -718,9 +718,14 @@ int  SigprocFile::MergeOversampledCoarseChannels( std::vector<string>& fil_file_
       
          int div128 = int(n_out_channels / 128);         
          int new_out_channels = div128*128;
-         skip_n_last_channels = (n_out_channels - new_out_channels);
-         printf("WARNING : skipping last %d channels to make it divide by 128 : %d -> %d\n",skip_n_last_channels,n_out_channels,new_out_channels);
-         n_out_channels = new_out_channels;
+         
+         if( new_out_channels >= 128 ){
+            skip_n_last_channels = (n_out_channels - new_out_channels);
+            printf("WARNING : skipping last %d channels to make it divide by 128 : %d -> %d\n",skip_n_last_channels,n_out_channels,new_out_channels);
+            n_out_channels = new_out_channels;
+         }else{
+            printf("WARNING : number of channels <128 (minimum dividable by 128) -> leaving unchanged at = %d\n",n_out_channels);
+         }
       }         
    }
          
