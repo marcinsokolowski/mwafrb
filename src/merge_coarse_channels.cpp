@@ -27,6 +27,8 @@ string gOutputFilFile="out.fil";
 int gFOFFSign=1;
 bool gOverSampled=false;
 bool gFreddaCompatibleOutput=false;
+int gStartCoarseChannel=0;
+bool gSpecial64finechannelisation=false;
 
 void usage()
 {
@@ -34,10 +36,12 @@ void usage()
    printf("-s FOFF_SIGN : sign of FOFF (+1 or -1 to flip it) [default %d], 1-no change, -1 flip sign\n",gFOFFSign);
    printf("-o : files are oversampled in the same SKA-Low coarse channels are (32/27) [default %d]\n",gOverSampled);
    printf("-F : make sure FREDDA will be happy, for example : number of channels divides by 128 etc\n");
+   printf("-C START_COARSE_CHANNEL : start coarse channel in SKA-Low notation\n");
+   printf("-S : special option for 64 fine channels [default not used]\n");
 }
 
 void parse_cmdline(int argc, char * argv[]) {
-   char optstring[] = "hs:oF";
+   char optstring[] = "hs:oFSC:";
    int opt,opt_param,i;
 
    while ((opt = getopt(argc, argv, optstring)) != -1) {
@@ -56,6 +60,16 @@ void parse_cmdline(int argc, char * argv[]) {
             gOverSampled=true;
             break;
 
+         case 'S':
+            gSpecial64finechannelisation = true;
+            break;
+
+         case 'C':
+            if( optarg ){
+               gStartCoarseChannel = atol( optarg );
+            }
+            break;
+
          default:
             fprintf(stderr,"Unknown option %c\n",opt);
             usage();
@@ -68,6 +82,15 @@ void parse_cmdline(int argc, char * argv[]) {
    strcpy(szInputFilFiles , gInputFilFiles.c_str() );
    ParseCommaList( szInputFilFiles, input_fil_files );
    delete [] szInputFilFiles;
+   
+   if( gSpecial64finechannelisation ){
+      if( gStartCoarseChannel > 0 ){
+         printf("INFO : 64 channel special option requires list of coarse channels which was provided -> OK\n");
+      }else{
+         printf("ERROR : 64 channel special option requires list of coarse channels which was not provided -> add option -C START_CHANNEL, for example -C 230\n");
+         exit(-1);
+      }
+   }
 }
 
 void print_parameters()
@@ -84,6 +107,8 @@ void print_parameters()
   printf("FOFF SIGN = %d\n",gFOFFSign);
   printf("Channels oversampled = %d\n",gOverSampled);
   printf("FREDDA compatible    = %d\n",gFreddaCompatibleOutput);
+  printf("Start coarse channel = %d\n",gStartCoarseChannel);
+  printf("gSpecial64finechannelisation = %d\n",gSpecial64finechannelisation);
   printf("#####################################\n");
   fflush(stdout);
 }
@@ -139,7 +164,20 @@ int main(int argc,char* argv[])
    // int  SigprocFile::MergeCoarseChannels( std::vector<string>& fil_file_list, const char* out_file )
    int out_channels = 0;
    if( gOverSampled ){
-      out_channels = SigprocFile::MergeOversampledCoarseChannels( input_fil_files , gOutputFilFile.c_str(), avg_spectrum, gFOFFSign, gFreddaCompatibleOutput );
+      if( gSpecial64finechannelisation ){         
+         std::vector<int> coarse_channel_list;
+         if( gStartCoarseChannel > 0 ){
+            for(int ch=0;ch<input_fil_files.size();ch++){
+               coarse_channel_list.push_back( gStartCoarseChannel + ch );
+            }
+         }else{
+            printf("ERROR : 64 channel special option requires list of coarse channels which was not provided -> add option -C START_CHANNEL, for example -C 230\n");
+            exit(-1);
+         }
+         out_channels = SigprocFile::MergeOversampledCoarseChannels_64finechannels( input_fil_files , coarse_channel_list, gOutputFilFile.c_str(), avg_spectrum, gFOFFSign, gFreddaCompatibleOutput );
+      }else{
+         out_channels = SigprocFile::MergeOversampledCoarseChannels( input_fil_files , gOutputFilFile.c_str(), avg_spectrum, gFOFFSign, gFreddaCompatibleOutput );
+      }
    }else{
       out_channels = SigprocFile::MergeCoarseChannels( input_fil_files , gOutputFilFile.c_str(), avg_spectrum, gFOFFSign );   
    }

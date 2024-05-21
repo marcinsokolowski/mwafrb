@@ -910,6 +910,238 @@ int  SigprocFile::MergeOversampledCoarseChannels( std::vector<string>& fil_file_
    return n_out_channels;
 }
 
+// condition :
+// fc + alpha*beta/2 = delta_nu*K , where K is integer -> find the lowest N_fine_ch so that K is integer
+// -> k = N_fine_ch / (2*beta) = 27*N_fine_ch / (2*32) -> N_fine_ch = 64 -> k = 27 
+int  SigprocFile::MergeOversampledCoarseChannels_64finechannels( std::vector<string>& fil_file_list, std::vector<int>& coarse_channel_list,
+                                                  const char* out_file , double*& avg_spectrum, int foff_sign, 
+                                                  bool bFreddaCompatibleOutput /*=false*/ )
+{
+   int max_filfiles = fil_file_list.size();
+   SigprocFile* infiles[fil_file_list.size()]; // maximum 24 
+   
+   printf("INFO : SigprocFile::MergeOversampledCoarseChannels\n");
+   
+   if( fil_file_list.size() > max_filfiles || fil_file_list.size() <= 0 ){
+      printf("ERROR : maximum number of fil files for SigprocFile::MergeCoarseChannels exceeded (%d given , %d is limit , no files is not allowed either)\n",int(fil_file_list.size()),max_filfiles);
+      return -1;
+   }
+
+   // read zero file into output buffer :   
+   SigprocFile outfil_file( fil_file_list[0].c_str() );
+   // SigprocFile( int nbits, int nifs, int nchans, double fch1, double foff, double tstart, double tsamp );
+   // SigprocFile filfile_norm( filfile.nbits(), filfile.nifs(), filfile.nchans(), filfile.fch1(), filfile.foff(), filfile.tstart(), filfile.tsamp() );
+   outfil_file.nbits( 32 ); // always output file is 32 bits float (no matter input)
+   outfil_file.Close();
+   
+   int n_fine_ch = -1;
+   int n_channels_file0 = 64;
+   n_fine_ch = outfil_file.nchans();
+   if( n_fine_ch != n_channels_file0 ){
+       printf("ERROR : function SigprocFile::MergeOversampledCoarseChannels_64finechannels only handles the case of %d fine channels\n",n_channels_file0);
+       return -1;
+   }
+
+   int start_ok_ch = 5;
+   int skip_last_ch = 5;   
+   int n_out_fine_ch_per_coarse = n_fine_ch - (start_ok_ch+skip_last_ch);
+   double alpha = (400.00/512.00);
+   double beta  = (32.00/27.00);
+   
+  
+   float foff = 0.00;
+   for(int i=0;i<fil_file_list.size();i++){
+      infiles[i] = new SigprocFile( fil_file_list[i].c_str() );
+
+      foff = (infiles[i])->foff(); 
+      n_fine_ch = (infiles[i])->nchans();
+      
+      if( n_fine_ch != n_channels_file0 ){
+         printf("WARNING : fil file %s has %d (first one has %d)\n",fil_file_list[i].c_str(),(infiles[i])->nchans() ,n_channels_file0);
+      }
+   }
+   
+   double delta_nu = alpha*beta/n_fine_ch;
+   // center + 26*delta
+   double upper_freq = alpha*coarse_channel_list[fil_file_list.size()-1] + 26*delta_nu + delta_nu/2.00;
+   
+   int n_coarse_ch = fil_file_list.size();
+   int n_out_channels = n_out_fine_ch_per_coarse*fil_file_list.size();
+   printf("INFO : input %d coarse channels -> %d fine channels, upper frequency end in the output = %.4f MHz\n",n_coarse_ch,n_out_channels,upper_freq);
+   
+   int skip_n_last_channels=0;
+   if( bFreddaCompatibleOutput ){
+      printf("INFO : checking FREDDA requirements is enabled\n");
+      std::vector<int> required_dividers;
+      required_dividers.push_back(128);
+      required_dividers.push_back(64);
+      required_dividers.push_back(16); // secondary requirement, because if number divides by 128 it also divide by 16. So, if the first one is met we skip the next ones
+      required_dividers.push_back(4);
+      required_dividers.push_back(2);
+
+      for(int i=0;i<required_dividers.size();i++){
+         int divider = required_dividers[i];   
+         if( (n_out_channels % divider) != 0 ){ // was 4 but now for FREDDA it must divide by 128 
+            printf("WARNING : number of output channels = %d does not divide by %d (required by FREDDA)\n",n_out_channels,divider);
+      
+            int div_divider = int(n_out_channels / divider);
+            int new_out_channels = div_divider*divider;
+         
+            if( new_out_channels >= divider ){
+               skip_n_last_channels = (n_out_channels - new_out_channels);
+               printf("WARNING : skipping last %d channels to make it divide by %d : %d -> %d\n",skip_n_last_channels,divider,n_out_channels,new_out_channels);
+               n_out_channels = new_out_channels;
+               break; // do not check next conditions once at least one (highest level) is met
+            }else{
+               printf("WARNING : number of channels <%d (minimum dividable by %d) -> leaving unchanged at = %d\n",divider,divider,n_out_channels);
+            }
+         }
+      }         
+   }
+         
+   FILE* out_f = fopen("merged_fine_channels.txt","w");
+   fprintf(out_f,"%d\n",n_out_channels);
+   fclose(out_f);
+
+   if( !avg_spectrum ){
+      avg_spectrum = new double[n_out_channels];
+      printf("INFO : allocated buffer for average spectrum of %d channels\n",n_out_channels);
+   }   
+   if( avg_spectrum ){
+      for(int j=0;j<n_out_channels;j++){
+         avg_spectrum[j] = 0;
+      }
+   }
+
+   
+   outfil_file.SetHeaderValue( "nchans" , n_out_channels );
+   // outfil_file.SetHeaderValue( "foff", foff*foff_sign );
+   outfil_file.foff( foff*foff_sign );
+   outfil_file.fch1( upper_freq );
+   outfil_file.FillHeader( false, true );
+   outfil_file.SetHeaderValue( "nchans" , n_out_channels );
+   outfil_file.WriteHeader( out_file , false /* do not close */ , true /* new file -> set m_file := out_f */ );
+   float* out_spectrum = new float[n_out_channels];
+   unsigned char*  char_buffer = new unsigned char[n_fine_ch];
+   float*          float_buffer = new float[n_fine_ch];
+   bool all_ok = true;
+   int n_out_spectra = 0;
+   int sizeof_sample = sizeof(float);
+   int out_bytes_count = n_out_channels*sizeof(float);
+   
+   // see skalow_station_data/src/skalow_stitch_data.cpp
+   
+   // First .fil file - include low-frequency wing :
+   // int n_out_cc = (n_fine_ch-(nc/2-1));
+   
+      
+   while( all_ok ){
+       memset( out_spectrum, '\0', out_bytes_count );
+       int n_read_total = 0;
+       int out_channel_index = 0;
+       int expected_bytes_to_read = n_coarse_ch*n_fine_ch*sizeof_sample;
+       
+       // read 1 spectrum from each file and put into out_spectrum :
+       for(int i=0;i<n_coarse_ch;i++){
+           // int read( void* buffer, int size );
+           int in_channels = (infiles[i])->nchans();
+           int bytes_to_read = in_channels*sizeof(float);
+           int n_read = 0;
+           
+           // read all channels to float_buffer or char_buffer:
+           if( (infiles[i])->nbits() >= 32 ){ 
+              n_read = (infiles[i])->read( float_buffer , bytes_to_read );
+           }else{
+              // the case of merging 1-byte .fil files:
+              if( (infiles[i])->nbits() == 8 ){ 
+                 sizeof_sample = sizeof(unsigned char);
+                 bytes_to_read = in_channels*sizeof_sample;
+                 n_read = (infiles[i])->read( char_buffer, bytes_to_read );
+                 for(int ch=0;ch<in_channels;ch++){
+                    float_buffer[ch] = float( char_buffer[ch] );
+                 }
+              }
+           }
+           if( gDebugLevel >= 2 ){
+              printf("DEBUG : read %d bytes -> n_read_total = %d\n",n_read,n_read_total);
+           }
+           if( n_read != bytes_to_read ){
+              printf("END OF FILE : read %d bytes expected %d bytes -> cannot continue\n",n_read,bytes_to_read);
+              all_ok = false;
+              break;
+           }
+
+           for(int ch=0;ch<n_fine_ch;ch++){
+              if( ch >= start_ok_ch && ch < (n_fine_ch-skip_last_ch) ){
+                 out_spectrum[out_channel_index] = float_buffer[ch];
+                 out_channel_index++;
+              }
+           }
+           
+           n_read_total += n_read;
+       }           
+       
+       if( all_ok ){
+          if( out_channel_index != n_out_channels ){
+             printf("ERROR in code : out_channel_index = %d != expected n_out_channels = %d -> exiting code\n",out_channel_index,n_out_channels);
+             return -1;
+          }          
+       }else{
+          printf("INFO : end of the file reached -> checking of condition skipped\n");
+       }
+       
+       if( avg_spectrum ){
+          for(int j=0;j<n_out_channels;j++){
+             avg_spectrum[j] += out_spectrum[j];                          
+          }
+          
+          if( gDebugLevel >= 1 ){
+             if( n_out_spectra == 0 ){
+                printf("DEBUG spectra :\n");
+                for(int j=0;j<n_out_channels;j++){
+                   printf("\t%d %.8f\n",j,avg_spectrum[j]);
+                }
+             }
+          }
+       }
+
+       if( gDebugLevel >= 2 ){
+          printf("DEBUG : n_read_total = %d vs. %d\n",n_read_total,expected_bytes_to_read);       
+       }
+       if( n_read_total == expected_bytes_to_read ){ // total number of bytes to read for single timesteps (all coarse channels*fine channels*sizeof_sample)
+          // int SigprocFile::WriteData( float* buffer, int n_channels )
+          outfil_file.WriteData( out_spectrum , n_out_channels );
+          n_out_spectra++;
+          if( gDebugLevel >= 1 ){
+             printf("DEBUG : wrote %d channels , %d spectra in total\n",n_out_channels,n_out_spectra);
+          }
+       }else{
+          printf("END OF file : number bytes to be written = %d vs. %d actually read\n",out_bytes_count,n_read_total);
+          all_ok = false;
+          printf("Written %d spectra in total\n",n_out_spectra);
+       }
+   }
+   delete [] out_spectrum;
+   delete [] char_buffer;
+   delete [] float_buffer;
+    
+   outfil_file.Close();
+   
+   if( avg_spectrum ){
+      for(int j=0;j<n_out_channels;j++){
+         avg_spectrum[j] = avg_spectrum[j] / n_out_spectra;
+      }
+   }
+   
+   printf("------------------------------------------------\n");
+   printf("STATISTICS :\n");
+   printf("------------------------------------------------\n");
+   printf("Spectra count = %d\n",n_out_spectra);
+   printf("------------------------------------------------\n");
+
+   return n_out_channels;
+}
+
 
 
 int SigprocFile::WriteAveragedChannels( const char* out_file, int n_avg_factor )

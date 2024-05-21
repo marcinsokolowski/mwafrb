@@ -62,6 +62,8 @@ public:
 	static int MergeCoarseChannels( std::vector<string>& fil_file_list, const char* out_file, double*& avg_spectrum, int foff_sign=1 );
 	static int MergeOversampledCoarseChannels( std::vector<string>& fil_file_list, const char* out_file, double*& avg_spectrum, int foff_sign=1, 
 	                                           bool bFreddaCompatibleOutput=false );
+        static int MergeOversampledCoarseChannels_64finechannels( std::vector<string>& fil_file_list, std::vector<int>& coarse_channel_list, const char* out_file , 
+                                                                  double*& avg_spectrum, int foff_sign=1, bool bFreddaCompatibleOutput=false );
 
 	int nifs() {
 		return m_nifs;
@@ -90,6 +92,10 @@ public:
 	}
 	size_t current_sample() {
 		return m_current_sample;
+	}
+	double fch1( double _fch1 ) {
+		m_fch1 = _fch1;
+		return m_fch1;
 	}
 	double fch1() {
 		return m_fch1;
