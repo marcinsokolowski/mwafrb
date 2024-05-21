@@ -962,12 +962,8 @@ int  SigprocFile::MergeOversampledCoarseChannels_64finechannels( std::vector<str
    }
    
    double delta_nu = alpha*beta/n_fine_ch;
-   // center + 26*delta
-   double upper_freq = alpha*coarse_channel_list[fil_file_list.size()-1] + 26*delta_nu + delta_nu/2.00;
-   
    int n_coarse_ch = fil_file_list.size();
    int n_out_channels = n_out_fine_ch_per_coarse*fil_file_list.size();
-   printf("INFO : input %d coarse channels -> %d fine channels, upper frequency end in the output = %.4f MHz\n",n_coarse_ch,n_out_channels,upper_freq);
    
    int skip_n_last_channels=0;
    if( bFreddaCompatibleOutput ){
@@ -998,6 +994,10 @@ int  SigprocFile::MergeOversampledCoarseChannels_64finechannels( std::vector<str
          }
       }         
    }
+
+   // center + 26*delta
+   double upper_freq = alpha*coarse_channel_list[fil_file_list.size()-1] + 26*delta_nu + delta_nu/2.00 - skip_n_last_channels*delta_nu; //skip_n_last_channels for FREDDA compatility to have n_chan divide by 128
+   printf("INFO : input %d coarse channels -> %d fine channels, upper frequency end in the output = %.4f MHz\n",n_coarse_ch,n_out_channels,upper_freq);
          
    FILE* out_f = fopen("merged_fine_channels.txt","w");
    fprintf(out_f,"%d\n",n_out_channels);
@@ -1071,8 +1071,13 @@ int  SigprocFile::MergeOversampledCoarseChannels_64finechannels( std::vector<str
               break;
            }
 
+           int skip_channels = skip_last_ch;
+           if( i == (n_coarse_ch-1) ){
+              skip_channels += skip_n_last_channels; // for FREDDA-compatible 
+           }
+
            for(int ch=0;ch<n_fine_ch;ch++){
-              if( ch >= start_ok_ch && ch < (n_fine_ch-skip_last_ch) ){
+              if( ch >= start_ok_ch && ch < (n_fine_ch-skip_channels) ){ // skip_n_last_channels is due to skipping last channels to make it dividable by 128
                  out_spectrum[out_channel_index] = float_buffer[ch];
                  out_channel_index++;
               }
