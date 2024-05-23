@@ -41,8 +41,11 @@ tmpfile=${merged_cand}.tmp
 
 cat ${merged_cand} | awk '{if($1!="#"){print $1" "int(substr($6,2))" "int(substr($8,1,length($8)-1))" "$4;}}' > ${tmpfile}
 
-cutout_file=${merged_cand}.cutouts.txt
-rm -f ${cutout_file}
+doit_file=${merged_cand}.cutouts.sh
+echo "echo \"Starting cut-out file at:\"" > ${doit_file}
+echo "date" >> ${doit_file}
+echo "echo \"Finished cut-out file at:\"" > ${doit_file}
+echo "date" >> ${doit_file}
 
 counter=0
 mkdir ${outdir}
@@ -74,7 +77,9 @@ do
       fi
    
       if [[ $do_cutout -gt 0 ]]; then
-         echo "${start} ${end} 1 ${evt}" >> ${cutout_file}
+         echo "cutimage $fits -s ${start} -e ${end} -c -f ${outfits}"
+         echo "cutimage $fits -s ${start} -e ${end} -c -f ${outfits}" >> ${doit_file}
+         
          counter=$(($counter+1))
       else
          echo "Event $evt skipped"
@@ -84,6 +89,9 @@ do
    fi
 done < ${tmpfile}
 
-echo "cutimages $fits -i ${cutout_file} -f merged -c -o candidates_fits/"
-cutimages $fits -i ${cutout_file} -f merged -c -o candidates_fits/
+chmod +x ${doit_file}
+cat ${doit_file}
+./${doit_file}
+
+
 
