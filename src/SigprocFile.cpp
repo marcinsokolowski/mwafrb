@@ -918,6 +918,7 @@ int  SigprocFile::MergeOversampledCoarseChannels_64finechannels( std::vector<str
                                                   bool bFreddaCompatibleOutput /*=false*/ )
 {
    int max_filfiles = fil_file_list.size();
+   int n_filfiles   = fil_file_list.size();
    SigprocFile* infiles[fil_file_list.size()]; // maximum 24 
    
    printf("INFO : SigprocFile::MergeOversampledCoarseChannels\n");
@@ -950,7 +951,7 @@ int  SigprocFile::MergeOversampledCoarseChannels_64finechannels( std::vector<str
    
   
    float foff = 0.00;
-   for(int i=0;i<fil_file_list.size();i++){
+   for(int i=0;i<n_filfiles;i++){
       infiles[i] = new SigprocFile( fil_file_list[i].c_str() );
 
       foff = (infiles[i])->foff(); 
@@ -962,13 +963,31 @@ int  SigprocFile::MergeOversampledCoarseChannels_64finechannels( std::vector<str
    }
    
    double delta_nu = alpha*beta/n_fine_ch;
-   int n_coarse_ch = fil_file_list.size();
-   int n_out_channels = n_out_fine_ch_per_coarse*fil_file_list.size();
+   int n_out_channels = n_out_fine_ch_per_coarse*n_filfiles;
    
    int skip_n_last_channels=0;
    if( bFreddaCompatibleOutput ){
       printf("INFO : checking FREDDA requirements is enabled\n");
-      std::vector<int> required_dividers;
+      // first check 128 divider as this is the most decisive :
+      // n_filfiles
+      int divider = 128;
+      int div_divider = int(n_out_channels / divider);
+      int new_out_channels = div_divider*divider;
+      skip_n_last_channels = (n_out_channels - new_out_channels);
+      while( skip_n_last_channels > n_out_fine_ch_per_coarse ){
+         printf("FREDDA COMPATIBILITY : skip_n_last_channels = %d > %d (number of fine channels per channel) -> reducing number of coarse channels used\n",skip_n_last_channels,n_out_fine_ch_per_coarse);
+         n_filfiles = n_filfiles - 1;
+         n_out_channels = n_out_fine_ch_per_coarse*n_filfiles;
+         
+         div_divider = int(n_out_channels / divider);
+         new_out_channels = div_divider*divider;
+         skip_n_last_channels = (n_out_channels - new_out_channels);         
+      }
+      
+      printf("FREDDA COMPATIBILITY : skip_n_last_channels = %d , setting number of outout fine channels to %d, using only %d coarse channels\n",skip_n_last_channels,new_out_channels,n_filfiles);
+      n_out_channels = new_out_channels;
+   
+      /*std::vector<int> required_dividers;
       required_dividers.push_back(128);
       required_dividers.push_back(64);
       required_dividers.push_back(16); // secondary requirement, because if number divides by 128 it also divide by 16. So, if the first one is met we skip the next ones
@@ -992,11 +1011,12 @@ int  SigprocFile::MergeOversampledCoarseChannels_64finechannels( std::vector<str
                printf("WARNING : number of channels <%d (minimum dividable by %d) -> leaving unchanged at = %d\n",divider,divider,n_out_channels);
             }
          }
-      }         
+      } */        
    }
+   int n_coarse_ch = n_filfiles;
 
    // center + 26*delta
-   double upper_freq = alpha*coarse_channel_list[fil_file_list.size()-1] + 26*delta_nu + delta_nu/2.00 - skip_n_last_channels*delta_nu; //skip_n_last_channels for FREDDA compatility to have n_chan divide by 128
+   double upper_freq = alpha*coarse_channel_list[n_filfiles-1] + 26*delta_nu + delta_nu/2.00 - skip_n_last_channels*delta_nu; //skip_n_last_channels for FREDDA compatility to have n_chan divide by 128
    printf("INFO : input %d coarse channels -> %d fine channels, upper frequency end in the output = %.4f MHz\n",n_coarse_ch,n_out_channels,upper_freq);
          
    FILE* out_f = fopen("merged_fine_channels.txt","w");
