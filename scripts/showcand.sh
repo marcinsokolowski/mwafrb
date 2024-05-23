@@ -79,9 +79,11 @@ do
             info="SNR = $snr , DM = $dm"
             
             output_file=${filfile%%.fil}_${sampno}.png
-         
-            echo "python ~/mwafrb/scripts/viewer/plot_allbeams.py -d -3 $filfile --times ${sampno_start},$double_step --info "$info" --output_file=$output_file"   
-            python ~/mwafrb/scripts/viewer/plot_allbeams.py -d -3 $filfile --times ${sampno_start},$double_step --info "$info" --output_file=$output_file
+
+            # 2024-05-23 - I am not sure why I had "-d -3" before but it introduces "artficial" and untrue DM in the created png file !
+            #              changed to "-d 0" so that the image is as original data         
+            echo "python ~/mwafrb/scripts/viewer/plot_allbeams.py -d 0 $filfile --times ${sampno_start},$double_step --info "$info" --output_file=$output_file"   
+            python ~/mwafrb/scripts/viewer/plot_allbeams.py -d 0 $filfile --times ${sampno_start},$double_step --info "$info" --output_file=$output_file
          
             prev_sampno=$sampno_end
          else

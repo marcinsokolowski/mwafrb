@@ -52,9 +52,11 @@ do
       if [[ $dm_ok -gt 0 && $snr_ok -gt 0 ]]; then
          info="SNR = $snr , DM = $dm"
          output_file=${filfile%%.fil}_${index}.png
-      
-         echo "python ~/github/mwafrb/scripts/viewer/plot_allbeams.py -d -3 $filfile --times ${sampno},$double_step --info \"$info\" --output_file=$output_file"   
-         python ~/github/mwafrb/scripts/viewer/plot_allbeams.py -d -3 $filfile --times ${sampno},$double_step --info "$info" --output_file=$output_file 
+
+         # 2024-05-23 - I am not sure why I had "-d -3" before but it introduces "artficial" and untrue DM in the created png file !
+         #              changed to "-d 0" so that the image is as original data
+         echo "python ~/github/mwafrb/scripts/viewer/plot_allbeams.py -d 0 $filfile --times ${sampno},$double_step --info \"$info\" --output_file=$output_file"   
+         python ~/github/mwafrb/scripts/viewer/plot_allbeams.py -d 0 $filfile --times ${sampno},$double_step --info "$info" --output_file=$output_file 
       else
          echo "DM = $dm is smaller than limit = $min_dm OR SNR = $snr < $min_snr -> candidate skipped"
       fi
