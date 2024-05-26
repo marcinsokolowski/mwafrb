@@ -101,6 +101,7 @@ def _main():
 #           matplotlib.use('agg')
 #           print("DEBUG : imported agg")
 
+    print("DEBUG : tstart = %d, ntimes = %d" % (tstart,ntimes))
     plt = Plotter.from_values(values, tstart, ntimes)
     pylab.show()
 

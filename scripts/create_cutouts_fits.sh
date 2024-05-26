@@ -49,8 +49,8 @@ mkdir ${outdir}
 while read line # example 
 do
    evt=`echo $line | awk '{print $1;}'`       
-   start=`echo $line | awk '{print $2;}'`
-   end=`echo $line | awk '{print $3;}'`
+   start=`echo $line | awk '{print $2-1000;}'`
+   end=`echo $line | awk '{print $3+1000;}'`
    dm=`echo $line | awk '{print $4;}'`
    is_dm_ok=`echo $dm" "$min_dm | awk '{if($1>$2){print 1;}else{print 0;}}'`
    outfits=${outdir}/cand_${evt}.fits   
