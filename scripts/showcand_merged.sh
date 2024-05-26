@@ -42,8 +42,15 @@ do
    
    if [[ $index != "#" ]]; then
       snr=`echo $line | awk '{print $3;}'`
-      sampno=`echo $line | awk '{printf("%d\n",$5);}'`               
+      sampno=`echo $line | awk '{printf("%d\n",$5);}'`                           
       dm=`echo $line | awk '{print $4;}'`
+      # head *.cand_merged | awk '{start=substr($6,2);end=substr($8,1,12);print start" "end}'
+      start_range=`echo $line | awk '{start=substr($6,2);end=substr($8,1,12);print int(start);}'`
+      end_range=`echo $line | awk '{start=substr($6,2);end=substr($8,1,12);print int(end);}'`
+      n_samples=$(($end_range-$start_range))
+      if [[ $n_samples -lt 1000 ]]; then
+         n_samples=1000
+      fi
       
            
       dm_ok=`echo $dm $min_dm | awk '{if($1>=$2){print 1;}else{print 0;}}'`
@@ -55,8 +62,9 @@ do
 
          # 2024-05-23 - I am not sure why I had "-d -3" before but it introduces "artficial" and untrue DM in the created png file !
          #              changed to "-d 0" so that the image is as original data
-         echo "python ~/github/mwafrb/scripts/viewer/plot_allbeams.py -d 0 $filfile --times ${sampno},$double_step --info \"$info\" --output_file=$output_file"   
-         python ~/github/mwafrb/scripts/viewer/plot_allbeams.py -d 0 $filfile --times ${sampno},$double_step --info "$info" --output_file=$output_file 
+         # WAS : --times ${sampno},$double_step -> fixed now to use range START,END-START
+         echo "python ~/github/mwafrb/scripts/viewer/plot_allbeams.py -d 0 $filfile --times $start_range,$n_samples --info \"$info\" --output_file=$output_file"   
+         python ~/github/mwafrb/scripts/viewer/plot_allbeams.py -d 0 $filfile --times $start_range,$n_samples --info "$info" --output_file=$output_file 
       else
          echo "DM = $dm is smaller than limit = $min_dm OR SNR = $snr < $min_snr -> candidate skipped"
       fi
