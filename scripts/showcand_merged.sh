@@ -63,8 +63,8 @@ do
          # 2024-05-23 - I am not sure why I had "-d -3" before but it introduces "artficial" and untrue DM in the created png file !
          #              changed to "-d 0" so that the image is as original data
          # WAS : --times ${sampno},$double_step -> fixed now to use range START,END-START
-         echo "python ~/github/mwafrb/scripts/viewer/plot_allbeams.py -d 0 $filfile --times $start_range,$n_samples --info \"$info\" --output_file=$output_file"   
-         python ~/github/mwafrb/scripts/viewer/plot_allbeams.py -d 0 $filfile --times $start_range,$n_samples --info "$info" --output_file=$output_file 
+         echo "python2 ~/github/mwafrb/scripts/viewer/plot_allbeams.py -d 0 $filfile --times $start_range,$n_samples --info \"$info\" --output_file=$output_file"   
+         python2 ~/github/mwafrb/scripts/viewer/plot_allbeams.py -d 0 $filfile --times $start_range,$n_samples --info "$info" --output_file=$output_file 
       else
          echo "DM = $dm is smaller than limit = $min_dm OR SNR = $snr < $min_snr -> candidate skipped"
       fi

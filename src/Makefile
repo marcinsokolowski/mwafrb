@@ -28,6 +28,10 @@ dumpfilfile : CpuTimer.cpp  DataOrder.cpp  DataSource.cpp  InvalidSourceFormat.c
 dumpfilfile_float : main_float.cpp
 	g++ CpuTimer.cpp  DataOrder.cpp  DataSource.cpp  InvalidSourceFormat.cpp  main_float.cpp  SigprocFile.cpp -o dumpfilfile_float -I $(MWA_FRB)/msfitslib/src// $(OPT) $(COMMON_LIBS)
 
+# experimental faster version will only do one of dynamic spectra VERTICAL or HORIZONTAL(default) 
+dumpfilfile_float_t : main_float_t.cpp
+	g++ CpuTimer.cpp  DataOrder.cpp  DataSource.cpp  InvalidSourceFormat.cpp  main_float.cpp  SigprocFile.cpp -o dumpfilfile_float -I $(MWA_FRB)/msfitslib/src// $(OPT) $(COMMON_LIBS)
+
 dumpfilfile_float_test : main_float_test.cpp
 	g++ CpuTimer.cpp  DataOrder.cpp  DataSource.cpp  InvalidSourceFormat.cpp  main_float_test.cpp  SigprocFile.cpp -o dumpfilfile_float_test -I $(MWA_FRB)/msfitslib/src// $(OPT) $(COMMON_LIBS)
 
@@ -69,6 +73,7 @@ install :
 	mkdir -p $(MWA_FRB)/bin/
 	cp dumpfilfile $(MWA_FRB)/bin/
 	cp dumpfilfile_float $(MWA_FRB)/bin/
+	cp dumpfilfile_float_t $(MWA_FRB)/bin/
 #	cp fits2fil_bad $(MWA_FRB)/bin/    
 	cp fits2fil $(MWA_FRB)/bin/
 	cp fits2fil2 $(MWA_FRB)/bin/
@@ -83,6 +88,6 @@ install :
 	chmod +x $(MWA_FRB)/bin/*
 	
 clean :
-	rm -f *.o read_dada read_eda2_dada dada2fits dumpfilfile_float dumpfilfile_float_test generate_fil_files update_fil_header compare_filfiles merge_coarse_channels avg_channels_fil pipe_filfiles fits2fil fits2fil2 dumpfilfile n_fine_channels dividers
+	rm -f *.o read_dada read_eda2_dada dada2fits dumpfilfile_float dumpfilfile_float_test generate_fil_files update_fil_header compare_filfiles merge_coarse_channels avg_channels_fil pipe_filfiles fits2fil fits2fil2 dumpfilfile n_fine_channels dividers dumpfilfile_float_t
 	
 		

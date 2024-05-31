@@ -298,6 +298,7 @@ int main(int argc,char* argv[])
 //   int bytes_per_spectrum = filfile.nbeams()*filfile.nchans()*filfile.npols()*filfile.nants();
 //   int n_sample_size  = filfile.nbeams()*filfile.npols()*filfile.nants();
    int n_sample_size = filfile.nchans();
+   printf("DEBUG : n_sample_size = %d\n",n_sample_size);
    float* buffer = new float[n_sample_size];
    float* flip_buffer = NULL;
 
