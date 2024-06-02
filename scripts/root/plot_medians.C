@@ -607,7 +607,7 @@ int ReadListFile( const char* fname , cFileDesc2* file_list )
 }
 
 
-void plot_total_power_list( const char* basename="list.txt", 
+void plot_medians( const char* basename="list.txt", 
                             int maxRows=MAX_ROWS,
                const char* fit_func_name=NULL, double min_y=-10000, 
                double max_y=-10000 , int bLog=0,
@@ -685,7 +685,7 @@ void plot_total_power_list( const char* basename="list.txt",
    // kBlack - fit to all data
    // kRed - first night
    // kGreen - last night
-   int basic_kolors[] = {kBlack,kRed,kBlue,kGreen,kMagenta,kYellow,7,8,9,11,12,20,28,29,30,36,38,39,40,41,42,43,44,45,46,47,48,49,10,13,14,15,16,17,18,19,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,8,9,1,2,3,4,5,6,7,8};
+   int basic_kolors[] = {kBlack,kRed,kBlue,kGreen,5,6,7,8,9,11,12,20,28,29,30,36,38,39,40,41,42,43,44,45,46,47,48,49,10,13,14,15,16,17,18,19,1,2,3,4,5,6,7,8,9,1,2,3,4,5,6,7,8,8,9,1,2,3,4,5,6,7,8};
 
    double* sum_tab = new double[MAX_ROWS];
    double* sum2_tab = new double[MAX_ROWS];
@@ -716,11 +716,7 @@ void plot_total_power_list( const char* basename="list.txt",
       if( i==0 ){
          szOpt="LA";
       }else{
-         if( i==1 ){
-            szOpt="P,same"; 
-         }else{
-            szOpt="L,same";
-         }
+         szOpt="L,same";
       }
 
       int kolor = basic_kolors[i];
@@ -755,7 +751,7 @@ void plot_total_power_list( const char* basename="list.txt",
       if( i == 0 || i>=2 ){
          legend->AddEntry(pNewGraph,szLegend.Data(),"L");// basename 
       }else{
-         legend->AddEntry(pNewGraph,szLegend.Data(),"P");
+         legend->AddEntry(pNewGraph,szLegend.Data(),"L");
       }
 
       szTitleFinal = filename;

@@ -18,6 +18,9 @@ fi
 
 awk '{print $1" "$3-$4*5;}' ${infile} > down.txt
 awk '{print $1" "$3+$4*5;}' ${infile} > up.txt
+awk '{print $1" "$5;}' ${infile} > median.txt
+awk '{print $1" "$3;}' ${infile} > median_of_medians.txt
+
 
 awk '{if($1!="#"){print $2" "$11}}' ${candfile} > ${candfile_plot}
 
@@ -26,6 +29,8 @@ echo total_power.txt > list
 echo ${candfile_plot} >> list
 echo down.txt >> list
 echo up.txt >> list
+echo median.txt >> list
+echo median_of_medians.txt >> list
 cp ~/github/mwafrb/scripts/root/plot_total_power_list.C .
 
 
