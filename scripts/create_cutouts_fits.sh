@@ -10,6 +10,10 @@
 #SBATCH --error=./create_cutouts_fits.e%j
 #SBATCH --export=NONE
 
+# use old software stack:
+# module unload gcc
+# module swap pawseyenv/2024.05 pawseyenv/2023.08
+# module load gcc/12.2.0
 module load msfitslib/devel
 
 
