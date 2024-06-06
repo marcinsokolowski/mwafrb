@@ -1,12 +1,25 @@
 #!/bin/bash
 
-fits=merged_16channels_1709032218.737421_out_t.fits
+#SBATCH --account=director2183
+#SBATCH --time=4:00:00
+#SBATCH --nodes=1
+#SBATCH --tasks-per-node=1
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=220gb
+#SBATCH --output=./create_cutouts_fits.o%j
+#SBATCH --error=./create_cutouts_fits.e%j
+#SBATCH --export=NONE
+
+module load msfitslib/devel
+
+
+fits=merged_channels_1715803113.613304_out_t.fits
 if [[ -n "$1" && "$1" != "-" ]]; then
    fits=$1
 fi
 
 
-merged_cand=merged_16channels_1709032218.737421.cand_merged
+merged_cand=test.cand_merged
 if [[ -n "$2" && "$2" != "-" ]]; then
    merged_cand=$2
 fi
@@ -84,6 +97,6 @@ do
    fi
 done < ${tmpfile}
 
-echo "cutimages $fits -i ${cutout_file} -f merged -c -o candidates_fits/"
-cutimages $fits -i ${cutout_file} -f merged -c -o candidates_fits/
+echo "cutimages $fits -i ${cutout_file} -f merged -c -o ${outdir}"
+cutimages $fits -i ${cutout_file} -f merged -c -o ${outdir}
 
