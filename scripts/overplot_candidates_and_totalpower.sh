@@ -33,6 +33,6 @@ echo median.txt >> list
 echo median_of_medians.txt >> list
 cp ~/github/mwafrb/scripts/root/plot_total_power_list.C .
 
-
+mkdir -p images/
 root -l "plot_total_power_list.C+(\"list\")"
 
