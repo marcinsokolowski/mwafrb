@@ -115,7 +115,7 @@ par[9] = -0.00000006966022305926903079173408313284898696338132;
 
 int gBedlam2DBM = 0;
 
-#define MAX_ROWS 10000000
+#define MAX_ROWS 2000000000
 
 #define REPLACE_ELEMS( tab, pos1, pos2 ) { tmp=tab[pos1]; tab[pos1]=tab[pos2]; tab[pos2]=tmp; }
 double find_max_val( Double_t* x_values, Double_t* y_values, int count, double freq_min=75, double freq_max=100 );
@@ -437,7 +437,7 @@ double find_max_val( Double_t* x_values, Double_t* y_values, int count, double f
 }
 
 int ReadResultsFile( const char* fname, Double_t* x_values, Double_t* y_values, int maxRows=MAX_ROWS,
-                     int CondCol=-1, int CondValue=-1, int x_col=0, int y_col=0 )
+                     int CondCol=-1, int CondValue=-1, int x_col=0, int y_col=0, long int start_time=-1, long int end_time=-1 )
 {
    const int lSize=1000;
    char buff[1000];
@@ -460,7 +460,7 @@ int ReadResultsFile( const char* fname, Double_t* x_values, Double_t* y_values, 
    all=0;
    int ncols=-1;
    while (1) {
-      if( all >= maxRows ){
+      if( maxRows>0 && all >= maxRows ){
         break;
       }
 
@@ -523,7 +523,18 @@ int ReadResultsFile( const char* fname, Double_t* x_values, Double_t* y_values, 
 
 //     if( x_val < gMinFreq || x_val > gMaxFreq )
 //        continue;
-	     
+
+     if( start_time>0 ){
+        if( x_val < start_time ){
+            continue;
+        }
+     }
+     if( end_time>0 ){
+        if( x_val > end_time ){
+            continue;
+        }
+     }
+ 	     
      x_values[all] = x_val;
      if( gDb > 0 ){
         y_values[all] = 10.00*TMath::Log10(y_val);
@@ -608,7 +619,7 @@ int ReadListFile( const char* fname , cFileDesc2* file_list )
 
 
 void plot_total_power_list( const char* basename="list.txt", 
-                            int maxRows=MAX_ROWS,
+                            int maxRows=(MAX_ROWS-1),
                const char* fit_func_name=NULL, double min_y=-10000, 
                double max_y=-10000 , int bLog=0,
       const char* szDescX="Time sample index",const char* szDescY="Power [?]", const char* szTitle="Total Power in Stokes I",
@@ -617,6 +628,11 @@ void plot_total_power_list( const char* basename="list.txt",
       double min_x=-100, double max_x=1e20,
 		const char* szImagesDir="images/" )
 {
+   if( maxRows >= MAX_ROWS ){
+      printf("ERROR : maxRows = %ld >= limit = %ld -> decrease the second parameter or edit the script and increase MAX_ROWS value\n",maxRows,MAX_ROWS);
+      return;
+   }
+
    double bDb=0;
    if( !szTitle){
       szTitle = basename;
@@ -692,10 +708,8 @@ void plot_total_power_list( const char* basename="list.txt",
    double* rms_tab = new double[MAX_ROWS];
    double* mean_tab = new double[MAX_ROWS];
    int curve_count=0;
-   double max_value_100MHz = -1000000; // max value at 100 MHz / channel 853 
-   int max_value_100MHz_fileidx=-1;
-   int ch100mhz=(int)(gCheckMaxFreq/(480.00/4096.00));
-   printf("Channel number at %.2f [MHz] = %d\n",gCheckMaxFreq,ch100mhz);
+   long int start_time=-1;
+   long int end_time=-1;
 
    for(int i=0;i<file_count;i++){
       cFileDesc2& file_desc = list[i];
@@ -703,7 +717,16 @@ void plot_total_power_list( const char* basename="list.txt",
       const char* comment  = file_desc.comment;
       printf("------------------------------------------------------------------- %s -------------------------------------------------------------------\n",filename);
 
-      lq1 = ReadResultsFile( filename, x_value1, y_value1, maxRows, -1, -1, x_col, y_col );
+      int maxRows_final = -1;
+      if( i == 0 ){
+          maxRows_final = maxRows;
+      }
+      lq1 = ReadResultsFile( filename, x_value1, y_value1, maxRows_final, -1, -1, x_col, y_col, start_time, end_time );
+      if( i==0 ){
+         start_time = x_value1[0];
+         end_time   = x_value1[lq1-1];
+      }
+      printf("DEBUG : read %d time steps (file = %d) -> time range %ld - %ld\n",lq1,i,start_time,end_time);
 
       // for RMS :
       for(int k=0;k<lq1;k++){
@@ -764,20 +787,6 @@ void plot_total_power_list( const char* basename="list.txt",
    }
 
    legend->Draw();
-
-   FILE* out_f = fopen("rms_and_mean.txt","w");
-   // calc mean curve and rms curve :
-   for(int k=0;k<lq1;k++){
-      double avg = sum_tab[k]/curve_count;
-      double mean2 = (sum2_tab[k]/curve_count);
-
-      rms_tab[k] = sqrt( mean2 - avg*avg );
-      mean_tab[k] = avg;
-
-      fprintf(out_f,"%.2f %.8f %.8f\n",x_value1[k],mean_tab[k],rms_tab[k]);
-   }
-   fclose(out_f);
-   printf("RMS and MEAN curves saved to file rms_and_mean.txt\n");
 
 
    c1->Update();
