@@ -10,7 +10,7 @@ if [[ -n "$2" && "$2" != "-" ]]; then
    end_time="$2"
 fi
 
-extra=1000
+extra=2000
 if [[ -n "$3" && "$3" != "-" ]]; then
    extra="$3"
 fi
@@ -36,8 +36,12 @@ if [[ ! -s plot_total_power_list.C ]]; then
 fi
 
 mkdir -p images/
+
+awk -v start_time=${start_time} -v end_time=${end_time} '{if($2>=start_time && $2<=end_time){print $6;}}' merged_channels_1715803113.613304_TOTALPOWER_4sec.cand > merged_channels_1715803113.613304_TOTALPOWER_4sec.dm
+root -l "histofile.C(\"merged_channels_1715803113.613304_TOTALPOWER_4sec.dm\",0,0)"
+
+awk -v start_time=${start_time} -v end_time=${end_time} '{if($2>=start_time && $2<=end_time){print $5;}}' merged_channels_1715803113.613304_TOTALPOWER_4sec.cand > merged_channels_1715803113.613304_TOTALPOWER_4sec.idt
+root -l "histofile.C(\"merged_channels_1715803113.613304_TOTALPOWER_4sec.idt\",0,0)"
+
 root -l "plot_total_power_list.C+(\"list_${start_time}-${end_time}\",${n_timesteps})"
-
-
-
 

@@ -11,13 +11,19 @@ if [[ -n "$2" && "$2" != "-" ]]; then
    infile="$2"  
 fi
 
+thresh=1
+if [[ -n "$3" && "$3" != "-" ]]; then
+   thresh=$3
+fi
+
+
 if [[ ! -s ${infile} ]]; then
    echo "Input file $infile does not exist -> exiting now"
    exit -1
 fi
 
-awk '{print $1" "$3-$4*5;}' ${infile} > down.txt
-awk '{print $1" "$3+$4*5;}' ${infile} > up.txt
+awk -v thresh=${thresh} '{print $1" "$3-$4*thresh;}' ${infile} > down.txt
+awk -v thresh=${thresh} '{print $1" "$3+$4*thresh;}' ${infile} > up.txt
 awk '{print $1" "$5;}' ${infile} > median.txt
 awk '{print $1" "$3;}' ${infile} > median_of_medians.txt
 

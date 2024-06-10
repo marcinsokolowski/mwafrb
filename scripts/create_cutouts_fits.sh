@@ -53,6 +53,11 @@ if [[ -n "$7" && "$7" != "-" ]]; then
    min_timesteps=$7
 fi
 
+extra=500
+if [[ -n "$8" && "$8" != "-" ]]; then
+   extra=$8
+fi
+
 
 tmpfile=${merged_cand}.tmp
 
@@ -66,8 +71,8 @@ mkdir ${outdir}
 while read line # example 
 do
    evt=`echo $line | awk '{print $1;}'`       
-   start=`echo $line | awk '{print $2-1000;}'`
-   end=`echo $line | awk '{print $3+1000;}'`
+   start=`echo $line | awk -v extra=${extra} '{print $2-extra;}'`
+   end=`echo $line | awk -v extra=${extra} '{print $3+extra;}'`
    dm=`echo $line | awk '{print $4;}'`
    is_dm_ok=`echo $dm" "$min_dm | awk '{if($1>$2){print 1;}else{print 0;}}'`
    outfits=${outdir}/cand_${evt}.fits   
