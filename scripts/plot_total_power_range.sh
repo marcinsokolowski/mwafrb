@@ -15,6 +15,12 @@ if [[ -n "$3" && "$3" != "-" ]]; then
    extra="$3"
 fi
 
+candfile=merged_channels_1715803113.613304_TOTALPOWER_4sec.cand_vs_time
+if [[ -n "$4" && "$4" != "-" ]]; then
+   candfile="$4"
+fi
+
+
 start_time=$(($start_time-$extra))
 end_time=$(($end_time+$extra))
 
@@ -24,7 +30,7 @@ n_timesteps=$(($end_time-$start_time))
 awk -v start_time=${start_time} -v end_time=${end_time} '{if($1>=start_time && $1<=end_time){print $0;}}' total_power.txt > total_power_${start_time}-${end_time}.txt
 
 ls total_power_${start_time}-${end_time}.txt > list_${start_time}-${end_time}
-echo merged_channels_1715803113.613304_TOTALPOWER_4sec.cand_vs_time >> list_${start_time}-${end_time}
+echo ${candfile} >> list_${start_time}-${end_time}
 echo down.txt >> list_${start_time}-${end_time}
 echo up.txt >> list_${start_time}-${end_time}
 echo median.txt >> list_${start_time}-${end_time} 
