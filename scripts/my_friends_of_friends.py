@@ -37,20 +37,22 @@ def parse_options(idx):
 
 
 class cFreddaCandidate :
-    def __init__(self, _timestep=0, _snr=0.00, _dm=-1.00):
+    def __init__(self, _timestep=0, _snr=0.00, _dm=-1.00, _idt=-1, _max_total_power=-1):
        self.timestep   = _timestep
        self.min_timestep = _timestep
        self.max_timestep = _timestep
        self.snr        = _snr 
        self.dm         = _dm
+       self.idt        = _idt 
        self.timestep_sum = 0 # only for what is on the self.cand_list
        self.count      = 0   # only for what is on the self.cand_list
        self.added      = False
        self.cand_list  = [] # list of candidates this one is a mean of 
        self.bad_data   = False
+       self.max_total_power = _max_total_power;
 
     def __repr__(self) :
-       out_str =  ("Candidate timestamp = %d, snr = %.2f , dm = %.2f, count = %d, added = %s" % (self.timestep,self.snr,self.dm,self.count,self.added))
+       out_str =  ("Candidate timestamp = %d, snr = %.2f , dm = %.2f (idt = %d), count = %d, added = %s" % (self.timestep,self.snr,self.dm,self.idt,self.count,self.added))
        return out_str
 
     def __str__(self) :
@@ -101,7 +103,9 @@ class cFreddaCandidate :
           if new_cand.snr > self.snr :
              self.snr = new_cand.snr
              self.dm  = new_cand.dm
-
+             self.idt = new_cand.idt
+             self.max_total_power = new_cand.max_total_power
+             
           self.cand_list.append( copy.copy(new_cand) )   
           new_cand.added = True
           
@@ -125,7 +129,7 @@ class cFreddaCandidate :
        
        
        
-    def get_maxsnr_range( self , top_n=10 ) :
+    def get_maxsnr_range( self , top_n=-1 ) : # was top_n=10
        snr_list = self.get_snrs()
        snr_sorted = numpy.argsort( snr_list ) # WARNING : sorted from MIN to MAX !!!
        # snr_sorted = numpy.sort( snr_list )
@@ -134,10 +138,15 @@ class cFreddaCandidate :
        max_time = -1e20
        max_snr  = -1
        max_dm   = -1
+       min_dm   = 1000000.00
+       max_idt  = -1
+       min_idt  = 10000000
+       max_total_power = -1       
        
        max_i = len(snr_sorted)
-       if max_i > top_n :
-          max_i = top_n
+       if top_n > 0 :
+          if max_i > top_n :
+             max_i = top_n
           
        print("DEBUG : get_maxsnr_range : %.4f (at %d) - %.4f (at %d), snr = %.4f" % (self.cand_list[snr_sorted[0]].snr,snr_sorted[0],self.cand_list[snr_sorted[len(snr_sorted)-1]].snr,snr_sorted[len(snr_sorted)-1],self.snr))   
           
@@ -166,12 +175,24 @@ class cFreddaCandidate :
              
           if cand.dm > max_dm :
              max_dm = cand.dm
+
+          if cand.dm < min_dm :
+             min_dm = cand.dm
+
+          if cand.idt > max_idt :
+             max_idt = cand.idt
+             
+          if cand.idt < min_idt :
+             min_idt = cand.idt
+             
+          if cand.max_total_power > max_total_power :
+             max_total_power = cand.max_total_power
              
           # i = i - 1   
           i = i + 1
 
-       print("\treturn (%.4f,%.4f,%.4f,%.4f)" % (min_time,max_time,max_snr,max_dm))             
-       return (min_time,max_time,max_snr,max_dm)
+       print("\treturn (%.4f,%.4f,%.4f,%.4f,%.4f,%d,%d,%.4f)" % (min_time,max_time,max_snr,min_dm,max_dm,min_idt,max_idt,max_total_power))             
+       return (min_time,max_time,max_snr,min_dm,max_dm,min_idt,max_idt,max_total_power)
        
 
 
@@ -192,6 +213,7 @@ def read_file(file,verb=False,frbsearch_input=False) :
       t = 0
       snr = 0
       dm = 0
+      idt = 0 
          
       if frbsearch_input : # input as from frb_search package 
          # TIME  DM  SNR  N_PIX
@@ -200,16 +222,17 @@ def read_file(file,verb=False,frbsearch_input=False) :
          t = float( words[0+0] ) # 2023-07-14 - changed to float so that I can read time in seconds too 
          snr = float( words[2+0] )
          dm  = float( words[1+0] )
-         
       else : # normal FREDDA output :
          # S/N, sampno, secs from file start, boxcar, idt, dm, beamno, mjd
          # 10.56 642 6.4200 3 0 0.00 0 40587.694168436 
          t   = int( float(words[1+0]) )
          snr = float(words[0+0])
          dm  = float(words[5+0])
+         idt = int( float(words[4+0]) )
+         max_total_power = float( words[10+0] )
 
       # print("DEBUG : DM = %.4f" % (dm))         
-      cand = cFreddaCandidate( _timestep=t, _snr=snr, _dm=dm )
+      cand = cFreddaCandidate( _timestep=t, _snr=snr, _dm=dm, _idt=idt, _max_total_power=max_total_power )
 
       cand_list.append( copy.copy(cand) )
 
@@ -392,23 +415,27 @@ if __name__ == '__main__':
 
    # TODO : output center , time range etc 
    out_f = open( options.outfile , "w" )   
-   line = "# INDEX  SNR   DM   TIMESTAMP   |TIMESTAMP_RANGE|    FILFILE"
+   line = "# INDEX  SNR   DM   TIMESTAMP   |TIMESTAMP_RANGE|    FILFILE  MIN_DM MAX_DM MIN_IDT MAX_IDT MAX_TOTAL_POWER"
    out_f.write( line + "\n" )
 #   for cand in out_list :
    for i in range(0,len(out_list)) :   
       cand = out_list[i]
       
       # get time range from top 10 SNR candidates :
+      min_dm = -1
       max_dm = -1.00
+      min_idt = -1
+      max_idt = -1
       max_snr = -1.00
+      max_total_power = -1
       if options.print_as_is :
          min_time = cand.min_timestep
          max_time = cand.max_timestep
-         (a,b,max_snr,max_dm) = cand.get_maxsnr_range(top_n=10)
+         (a,b,max_snr,min_dm,max_dm,min_idt,max_idt,max_total_power) = cand.get_maxsnr_range()
       else :
-         (min_time,max_time,max_snr,max_dm) = cand.get_maxsnr_range(top_n=10)   
+         (min_time,max_time,max_snr,min_dm,max_dm,min_idt,max_idt,max_total_power) = cand.get_maxsnr_range()   
 #      line = ("%05d : %06.2f %08.2f %012.4f  |%012.4f - %012.4f|   %s" % (i,cand.snr,cand.dm,(cand.max_timestep+cand.min_timestep)/2.00,cand.min_timestep,cand.max_timestep,file))
-      line = ("%05d : %06.2f %08.2f %012.4f  |%012.4f - %012.4f|   %s" % (i,max_snr,max_dm,(cand.max_timestep+cand.min_timestep)/2.00,min_time,max_time,file))
+      line = ("%05d : %06.2f %08.2f %012.4f  |%012.4f - %012.4f|   %s %08.2f %08.2f %04d %04d %.4f" % (i,max_snr,max_dm,(cand.max_timestep+cand.min_timestep)/2.00,min_time,max_time,file,min_dm,max_dm,min_idt,max_idt,max_total_power))
       print("%s" % (line))
       out_f.write( line + "\n" )
             

@@ -5,6 +5,8 @@ if [[ -n "$1" && "$1" != "-" ]]; then
    candfile="$1"
 fi
 candfile_plot=${candfile%%cand}cand_vs_time
+is_merged=`echo $candfile | awk '{print index($1,".cand_merged");}'`
+
 
 infile=total_power.txt
 if [[ -n "$2" && "$2" != "-" ]]; then
@@ -28,11 +30,14 @@ awk '{print $1" "$5;}' ${infile} > median.txt
 awk '{print $1" "$3;}' ${infile} > median_of_medians.txt
 
 
-awk '{if($1!="#"){print $2" "$11}}' ${candfile} > ${candfile_plot}
-
 # ls total_power.txt ${candfile_plot} down.txt up.txt > list
 echo total_power.txt > list
-echo ${candfile_plot} >> list
+if [[ $is_merged -gt 0 ]]; then
+   echo ${candfile} >> list
+else
+   awk '{if($1!="#"){print $2" "$11}}' ${candfile} > ${candfile_plot}
+   echo ${candfile_plot} >> list
+fi   
 echo down.txt >> list
 echo up.txt >> list
 echo median.txt >> list

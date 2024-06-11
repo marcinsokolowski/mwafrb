@@ -5,6 +5,7 @@
 #include <TH1F.h>
 #include <TPaveText.h>
 #include <TGraph.h>
+#include <TGraphErrors.h>
 #include <TPad.h>
 #include <TCanvas.h>
 #include <TLegend.h>
@@ -142,13 +143,13 @@ Double_t Line( Double_t* x, Double_t* y )
    // return (x[0]*y[0]);
 }
 
-TGraph* DrawGraph( Double_t* x_values, Double_t* y_values, int numVal, 
+TGraphErrors* DrawGraph( Double_t* x_values, Double_t* y_values, int numVal, 
          long q, TPad* pPad, int ColorNum = kBlack, int LineStyle=10, int LineWidth=2, const char* szOpt="pA",
          const char* fit_func_name=NULL, 
          double min_y=-10000, double max_y=-10000,
          const char* szStarName="", const char* fname="default",
          int bLog=0, const char* szDescX=NULL, const char* szDescY=NULL,
-         double fit_min_x=-100000, double fit_max_x=-100000 )
+         double fit_min_x=-100000, double fit_max_x=-100000, Double_t* x_error=NULL )
 {
     int MarkerType = 20;
 
@@ -162,13 +163,16 @@ TGraph* DrawGraph( Double_t* x_values, Double_t* y_values, int numVal,
 
    printf("Drawing %d points in color = %d\n",numVal,ColorNum);
 
-    TGraph* pGraph = new TGraph(q);
+    TGraphErrors* pGraph = new TGraphErrors(q);
     for(int i=0;i<numVal;i++){
        if( gVerb && 0 ){
            printf("DrawGraph : %d : %f %f\n",i, x_values[i], y_values[i] );
         }
 
         pGraph->SetPoint( i, x_values[i], y_values[i] );
+        if( x_error ){
+           pGraph->SetPointError( i, x_error[i], 0.00 );
+        }
 
         if(x_values[i]>maxX)
             maxX = x_values[i];
@@ -436,6 +440,8 @@ double find_max_val( Double_t* x_values, Double_t* y_values, int count, double f
    return -1;
 }
 
+
+
 int ReadResultsFile( const char* fname, Double_t* x_values, Double_t* y_values, int maxRows=MAX_ROWS,
                      int CondCol=-1, int CondValue=-1, int x_col=0, int y_col=0, long int start_time=-1, long int end_time=-1 )
 {
@@ -531,7 +537,7 @@ int ReadResultsFile( const char* fname, Double_t* x_values, Double_t* y_values, 
      }
      if( end_time>0 ){
         if( x_val > end_time ){
-            continue;
+            break;
         }
      }
  	     
@@ -563,6 +569,141 @@ int ReadResultsFile( const char* fname, Double_t* x_values, Double_t* y_values, 
 //   exit(0);   
    return all;
 }  
+
+int ReadResultsFileMerged( const char* fname, Double_t* x_values, Double_t* y_values, Double_t* x_err, Double_t* y_err,
+                           int maxRows=MAX_ROWS,
+                           int CondCol=-1, int CondValue=-1, int x_col=5, int y_col=6, long int start_time=-1, long int end_time=-1 )
+{
+   const int lSize=1000;
+   char buff[1000];
+   
+   FILE *fcd = fopen(fname,"r");
+   if(!fcd){
+       printf("Could not open file : %s\n",fname);
+       return -1;
+   }
+
+   printf("x_col=%d y_col=%d\n",x_col,y_col);
+
+   Int_t all = 0;
+   Double_t fval1,fval2,fval3,fval4,fval5,fval6,mag,x,y;
+   long lval1,lval2,lval3,lval4;
+
+   double sum20mhz=0.00;
+   double total_sum=0.00;
+
+   all=0;
+   int ncols=-1;
+   while (1) {
+      if( maxRows>0 && all >= maxRows ){
+        break;
+      }
+
+      if(fgets(buff,lSize,fcd)==0)
+         break;
+      if(buff[0]=='#')
+         continue;      
+      if(strstr(buff,"nan"))
+         continue;
+
+      //  9.39  377.000000  8.000000 328.757587  77.088256   298.312992 65.223146   44.506926
+      // ncols = sscanf(buff,"%f\t%f\t%f\t%f\t%f\t%f\t%f\t%f",&mag,&x,&y,&fval1,&fval2,&fval3,&fval4,&fval5);
+      Double_t x_val;
+      Double_t y_val;
+      int min_delay=0,max_delay=0;
+      Double_t max_total_power=-1;
+//      ncols = sscanf(buff,"%f\t%f\n",&x_val,&y_val);
+
+      int ncols=0;
+      char* ptr=NULL;
+      char* search_ptr=buff;
+      int col=0;      
+      while( ptr = strtok(search_ptr," \t") ){
+         search_ptr = NULL;
+         if( gVerb ){
+              printf("ptr = %s\n",ptr);
+                     }
+
+         if( col == 5 ){
+            if( ptr[0] == '|' )ptr++;
+            x_val = atof( ptr );
+            ncols++;
+         }
+         if( col == 7 ){
+            y_val = atof(ptr);
+            if(strstr(ptr,"|")){
+               char szTmp[64];
+               sprintf(szTmp,ptr,strlen(ptr)-1);
+               y_val = atof( szTmp );
+            }
+            ncols++;
+
+            if( strstr(ptr,"inf") ){
+               y_val=0;
+            }
+         }   
+         if( col == 12 ){
+             max_delay = atol(ptr);
+         }
+         if( col == 13 ){
+             max_total_power = atol(ptr);
+         }
+
+         col++;
+      }
+
+
+      if( ncols < 2 ){
+         // changed due to stupid plots , single column rows are skiped
+         printf("ERROR - less then 2 columns, line |%s| skiped !!!\n",buff);
+         printf("%s\n",buff);
+         continue;
+         // y_val = x_val;
+         // x_val = all;
+      }
+
+      if (ncols < 0) break;
+
+     if( start_time>0 ){
+        if( x_val < start_time ){
+            continue;
+        }
+     }
+     if( end_time>0 ){
+        if( x_val > end_time ){
+            break;
+        }
+     }
+     
+     x_values[all] = (x_val+y_val)/2.00;
+//     x_err[all] = max_delay;
+     x_err[all] = (y_val - x_val)/2.00;
+     y_err[all] = max_delay;
+     y_values[all] = max_total_power;
+
+     if( 1 ){
+        printf("values : %f %f -> %f +/- %f\n",x_val,y_val,x_values[all],x_err[all]);
+     }
+
+     all++;
+   }
+   fclose(fcd);
+
+   printf("Integral up to 20MHz = %e , vs total = %e\n",sum20mhz,total_sum);
+
+   // normalization:
+/*   if( gDoNormalize > 0 ){
+      double norm_val = find_max_val(x_values,y_values,all,75,100);
+      for(int i=0;i<all;i++){
+         y_values[i] = y_values[i] / norm_val;
+       } 
+   }*/
+
+//   exit(0);   
+   return all;
+}  
+
+
 
 int ReadListFile( const char* fname , cFileDesc2* file_list )
 {
@@ -671,6 +812,8 @@ void plot_total_power_list( const char* basename="list.txt",
 
    Double_t* x_value1 = new Double_t[MAX_ROWS]; // x_value2[MAX_ROWS],x_value3[MAX_ROWS],x_value4[MAX_ROWS],x_value5[MAX_ROWS],x_value6[MAX_ROWS];
    Double_t* y_value1 = new Double_t[MAX_ROWS]; // y_value2[MAX_ROWS],y_value3[MAX_ROWS],y_value4[MAX_ROWS],y_value5[MAX_ROWS],y_value6[MAX_ROWS];
+   Double_t* x_err = new Double_t[MAX_ROWS]; // x_value2[MAX_ROWS],x_value3[MAX_ROWS],x_value4[MAX_ROWS],x_value5[MAX_ROWS],x_value6[MAX_ROWS];
+   Double_t* y_err = new Double_t[MAX_ROWS]; // y_value2[MAX_ROWS],y_value3[MAX_ROWS],y_value4[MAX_ROWS],y_value5[MAX_ROWS],y_value6[MAX_ROWS];
    Double_t maxX=-100000,maxY=-100000;   
    Double_t minX=100000,minY=100000;
 
@@ -683,7 +826,7 @@ void plot_total_power_list( const char* basename="list.txt",
    TString szTitleFinal = szTitle;
    TMultiGraph *mg = new TMultiGraph();
    int g=0;
-   TGraph* graphs[1000];
+   TGraphErrors* graphs[1000];
 // mg->SetMinimum(1);  
    if( min_y > -10000 ){
       mg->SetMinimum( min_y );
@@ -715,13 +858,21 @@ void plot_total_power_list( const char* basename="list.txt",
       cFileDesc2& file_desc = list[i];
       const char* filename = file_desc.fname;
       const char* comment  = file_desc.comment;
+      Double_t* ptr_error_x = NULL;
+      Double_t* ptr_delay_x = NULL;
       printf("------------------------------------------------------------------- %s -------------------------------------------------------------------\n",filename);
 
       int maxRows_final = -1;
       if( i == 0 ){
           maxRows_final = maxRows;
       }
-      lq1 = ReadResultsFile( filename, x_value1, y_value1, maxRows_final, -1, -1, x_col, y_col, start_time, end_time );
+      if( strstr(filename,".cand_merged") ){
+         lq1 = ReadResultsFileMerged( filename, x_value1, y_value1, x_err, y_err, maxRows_final, -1, -1, 5, 6, start_time, end_time );
+         ptr_error_x = x_err;
+         ptr_delay_x = y_err;
+      }else{
+         lq1 = ReadResultsFile( filename, x_value1, y_value1, maxRows_final, -1, -1, x_col, y_col, start_time, end_time );
+      }
       if( i==0 ){
          start_time = x_value1[0];
          end_time   = x_value1[lq1-1];
@@ -734,7 +885,7 @@ void plot_total_power_list( const char* basename="list.txt",
          sum2_tab[k] += (y_value1[k] * y_value1[k]);
       }
 
-      TGraph* pNewGraph = NULL;
+      TGraphErrors* pNewGraph = NULL;
       TString szOpt="L,same";
       if( i==0 ){
          szOpt="LA";
@@ -771,7 +922,12 @@ void plot_total_power_list( const char* basename="list.txt",
       }
 
       pNewGraph = DrawGraph( x_value1, y_value1, lq1, 1, NULL, kolor, line_style, line_width, szOpt.Data(),
-                             fit_func_name, min_y, max_y, szTitleFinal.Data(), filename, bLog, szDescX, szDescY, fit_min_x, fit_max_x );
+                             fit_func_name, min_y, max_y, szTitleFinal.Data(), filename, bLog, szDescX, szDescY, fit_min_x, fit_max_x, ptr_error_x );
+
+      if( ptr_delay_x ){
+          DrawGraph( x_value1, y_value1, lq1, 1, NULL, kMagenta, line_style, line_width, szOpt.Data(),
+                             fit_func_name, min_y, max_y, szTitleFinal.Data(), filename, bLog, szDescX, szDescY, fit_min_x, fit_max_x, ptr_delay_x );
+      }
          
       TString szLegend=comment;
       mg->Add(pNewGraph);
