@@ -149,7 +149,7 @@ TGraphErrors* DrawGraph( Double_t* x_values, Double_t* y_values, int numVal,
          double min_y=-10000, double max_y=-10000,
          const char* szStarName="", const char* fname="default",
          int bLog=0, const char* szDescX=NULL, const char* szDescY=NULL,
-         double fit_min_x=-100000, double fit_max_x=-100000, Double_t* x_error=NULL )
+         double fit_min_x=-100000, double fit_max_x=-100000, Double_t* x_error=NULL, double mult=1.00 )
 {
     int MarkerType = 20;
 
@@ -169,7 +169,7 @@ TGraphErrors* DrawGraph( Double_t* x_values, Double_t* y_values, int numVal,
            printf("DrawGraph : %d : %f %f\n",i, x_values[i], y_values[i] );
         }
 
-        pGraph->SetPoint( i, x_values[i], y_values[i] );
+        pGraph->SetPoint( i, x_values[i], y_values[i]*mult );
         if( x_error ){
            pGraph->SetPointError( i, x_error[i], 0.00 );
         }
@@ -926,7 +926,7 @@ void plot_total_power_list( const char* basename="list.txt",
 
       if( ptr_delay_x ){
           DrawGraph( x_value1, y_value1, lq1, 1, NULL, kMagenta, line_style, line_width, szOpt.Data(),
-                             fit_func_name, min_y, max_y, szTitleFinal.Data(), filename, bLog, szDescX, szDescY, fit_min_x, fit_max_x, ptr_delay_x );
+                             fit_func_name, min_y, max_y, szTitleFinal.Data(), filename, bLog, szDescX, szDescY, fit_min_x, fit_max_x, ptr_delay_x, 1.0001 );
       }
          
       TString szLegend=comment;
