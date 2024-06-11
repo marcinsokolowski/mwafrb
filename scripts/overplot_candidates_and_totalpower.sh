@@ -11,7 +11,7 @@ if [[ -n "$2" && "$2" != "-" ]]; then
    infile="$2"  
 fi
 
-thresh=1
+thresh=5
 if [[ -n "$3" && "$3" != "-" ]]; then
    thresh=$3
 fi
