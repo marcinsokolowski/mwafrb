@@ -23,7 +23,7 @@ if [[ -n "$1" && "$1" != "-" ]]; then
 fi
 
 
-merged_cand=test.cand_merged
+merged_cand=`ls -tr *.cand_merged | tail -1`
 if [[ -n "$2" && "$2" != "-" ]]; then
    merged_cand=$2
 fi
@@ -38,7 +38,7 @@ if [[ -n "$4" && "$4" != "-" ]]; then
    evt_required="$4"
 fi
 
-min_dm=1
+min_dm=0
 if [[ -n "$5" && "$5" != "-" ]]; then
    min_dm=$5
 fi
