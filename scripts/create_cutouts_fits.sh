@@ -61,7 +61,7 @@ fi
 
 tmpfile=${merged_cand}.tmp
 
-cat ${merged_cand} | awk '{if($1!="#"){print $1" "int(substr($6,2))" "int(substr($8,1,length($8)-1))" "$4;}}' > ${tmpfile}
+cat ${merged_cand} | awk '{if($1!="#"){print $1" "int(substr($6,2))" "int(substr($8,1,length($8)-1))" "$4" "$13" "$5;}}' > ${tmpfile}
 
 cutout_file=${merged_cand}.cutouts.txt
 rm -f ${cutout_file}
@@ -70,9 +70,13 @@ counter=0
 mkdir ${outdir}
 while read line # example 
 do
-   evt=`echo $line | awk '{print $1;}'`       
-   start=`echo $line | awk -v extra=${extra} '{print $2-extra;}'`
-   end=`echo $line | awk -v extra=${extra} '{print $3+extra;}'`
+   evt=`echo $line | awk '{print $1;}'`    
+   max_idt=`echo $line | awk '{print int($5);}'`   
+   start_auto=`echo $line | awk -v max_idt=${max_idt} '{print int($6)-max_idt;}'`
+   end_auto=`echo $line | awk -v max_idt=${max_idt} '{print int($6)+max_idt;}'`
+   start=`echo $line | awk -v extra=${extra} -v start_auto=${start_auto} '{if(($2-extra)<(start_auto-extra)){print $2-extra;}else{print start_auto-extra;};}'`
+   # end=`echo $line | awk -v extra=${extra} -v end_auto=${end_auto} '{if(($2+extra)>(start_auto+extra)){print $2+extra;}else{print start_auto+extra;};}'`
+   end=`echo $line | awk -v extra=${extra} '{print $3+extra;}' # do not do the same at the end for now
    dm=`echo $line | awk '{print $4;}'`
    is_dm_ok=`echo $dm" "$min_dm | awk '{if($1>$2){print 1;}else{print 0;}}'`
    outfits=${outdir}/cand_${evt}.fits   
