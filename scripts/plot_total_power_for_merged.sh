@@ -30,8 +30,9 @@ do
 # awk '{if($1!="#"){print $1" "int(substr($6,2))" "int(substr($8,1,length($8)-1))" "$4" "$13" "$5;}}'
       start_time=`echo $line | awk '{if($1!="#"){print int(substr($6,2))-$13;}}'`
       end_time=`echo $line | awk '{if($1!="#"){print int(substr($8,1,length($8)-1));}}'`      
+      candname=`echo $line | awk '{if($1!="#"){print $1;}}'`
       
-      echo "plot_total_power_range.sh $start_time $end_time $extra ${candfile} \"-l -q -b\"" >> plot_total_power_for_merged.doit
+      echo "plot_total_power_range.sh $start_time $end_time $extra ${candfile} \"-l -q -b\" \"Total power for candidate : ${candname}\"" >> plot_total_power_for_merged.doit
 #      plot_total_power_range.sh $start_time $end_time $extra ${candfile}
 #      exit
    else
