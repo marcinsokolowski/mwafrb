@@ -76,7 +76,7 @@ do
    end_auto=`echo $line | awk -v max_idt=${max_idt} '{print int($6)+max_idt;}'`
    start=`echo $line | awk -v extra=${extra} -v start_auto=${start_auto} '{if(($2-extra)<(start_auto-extra)){print $2-extra;}else{print start_auto-extra;};}'`
    # end=`echo $line | awk -v extra=${extra} -v end_auto=${end_auto} '{if(($2+extra)>(start_auto+extra)){print $2+extra;}else{print start_auto+extra;};}'`
-   end=`echo $line | awk -v extra=${extra} '{print $3+extra;}' # do not do the same at the end for now
+   end=`echo $line | awk -v extra=${extra} '{print $3+extra;}'` # do not do the same at the end for now
    dm=`echo $line | awk '{print $4;}'`
    is_dm_ok=`echo $dm" "$min_dm | awk '{if($1>$2){print 1;}else{print 0;}}'`
    outfits=${outdir}/cand_${evt}.fits   
