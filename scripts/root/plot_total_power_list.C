@@ -950,7 +950,7 @@ void plot_total_power_list( const char* basename="list.txt",
    TString szEpsName1=szImagesDir;
 	szEpsName1 += basename;
    szEpsName1 += ".eps";
-   c1->Print(szEpsName1.Data());
+//   c1->Print(szEpsName1.Data());
 
    TString szPngName1=szImagesDir;
 	szPngName1 += basename;
