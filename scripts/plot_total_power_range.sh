@@ -22,12 +22,19 @@ fi
 candfile_plot=${candfile%%cand}cand_vs_time
 is_merged=`echo $candfile | awk '{print index($1,".cand_merged");}'`
 
+root_options="-l"
+if [[ -n "$5" && "$5" != "-" ]]; then
+   root_options="$5"
+fi
+
+
 echo "###########################################"
 echo "PARAMETERS:"
 echo "###########################################"
 echo "start_time = $start_time - $extra"
 echo "end_time   = $end_fime   + $extra"
 echo "candfile   = $candfile (is_merged = $is_merged)"
+echo "root_options = $root_options"
 echo "###########################################"
 
 
@@ -54,16 +61,22 @@ fi
 mkdir -p images/
 
 if [[ $is_merged -gt 0 ]]; then
-   awk -v start_time=${start_time} -v end_time=${end_time} '{if($5>=start_time && $5<=end_time){print $4;}}' ${candfile} > merged_channels_1715803113.613304_TOTALPOWER_4sec.dm
-   awk -v start_time=${start_time} -v end_time=${end_time} '{if($5>=start_time && $5<=end_time){print $13;}}' ${candfile} > merged_channels_1715803113.613304_TOTALPOWER_4sec.idt
+   dm_file=${candfile%%cand_merged}dm
+   idt_file=${candfile%%cand_merged}idt
+   echo "awk -v start_time=${start_time} -v end_time=${end_time} '{if(\$5>=start_time && \$5<=end_time){print \$4;}}' ${candfile}"
+   awk -v start_time=${start_time} -v end_time=${end_time} '{if($5>=start_time && $5<=end_time){print $4;}}' ${candfile} > ${dm_file}
+   awk -v start_time=${start_time} -v end_time=${end_time} '{if($5>=start_time && $5<=end_time){print $13;}}' ${candfile} > ${idt_file}
 else
+   dm_file=${candfile%%cand}dm
+   idt_file=${candfile%%cand}idt
+
    awk '{if($1!="#"){print $2" "$11}}' ${candfile} > ${candfile_plot}
-   awk -v start_time=${start_time} -v end_time=${end_time} '{if($2>=start_time && $2<=end_time){print $6;}}' ${candfile_plot} > merged_channels_1715803113.613304_TOTALPOWER_4sec.dm
-   awk -v start_time=${start_time} -v end_time=${end_time} '{if($2>=start_time && $2<=end_time){print $5;}}' ${candfile_plot} > merged_channels_1715803113.613304_TOTALPOWER_4sec.idt
+   awk -v start_time=${start_time} -v end_time=${end_time} '{if($2>=start_time && $2<=end_time){print $6;}}' ${candfile_plot} > ${dm_file}
+   awk -v start_time=${start_time} -v end_time=${end_time} '{if($2>=start_time && $2<=end_time){print $5;}}' ${candfile_plot} > ${idt_file}
 fi
 
-root -l "histofile.C(\"merged_channels_1715803113.613304_TOTALPOWER_4sec.dm\",0,0)"   
-root -l "histofile.C(\"merged_channels_1715803113.613304_TOTALPOWER_4sec.idt\",0,0)"
+echo "root -b \"histofile.C(\"${dm_file}\",0,0)\""
+root ${root_options} "histofile.C(\"${dm_file}\",0,0)"
+root ${root_options} "histofile.C(\"${idt_file}\",0,0)"
 
-root -l "plot_total_power_list.C+(\"list_${start_time}-${end_time}\",${n_timesteps})"
-
+root ${root_options} "plot_total_power_list.C+(\"list_${start_time}-${end_time}\",${n_timesteps})"

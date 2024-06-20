@@ -1,0 +1,44 @@
+#!/bin/bash
+
+candfile=`ls -tr *.cand_merged | tail -1`
+if [[ -n "$1" && "$1" != "-" ]]; then
+   candfile="$1"
+fi
+is_merged=`echo $candfile | awk '{print index($1,".cand_merged");}'`
+cp $candfile ${candfile}.tmp
+
+extra=1000
+if [[ -n "$2" && "$2" != "-" ]]; then
+   extra="$2"
+fi
+
+echo "###########################################"
+echo "PARAMETERS:"
+echo "###########################################"
+echo "candfile   = $candfile (is_merged = $is_merged)"
+echo "extra      = $extra"
+echo "###########################################"
+
+rm -f plot_total_power_for_merged.doit
+touch plot_total_power_for_merged.doit 
+
+while read line # example 
+do
+   first_char=`echo $line | awk '{print $1;}'`
+
+   if [[ $first_char != "#" ]]; then
+# awk '{if($1!="#"){print $1" "int(substr($6,2))" "int(substr($8,1,length($8)-1))" "$4" "$13" "$5;}}'
+      start_time=`echo $line | awk '{if($1!="#"){print int(substr($6,2))-$13;}}'`
+      end_time=`echo $line | awk '{if($1!="#"){print int(substr($8,1,length($8)-1));}}'`      
+      
+      echo "plot_total_power_range.sh $start_time $end_time $extra ${candfile} \"-l -q -b\"" >> plot_total_power_for_merged.doit
+#      plot_total_power_range.sh $start_time $end_time $extra ${candfile}
+#      exit
+   else
+      echo "DEBUG : comment line |$line| skipped"
+   fi
+done < $candfile
+
+
+chmod +x plot_total_power_for_merged.doit
+./plot_total_power_for_merged.doit
