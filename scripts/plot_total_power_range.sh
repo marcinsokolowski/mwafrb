@@ -27,6 +27,11 @@ if [[ -n "$5" && "$5" != "-" ]]; then
    root_options="$5"
 fi
 
+title="Total Power in Stokes I"
+if [[ -n "$6" && "$6" != "-" ]]; then
+   title="$6"
+fi
+
 
 echo "###########################################"
 echo "PARAMETERS:"
@@ -35,6 +40,7 @@ echo "start_time = $start_time - $extra"
 echo "end_time   = $end_fime   + $extra"
 echo "candfile   = $candfile (is_merged = $is_merged)"
 echo "root_options = $root_options"
+echo "title      = $title"
 echo "###########################################"
 
 
@@ -79,4 +85,4 @@ echo "root -b \"histofile.C(\"${dm_file}\",0,0)\""
 root ${root_options} "histofile.C(\"${dm_file}\",0,0)"
 root ${root_options} "histofile.C(\"${idt_file}\",0,0)"
 
-root ${root_options} "plot_total_power_list.C+(\"list_${start_time}-${end_time}\",${n_timesteps})"
+root ${root_options} "plot_total_power_list.C+(\"list_${start_time}-${end_time}\",${n_timesteps},\"${title}\")"
