@@ -677,7 +677,7 @@ int ReadResultsFileMerged( const char* fname, Double_t* x_values, Double_t* y_va
      
      x_values[all] = (x_val+y_val)/2.00;
 //     x_err[all] = max_delay;
-     x_err[all] = (y_val - x_val)/2.00;
+     x_err[all] = max_delay; // was (y_val - x_val)/2.00;
      y_err[all] = max_delay;
      y_values[all] = max_total_power;
 
