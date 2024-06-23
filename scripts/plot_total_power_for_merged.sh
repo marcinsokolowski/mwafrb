@@ -12,11 +12,17 @@ if [[ -n "$2" && "$2" != "-" ]]; then
    extra="$2"
 fi
 
+root_options="-l -q -b"
+if [[ -n "$3" && "$3" != "-" ]]; then
+   root_options="$3"
+fi
+
 echo "###########################################"
 echo "PARAMETERS:"
 echo "###########################################"
 echo "candfile   = $candfile (is_merged = $is_merged)"
 echo "extra      = $extra"
+echo "root options = $root_options"
 echo "###########################################"
 
 rm -f plot_total_power_for_merged.doit
@@ -32,7 +38,7 @@ do
       end_time=`echo $line | awk '{if($1!="#"){print int(substr($8,1,length($8)-1));}}'`      
       candname=`echo $line | awk '{if($1!="#"){print $1;}}'`
       
-      echo "plot_total_power_range.sh $start_time $end_time $extra ${candfile} \"-l -q -b\" \"Total power for candidate : ${candname}\"" >> plot_total_power_for_merged.doit
+      echo "plot_total_power_range.sh $start_time $end_time $extra ${candfile} \"${root_options}\" \"Total power for candidate : ${candname}\"" $candname >> plot_total_power_for_merged.doit
 #      plot_total_power_range.sh $start_time $end_time $extra ${candfile}
 #      exit
    else

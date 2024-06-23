@@ -32,6 +32,11 @@ if [[ -n "$6" && "$6" != "-" ]]; then
    title="$6"
 fi
 
+candname="unknown"
+if [[ -n "$7" && "$7" != "-" ]]; then
+   candname="$7"
+fi
+
 
 echo "###########################################"
 echo "PARAMETERS:"
@@ -41,6 +46,7 @@ echo "end_time   = $end_fime   + $extra"
 echo "candfile   = $candfile (is_merged = $is_merged)"
 echo "root_options = $root_options"
 echo "title      = $title"
+echo "candname   = $candname"
 echo "###########################################"
 
 
@@ -85,4 +91,18 @@ echo "root -b \"histofile.C(\"${dm_file}\",0,0)\""
 root ${root_options} "histofile.C(\"${dm_file}\",0,0)"
 root ${root_options} "histofile.C(\"${idt_file}\",0,0)"
 
-root ${root_options} "plot_total_power_list.C+(\"list_${start_time}-${end_time}\",${n_timesteps},\"${title}\")"
+if [[ -d candidates_fits ]]; then
+   cd candidates_fits/${candname}
+   candfits=`ls ../mergedcand${candname}*.fits | tail -1`
+   pwd
+   echo "ln -s ${candfits}"
+   ln -s ${candfits}
+   candfits=`ls mergedcand${candname}*.fits | tail -1`
+   pngfile=${candfits%%fits}png
+   echo "ds9 -zoom to fit -scale zscale -geometry 2000x1200 ${candfits} -saveimage ${pngfile} &"
+   ds9 -zoom to fit -scale zscale -geometry 2000x1200 ${candfits} -saveimage ${pngfile} &   
+   cd ../../
+fi
+
+mkdir -p candidates_fits/${candname}
+root ${root_options} "plot_total_power_list.C+(\"list_${start_time}-${end_time}\",${n_timesteps},\"${title}\",\"candidates_fits/${candname}/\")"

@@ -760,14 +760,13 @@ int ReadListFile( const char* fname , cFileDesc2* file_list )
 
 
 void plot_total_power_list( const char* basename="list.txt", 
-                            int maxRows=(MAX_ROWS-1), const char* szTitle="Total Power in Stokes I",
+                            int maxRows=(MAX_ROWS-1), const char* szTitle="Total Power in Stokes I", const char* szImagesDir="images/"
                const char* fit_func_name=NULL, double min_y=-10000, 
                double max_y=-10000 , int bLog=0,
       const char* szDescX="Time sample index",const char* szDescY="Power [?]",
       double fit_min_x=-100000, double fit_max_x=-100000,
       int x_col=0, int y_col=1,
-      double min_x=-100, double max_x=1e20,
-		const char* szImagesDir="images/" )
+      double min_x=-100, double max_x=1e20 )
 {
    if( maxRows >= MAX_ROWS ){
       printf("ERROR : maxRows = %ld >= limit = %ld -> decrease the second parameter or edit the script and increase MAX_ROWS value\n",maxRows,MAX_ROWS);
@@ -835,7 +834,7 @@ void plot_total_power_list( const char* basename="list.txt",
       mg->SetMaximum( max_y );
    }
 
-   TLegend *legend = new TLegend(.45,0.8,0.95,0.95);
+   TLegend *legend = new TLegend(.6,0.6,0.9,0.75);
    legend->SetTextFont(72);
    legend->SetTextSize(0.02);
    legend->SetNColumns(1);
