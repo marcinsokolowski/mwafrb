@@ -91,6 +91,8 @@ echo "root -b \"histofile.C(\"${dm_file}\",0,0)\""
 root ${root_options} "histofile.C(\"${dm_file}\",0,0)"
 root ${root_options} "histofile.C(\"${idt_file}\",0,0)"
 
+mkdir -p candidates_fits/${candname}
+
 if [[ -d candidates_fits ]]; then
    cd candidates_fits/${candname}
    candfits=`ls ../mergedcand${candname}*.fits | tail -1`
@@ -100,9 +102,8 @@ if [[ -d candidates_fits ]]; then
    candfits=`ls mergedcand${candname}*.fits | tail -1`
    pngfile=${candfits%%fits}png
    echo "ds9 -zoom to fit -scale zscale -geometry 2000x1200 ${candfits} -saveimage ${pngfile} &"
-   ds9 -zoom to fit -scale zscale -geometry 2000x1200 ${candfits} -saveimage ${pngfile} &   
+   ds9 -zoom to fit -scale zscale -geometry 2000x1200 ${candfits} -saveimage ${pngfile} &
    cd ../../
 fi
 
-mkdir -p candidates_fits/${candname}
-root ${root_options} "plot_total_power_list.C+(\"list_${start_time}-${end_time}\",${n_timesteps},\"${title}\",\"candidates_fits/${candname}/\")"
+root -l "plot_total_power_list.C+(\"list_${start_time}-${end_time}\",${n_timesteps},\"${title}\",\"candidates_fits/${candname}/\")"
