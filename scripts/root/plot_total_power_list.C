@@ -760,7 +760,7 @@ int ReadListFile( const char* fname , cFileDesc2* file_list )
 
 
 void plot_total_power_list( const char* basename="list.txt", 
-                            int maxRows=(MAX_ROWS-1), const char* szTitle="Total Power in Stokes I", const char* szImagesDir="images/"
+                            int maxRows=(MAX_ROWS-1), const char* szTitle="Total Power in Stokes I", const char* szImagesDir="images/",
                const char* fit_func_name=NULL, double min_y=-10000, 
                double max_y=-10000 , int bLog=0,
       const char* szDescX="Time sample index",const char* szDescY="Power [?]",
