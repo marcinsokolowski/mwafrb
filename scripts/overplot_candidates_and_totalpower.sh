@@ -18,6 +18,11 @@ if [[ -n "$3" && "$3" != "-" ]]; then
    thresh=$3
 fi
 
+root_options="-l"
+if [[ -n "$4" && "$4" != "-" ]]; then
+   root_options="$4"
+fi
+
 
 if [[ ! -s ${infile} ]]; then
    echo "Input file $infile does not exist -> exiting now"
@@ -45,5 +50,6 @@ echo median_of_medians.txt >> list
 cp ~/github/mwafrb/scripts/root/plot_total_power_list.C .
 
 mkdir -p images/
-root -l "plot_total_power_list.C+(\"list\")"
+echo "root ${root_options} plot_total_power_list.C+"
+root ${root_options} "plot_total_power_list.C+(\"list\")"
 
