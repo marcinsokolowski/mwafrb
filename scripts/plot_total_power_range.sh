@@ -37,6 +37,11 @@ if [[ -n "$7" && "$7" != "-" ]]; then
    candname="$7"
 fi
 
+show_ds9=1
+if [[ -n "$8" && "$8" != "-" ]]; then
+   show_ds9=$8
+fi
+
 
 echo "###########################################"
 echo "PARAMETERS:"
@@ -47,6 +52,7 @@ echo "candfile   = $candfile (is_merged = $is_merged)"
 echo "root_options = $root_options"
 echo "title      = $title"
 echo "candname   = $candname"
+echo "show_ds9   = $show_ds9"
 echo "###########################################"
 
 
@@ -101,9 +107,14 @@ if [[ -d candidates_fits ]]; then
    ln -s ${candfits}
    candfits=`ls mergedcand${candname}*.fits | tail -1`
    pngfile=${candfits%%fits}png
-   echo "ds9 -zoom to fit -scale zscale -geometry 2000x1200 ${candfits} -saveimage ${pngfile} &"
-   ds9 -zoom to fit -scale zscale -geometry 2000x1200 ${candfits} -saveimage ${pngfile} &
+   
+   if [[ $show_ds9 -gt 0 ]]; then
+      echo "ds9 -zoom to fit -scale zscale -geometry 2000x1200 ${candfits} -saveimage ${pngfile} &"
+      ds9 -zoom to fit -scale zscale -geometry 2000x1200 ${candfits} -saveimage ${pngfile} &
+   else
+      echo "WARNING : ds9 is not required"
+   fi
    cd ../../
 fi
 
-root -l "plot_total_power_list.C+(\"list_${start_time}-${end_time}\",${n_timesteps},\"${title}\",\"candidates_fits/${candname}/\")"
+root ${root_options} "plot_total_power_list.C+(\"list_${start_time}-${end_time}\",${n_timesteps},\"${title}\",\"candidates_fits/${candname}/\")"

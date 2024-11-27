@@ -17,12 +17,18 @@ if [[ -n "$3" && "$3" != "-" ]]; then
    root_options="$3"
 fi
 
+show_ds9=1
+if [[ -n "$4" && "$4" != "-" ]]; then
+   show_ds9=$4
+fi
+
 echo "###########################################"
 echo "PARAMETERS:"
 echo "###########################################"
 echo "candfile   = $candfile (is_merged = $is_merged)"
 echo "extra      = $extra"
 echo "root options = $root_options"
+echo "show_ds9   = $show_ds9"
 echo "###########################################"
 
 rm -f plot_total_power_for_merged.doit
@@ -38,7 +44,7 @@ do
       end_time=`echo $line | awk '{if($1!="#"){print int(substr($8,1,length($8)-1));}}'`      
       candname=`echo $line | awk '{if($1!="#"){print $1;}}'`
       
-      echo "plot_total_power_range.sh $start_time $end_time $extra ${candfile} \"${root_options}\" \"Total power for candidate : ${candname}\"" $candname >> plot_total_power_for_merged.doit
+      echo "plot_total_power_range.sh $start_time $end_time $extra ${candfile} \"${root_options}\" \"Total power for candidate : ${candname}\"" $candname $show_ds9 >> plot_total_power_for_merged.doit
 #      plot_total_power_range.sh $start_time $end_time $extra ${candfile}
 #      exit
    else
