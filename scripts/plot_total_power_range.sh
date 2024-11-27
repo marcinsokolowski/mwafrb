@@ -93,7 +93,7 @@ else
    awk -v start_time=${start_time} -v end_time=${end_time} '{if($2>=start_time && $2<=end_time){print $5;}}' ${candfile_plot} > ${idt_file}
 fi
 
-echo "root -b \"histofile.C(\"${dm_file}\",0,0)\""
+echo "root ${root_options} \"histofile.C(\"${dm_file}\",0,0)\""
 root ${root_options} "histofile.C(\"${dm_file}\",0,0)"
 root ${root_options} "histofile.C(\"${idt_file}\",0,0)"
 
