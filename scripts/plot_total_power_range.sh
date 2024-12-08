@@ -109,8 +109,8 @@ if [[ -d candidates_fits ]]; then
    pngfile=${candfits%%fits}png
    
    if [[ $show_ds9 -gt 0 ]]; then
-      echo "ds9 -zoom to fit -scale zscale -geometry 2000x1200 ${candfits} -saveimage ${pngfile} &"
-      ds9 -zoom to fit -scale zscale -geometry 2000x1200 ${candfits} -saveimage ${pngfile} &
+      echo "ds9 -scale zscale -geometry 2000x1200 ${candfits} -zoom to fit -saveimage ${pngfile} &"
+      ds9 -scale zscale -geometry 2000x1200 ${candfits} -zoom to fit -saveimage ${pngfile} &
    else
       echo "WARNING : ds9 is not required"
    fi
