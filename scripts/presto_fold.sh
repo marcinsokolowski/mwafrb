@@ -90,3 +90,10 @@ else
    echo "prepfold -psr ${name} -debug -nopsearch -nodmsearch -nosearch -n 32 -npart 40 -start ${start} -nsub $nsub ${options} updated.fil"
    prepfold -psr ${name} -debug -nopsearch -nodmsearch -nosearch -n 32 -npart 40 -start ${start} -nsub $nsub ${options} updated.fil 
 fi   
+
+# single pulse search :
+echo "presto_single_pulse_aavs2.sh 10 > presto_sps_10sigma.out 2>&1"
+presto_single_pulse_aavs2.sh 10 > presto_sps_10sigma.out 2>&1
+
+echo "presto_single_pulse_aavs2.sh 5 > presto_sps_5sigma.out 2>&1"
+presto_single_pulse_aavs2.sh 5 > presto_sps_5sigma.out 2>&1
