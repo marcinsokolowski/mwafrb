@@ -94,8 +94,8 @@ else
 fi
 
 echo "root ${root_options} \"histofile.C(\"${dm_file}\",0,0)\""
-root ${root_options} "histofile.C(\"${dm_file}\",0,0)"
-root ${root_options} "histofile.C(\"${idt_file}\",0,0)"
+root ${root_options} -q -l "histofile.C(\"${dm_file}\",0,0)"
+root ${root_options} -q -l "histofile.C(\"${idt_file}\",0,0)"
 
 mkdir -p candidates_fits/${candname}
 

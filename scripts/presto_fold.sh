@@ -92,8 +92,17 @@ else
 fi   
 
 # single pulse search :
-echo "presto_single_pulse_aavs2.sh 10 > presto_sps_10sigma.out 2>&1"
-presto_single_pulse_aavs2.sh 10 > presto_sps_10sigma.out 2>&1
+# echo "presto_single_pulse_aavs2.sh 10 > presto_sps_10sigma.out 2>&1"
+# presto_single_pulse_aavs2.sh 10 > presto_sps_10sigma.out 2>&1
 
-echo "presto_single_pulse_aavs2.sh 5 > presto_sps_5sigma.out 2>&1"
-presto_single_pulse_aavs2.sh 5 > presto_sps_5sigma.out 2>&1
+# echo "presto_single_pulse_aavs2.sh 5 > presto_sps_5sigma.out 2>&1"
+# presto_single_pulse_aavs2.sh 5 > presto_sps_5sigma.out 2>&1
+
+echo "~/github/eda2frb/scripts/presto_single_pulse_aavs2.sh 10 - 350 1 > sps_10sigma.out 2>&1"
+~/github/eda2frb/scripts/presto_single_pulse_aavs2.sh 10 - 350 1 > sps_10sigma.out 2>&1
+
+echo "~/github/eda2frb/scripts/presto_single_pulse_aavs2.sh 10 - 250 0.1 > sps_10sigma_maxdm25.out 2>&1"            
+~/github/eda2frb/scripts/presto_single_pulse_aavs2.sh 10 - 250 0.1 > sps_10sigma_maxdm25.out 2>&1
+
+echo "~/github/eda2frb/scripts/presto_single_pulse_aavs2.sh 5 - 350 1 > sps_5sigma.out 2>&1"
+~/github/eda2frb/scripts/presto_single_pulse_aavs2.sh 5 - 350 1 > sps_5sigma.out 2>&1
