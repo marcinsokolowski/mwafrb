@@ -42,6 +42,11 @@ if [[ -n "$8" && "$8" != "-" ]]; then
    show_ds9=$8
 fi
 
+DM=56.7
+if [[ -n "$9" && "$9" != "-" ]]; then
+   DM=$9
+fi
+
 
 echo "###########################################"
 echo "PARAMETERS:"
@@ -53,6 +58,7 @@ echo "root_options = $root_options"
 echo "title      = $title"
 echo "candname   = $candname"
 echo "show_ds9   = $show_ds9"
+echo "DM         = $DM"
 echo "###########################################"
 
 
@@ -111,6 +117,11 @@ if [[ -d candidates_fits ]]; then
    if [[ $show_ds9 -gt 0 ]]; then
       echo "ds9 -scale zscale -geometry 2000x1200 ${candfits} -zoom to fit -saveimage ${pngfile} &"
       ds9 -scale zscale -geometry 2000x1200 ${candfits} -zoom to fit -saveimage ${pngfile} &
+#       echo "ds9 -geometry 2000x1200 ${candfits} -zoom to fit -saveimage ${pngfile} &"
+#       ds9 -geometry 2000x1200 ${candfits} -zoom to fit -saveimage ${pngfile} &
+
+      echo "python3 ~/github/eda2frb/scripts/viewer/RFI_Signal_Flagger.py ${candfits} $DM"
+      python3 ~/github/eda2frb/scripts/viewer/RFI_Signal_Flagger.py ${candfits} $DM 
    else
       echo "WARNING : ds9 is not required"
    fi
