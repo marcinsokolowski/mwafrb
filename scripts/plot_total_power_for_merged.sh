@@ -45,11 +45,17 @@ do
       candname=`echo $line | awk '{if($1!="#"){print $1;}}'`
       
       echo "plot_total_power_range.sh $start_time $end_time $extra ${candfile} \"${root_options}\" \"Total power for candidate : ${candname}\"" $candname $show_ds9 >> plot_total_power_for_merged.doit
+      echo "read -p \"Do you wish to continue [y/n] ???: \" answer" >> plot_total_power_for_merged.doit
+      echo "if [[ \$answer == \"n\" || \$answer == \"N\" || \$answer == \"no\" || \$answer == \"NO\" ]]; then" >> plot_total_power_for_merged.doit
+      echo "    exit" >> plot_total_power_for_merged.doit
+      echo "fi" >> plot_total_power_for_merged.doit
+      
 #      plot_total_power_range.sh $start_time $end_time $extra ${candfile}
 #      exit
    else
       echo "DEBUG : comment line |$line| skipped"
    fi
+   
 done < $candfile
 
 
