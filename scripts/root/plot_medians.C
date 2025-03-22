@@ -452,7 +452,7 @@ int ReadResultsFile( const char* fname, Double_t* x_values, Double_t* y_values, 
 
    Int_t all = 0;
    Double_t fval1,fval2,fval3,fval4,fval5,fval6,mag,x,y;
-   long lval1,lval2,lval3,lval4;
+   long lval1=-1,lval2=-1,lval3=-1,lval4=-1;
 
    double sum20mhz=0.00;
    double total_sum=0.00;
@@ -481,7 +481,7 @@ int ReadResultsFile( const char* fname, Double_t* x_values, Double_t* y_values, 
       char* ptr=NULL;
       char* search_ptr=buff;
       int col=0;
-      while( ptr = strtok(search_ptr," \t") ){
+      while( (ptr = strtok(search_ptr," \t")) ){
          search_ptr = NULL;
          if( gVerb ){
               printf("ptr = %s\n",ptr);
