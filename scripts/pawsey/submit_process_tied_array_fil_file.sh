@@ -26,8 +26,8 @@ fi
 if [[ -s ${obsid}_${jobid}_MWAX_BEAMFORMER.tar ]]; then
    echo "File ${obsid}_${jobid}_MWAX_BEAMFORMER.tar exists -> no need to copy"
 else
-   echo "cp /scratch/mwavcs/asvo/1073849/1469203416_1073849_MWAX_BEAMFORMER.tar ."
-   cp /scratch/mwavcs/asvo/1073849/1469203416_1073849_MWAX_BEAMFORMER.tar .
+   echo "cp /scratch/mwavcs/asvo/${jobid}/${obsid}_${jobid}_MWAX_BEAMFORMER.tar ."
+   cp /scratch/mwavcs/asvo/${jobid}/${obsid}_${jobid}_MWAX_BEAMFORMER.tar .
    
    echo "tar xvf ${obsid}_${jobid}_MWAX_BEAMFORMER.tar"
    tar xvf ${obsid}_${jobid}_MWAX_BEAMFORMER.tar
