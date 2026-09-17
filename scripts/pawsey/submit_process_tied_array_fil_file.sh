@@ -3,7 +3,7 @@
 #SBATCH --mem=100GB
 #SBATCH --job-name=process_tied_array_fil_file
 #SBATCH --output=submit_process_tied_array_fil_file_%x-%j.out
-#SBATCH --error=submit_process_tied_array_fil_file__%x-%j.err
+#SBATCH --error=submit_process_tied_array_fil_file_%x-%j.err
 #SBATCH --partition=highmem
 #SBATCH --time=24:00:00
 
