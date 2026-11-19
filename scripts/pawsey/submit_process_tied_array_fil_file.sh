@@ -7,6 +7,12 @@
 #SBATCH --partition=highmem
 #SBATCH --time=24:00:00
 
+# 2025.08 software stack
+module load cpe/25.03 
+module swap pawseyenv/2026.11 pawseyenv/2025.08 
+module load gcc-native/14.2
+
+
 obsid=1469204016
 if [[ -n "$1" && "$1" != "-" ]]; then
    obsid=$1
