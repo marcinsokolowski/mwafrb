@@ -1,5 +1,10 @@
 #!/bin/bash
 
+# 2025.08 software stack
+module load cpe/25.03 
+module swap pawseyenv/2026.11 pawseyenv/2025.08 
+module load gcc-native/14.2
+
 template=1469203416_ch%d_beam00.fil
 if [[ -n "$1" && "$1" != "-" ]]; then
    template=$1
@@ -65,10 +70,10 @@ else
    cp ${avg_file} ${avg_file}_MERGED
 fi
 
-# exit;
-
 echo "dumpfilfile_float $out_file -S 0 > dump.out 2>&1"
 dumpfilfile_float $out_file -S 0 > dump.out 2>&1
+
+exit;
 
 mkdir -p images
 if [[ -n "$root_path" ]]; then
@@ -78,8 +83,8 @@ else
 fi   
 
 # 
-# echo "Finished here for now"
-# exit;
+echo "Finished here for now"
+exit;
 
 # just to check :
 # echo "cutimage 1313388760_20210819061222_ch145_146_147_01_out.fits -s 0 -e 20000 -f 1313388760_20210819061222_ch145_146_147_01_out_0-20000.fits"
@@ -140,6 +145,4 @@ cd ..
 # /home/msok/github/eda2frb/scripts/presto_single_pulse_aavs2.sh
 echo "/home/msok/github/eda2frb/scripts/presto_single_pulse_aavs2.sh 10 ${out_file} 100 0.1 185 - 200"
 /home/msok/github/eda2frb/scripts/presto_single_pulse_aavs2.sh 10 ${out_file} 100 0.1 185 - 200
-
-
 ###############################################################################################################################################################
