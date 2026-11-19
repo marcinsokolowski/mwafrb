@@ -1,6 +1,6 @@
 #!/bin/bash
-#SBATCH --cpus-per-task=4
-#SBATCH --mem=100GB
+#SBATCH --cpus-per-task=1
+#SBATCH --mem=400GB
 #SBATCH --job-name=process_tied_array_fil_file
 #SBATCH --output=submit_process_tied_array_fil_file_%x-%j.out
 #SBATCH --error=submit_process_tied_array_fil_file_%x-%j.err
