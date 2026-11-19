@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # 2025.08 software stack
-module load cpe/25.03 
-module swap pawseyenv/2026.11 pawseyenv/2025.08 
-module load gcc-native/14.2
+# module load cpe/25.03 
+# module swap pawseyenv/2026.11 pawseyenv/2025.08 
+# module load gcc-native/14.2
 
 template=1469203416_ch%d_beam00.fil
 if [[ -n "$1" && "$1" != "-" ]]; then
