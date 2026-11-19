@@ -65,7 +65,7 @@ else
    cp ${avg_file} ${avg_file}_MERGED
 fi
 
-exit;
+# exit;
 
 echo "dumpfilfile_float $out_file -S 0 > dump.out 2>&1"
 dumpfilfile_float $out_file -S 0 > dump.out 2>&1
@@ -78,8 +78,8 @@ else
 fi   
 
 # 
-echo "Finished here for now"
-exit;
+# echo "Finished here for now"
+# exit;
 
 # just to check :
 # echo "cutimage 1313388760_20210819061222_ch145_146_147_01_out.fits -s 0 -e 20000 -f 1313388760_20210819061222_ch145_146_147_01_out_0-20000.fits"
@@ -135,5 +135,11 @@ echo "frb_search_fredda_eda2_many_files.sh ${threshold_snr} ${norm_file} ${min_d
 frb_search_fredda_eda2_many_files.sh ${threshold_snr} ${norm_file} ${min_dm} total_power_fil_RunningMedian5_median.steps
 
 cd ..
+
+# or rather EDA2 version with PRESTO :
+# /home/msok/github/eda2frb/scripts/presto_single_pulse_aavs2.sh
+echo "/home/msok/github/eda2frb/scripts/presto_single_pulse_aavs2.sh 10 ${out_file} 100 0.1 185 - 200"
+/home/msok/github/eda2frb/scripts/presto_single_pulse_aavs2.sh 10 ${out_file} 100 0.1 185 - 200
+
 
 ###############################################################################################################################################################
